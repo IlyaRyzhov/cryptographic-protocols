@@ -437,6 +437,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
             A = F32(k64Cnt, q, k32e); // A uses even key entities
             B = F32(k64Cnt, q + SK_BUMP, k32o); // B uses odd  key entities
             B = B << 8 | B >>> 24;
+            System.out.println("A and B " + Integer.toHexString(A) + " " + Integer.toHexString(B));
             A += B;
             subKeys[2 * i] = A;               // combine with a PHT
             A += B;
@@ -459,6 +460,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
                     sBox[2 * i + 1] = MDS[1][(P[P_11][b1] & 0xFF) ^ b1(k0)];
                     sBox[0x200 + 2 * i] = MDS[2][(P[P_21][b2] & 0xFF) ^ b2(k0)];
                     sBox[0x200 + 2 * i + 1] = MDS[3][(P[P_31][b3] & 0xFF) ^ b3(k0)];
+
                     break;
                 case 0: // same as 4
                     b0 = (P[P_04][b0] & 0xFF) ^ b0(k3);
@@ -475,6 +477,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
                     sBox[2 * i + 1] = MDS[1][(P[P_11][(P[P_12][b1] & 0xFF) ^ b1(k1)] & 0xFF) ^ b1(k0)];
                     sBox[0x200 + 2 * i] = MDS[2][(P[P_21][(P[P_22][b2] & 0xFF) ^ b2(k1)] & 0xFF) ^ b2(k0)];
                     sBox[0x200 + 2 * i + 1] = MDS[3][(P[P_31][(P[P_32][b3] & 0xFF) ^ b3(k1)] & 0xFF) ^ b3(k0)];
+                    System.out.println("ssssssssssss" + sBox[2 * i] + " " + sBox[2 * i + 1] + " " + sBox[0x200 + 2 * i] + " " + sBox[0x200 + 2 * i + 1]);
             }
         }
 
@@ -564,6 +567,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
         for (int R = 0; R < ROUNDS; R += 2) {
             t0 = Fe32(sBox, x0, 0);
             t1 = Fe32(sBox, x1, 3);
+            System.out.println("t0: " + t0 + " t1: " + t1);
             x2 ^= t0 + t1 + sKey[k++];
             x2 = x2 >>> 1 | x2 << 31;
             x3 = x3 << 1 | x3 >>> 31;
@@ -573,6 +577,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
 
             t0 = Fe32(sBox, x2, 0);
             t1 = Fe32(sBox, x3, 3);
+            System.out.println("t0: " + t0 + " t1: " + t1);
             x0 ^= t0 + t1 + sKey[k++];
             x0 = x0 >>> 1 | x0 << 31;
             x1 = x1 << 1 | x1 >>> 31;
@@ -646,7 +651,7 @@ public final class Twofish_Algorithm // implicit no-argument constructor
         int k = ROUND_SUBKEYS + 2 * ROUNDS - 1;
         int t0, t1;
         for (int R = 0; R < ROUNDS; R += 2) {
-            t0 = Fe32(sBox, x2, 0);
+            t0 = Fe32(sBox, x2, 0);//выводить x
             t1 = Fe32(sBox, x3, 3);
             x1 ^= t0 + 2 * t1 + sKey[k--];
             x1 = x1 >>> 1 | x1 << 31;
@@ -923,9 +928,79 @@ public final class Twofish_Algorithm // implicit no-argument constructor
 // main(): use to generate the Intermediate Values KAT
 //...........................................................................
 
-    public static void main(String[] args) {
-        self_test(16);
+    public static void main(String[] args) throws InvalidKeyException {
+        //  blockEncrypt(new byte[]{(byte) 0x9f, 0x58, (byte) 0x9f, 0x5c, (byte) 0xf6, 0x12, 0x2c, 0x32, (byte) 0xb6, (byte) 0xbf, (byte) 0xec, 0x2f, 0x2a, (byte) 0xe8, (byte) 0xc3, 0x5a},0,makeKey(new byte[32]));
+        //  blockEncrypt(new byte[16], 0, makeKey(new byte[32]));
+
+       // blockEncrypt(new byte[]{(byte) 0xd4, (byte) 0x91, (byte) 0xdb, 0x16, (byte) 0xe7, (byte) 0xb1, (byte) 0xc3, (byte) 0x9e, (byte) 0x86, (byte) 0xcb, 0x08, 0x6b, 0x78, (byte) 0x9f, 0x54, 0x19}, 0, makeKey(new byte[]{(byte) 0x9f, 0x58, (byte) 0x9f, 0x5c, (byte) 0xf6, 0x12, 0x2c, 0x32, (byte) 0xb6, (byte) 0xbf, (byte) 0xec, 0x2f, 0x2a, (byte) 0xe8, (byte) 0xc3, 0x5a}));
+        blockEncrypt(new byte[]{(byte) 0xd4, (byte) 0x91, (byte) 0xdb, 0x16, (byte) 0xe7, (byte) 0xb1, (byte) 0xc3, (byte) 0x9e, (byte) 0x86, (byte) 0xcb, 0x08, 0x6b, 0x78, (byte) 0x9f, 0x54, 0x19}, 0,
+                makeKey(new byte[]{(byte) 0xD4,0x3B, (byte) 0xB7,0x55,0x6E, (byte) 0xA3,0x2E,0x46, (byte) 0xF2, (byte) 0xA2, (byte) 0x82, (byte) 0xB7, (byte) 0xD4,0x5B,0x4E,0x0D,0x57, (byte) 0xFF,
+                        0x73, (byte) 0x9D,0x4D, (byte) 0xC9,0x2C,0x1B, (byte) 0xD7, (byte) 0xFC,0x01,0x70,0x0C, (byte) 0xC8,0x21,0x6F}));
+
+
+
+
+        //makeKey(new byte[32]);
+        // makeKey(new byte[]{(byte) 0x9f, 0x58, (byte) 0x9f, 0x5c, (byte) 0xf6, 0x12, 0x2c, 0x32, (byte) 0xb6, (byte) 0xbf, (byte) 0xec, 0x2f, 0x2a, (byte) 0xe8, (byte) 0xc3, 0x5a});
+/*User (odd, even) keys  --> S-Box keys:
+0x322C12F6  0x5C9F589F --> 0x149C8A18
+0x5AC3E82A  0x2FECBFB6 --> 0xDC538B81
+
+Round keys:
+0x6A82F19B  0x509B2202
+0x78EA11EA  0xA1980BAE
+0x1FA27EF5  0x78F305E0
+0x984D4B31  0x6F8DA8C9
+0x2FA295F5  0xCACAC6B3
+0xD76E1622  0x11A04725
+0x20138AA3  0x0E351308
+0x54481A28  0x24FADDA0
+0x0C63C319  0xCCB2C05B
+0xE2F042D5  0xE9158B9F
+0x4CDF657B  0x36E28921
+0xFCB3D025  0xA66E1EEB
+0x19460597  0x77F0F7CC
+0x8A2DB2D5  0x10593266
+0x3936CBFD  0x91BA53D8
+0xB8592DFD  0x49AF519C
+0xA2035716  0x62F8ABBD
+0xF413E86A  0x36D0D8F3
+0xCCCBFFE4  0x1F4460FD
+0x38FDDFAA  0xEBC1F456*/
+        /*self_test(16);
         self_test(24);
-        self_test(32);
+        self_test(32);*/
+        /*User (odd, even) keys  --> S-Box keys:
+0x00000000  0x00000000 --> 0x00000000
+0x00000000  0x00000000 --> 0x00000000
+0x00000000  0x00000000 --> 0x00000000
+0x00000000  0x00000000 --> 0x00000000
+
+Round keys:
+0x5938B67B  0xF8C145BB
+0x9C8FCB90  0x871A59A0
+0x9C155A0A  0xE06345E9
+0x3CDC7C51  0xD1825DC8
+0x3F61AEC3  0xABA5E9B1
+0xCCBD37BF  0x6508EBA9
+0xC200B8B3  0x4E98A958
+0x1F3DF3A4  0x93A46BAA
+0x51AD9CB5  0x80769238
+0x7149193C  0xA44DAE05
+0x1ABC9C13  0x3550B2ED
+0x80995E4B  0x518821B5
+0x04613DA9  0xE036A7C9
+0x41468388  0x2EAD3ABF
+0xBA5D1D0C  0x88945649
+0x7BF348BC  0x474A359F
+0xC918F230  0x925DCF32
+0x80570301  0x89A1F8B4
+0x5A2047F0  0xA6755512
+0x07B1A0F3  0xB9F00BC9
+
+<== Twofish_Algorithm.makeKey()
+
+Process finished with exit code 0
+*/
     }
 }

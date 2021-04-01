@@ -6,7 +6,8 @@ public class TwoFishUtils {
     public TwoFishUtils(int k) {
         this.k = k;
     }
-//Скорее всего норм
+
+    //Правильно
     public int ROR4(int a) {//Циклический правый сдвиг для 4-х битных значений
         int lastBit = a & 1;
         a >>>= 1;
@@ -31,6 +32,7 @@ public class TwoFishUtils {
 
     //вроде не используется
     private char multiplyPolynomialsModPrimitive(char a, char b, char primitive) {
+
         int result = 0;
         for (int i = 0; i < 8; i++) {
             int lastBit = b & 1;
@@ -62,5 +64,12 @@ public class TwoFishUtils {
             }
         }
         return vectorOfBytes;
+    }
+
+    public static void main(String[] args) {
+        TwoFishUtils twoFishUtils = new TwoFishUtils(2);
+        for (int i = 0; i < 16; i++) {
+            System.out.println("i:" + Integer.toBinaryString(i) + " rotated" + Integer.toBinaryString(twoFishUtils.ROR4(i)));
+        }
     }
 }
