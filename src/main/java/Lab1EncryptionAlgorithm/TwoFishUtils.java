@@ -7,23 +7,37 @@ public class TwoFishUtils {
         this.k = k;
     }
 
-    public int ROR4(int a) {//Циклический правый сдвиг для 4-х битных значений
+    /**
+     * Циклический правый сдвиг для 4-х битных значений
+     *
+     * @param a 4-битное число
+     * @return результат применения циклического сдвига вправо для числа a
+     * @author Ilya Ryzhov
+     */
+    public int ROR4(int a) {
         int lastBit = a & 1;
         a >>>= 1;
         a ^= (lastBit << 3);
         return a;
     }
 
-    public int multiplyMatrixByVectorModPrimitive(byte[] vector, char[][] matrix, char primitive) {
-        byte[] resultVector = new byte[matrix.length];
+    /**
+     * Умножение матрицы многочленов на вектор многочленов
+     *
+     * @param matrix    матрица многочленов
+     * @param vector    вектор многочленов
+     * @param primitive примитивный многочлен степени 9
+     */
+    public int multiplyMatrixByVectorModPrimitive(char[] vector, char[][] matrix, char primitive) {
+        char[] resultVector = new char[matrix.length];
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
-                resultVector[i] ^= (byte) multiplyPolynomialsModPrimitive(matrix[i][j], (char) (vector[j] & 0xFF), primitive);
+                resultVector[i] ^= multiplyPolynomialsModPrimitive(matrix[i][j], (char) (vector[j] & 0xFF), primitive);
             }
         }
         int result = 0;
         for (int i = 0; i < resultVector.length; i++) {
-            result += Byte.toUnsignedInt(resultVector[i]) * (int) Math.pow(2, 8 * i);
+            result += (resultVector[i] & 0xFF) * (int) Math.pow(2, 8 * i);
         }
         return result;
     }
@@ -48,17 +62,32 @@ public class TwoFishUtils {
         return (a & 0b100000000) != 0 ? (char) (a ^ primitive) : a;
     }
 
-    public byte[] splitLongArrayToByteArray(long[] longs) {// разбиваем ключ M на mi
-        byte[] vectorOfBytes = new byte[8 * k];
+    /**
+     * Представление массива элементов типа long в виде массива элемента типов char(для разбиения ключа на 8-битные значения)
+     *
+     * @param longs массив long-ов
+     * @return массив char-ов содержащий в себе элементы от 0 до 255
+     * @author Ilya Ryzhov
+     */
+    public char[] splitLongArrayToByteArray(long[] longs) {
+        char[] vectorOfBytes = new char[8 * k];
         for (int i = 0; i < k; i++) {
             long partOfKey = longs[i];
-            for (int j = 0; j < 8; j++) {
-                vectorOfBytes[j + 8 * i] = (byte) ((partOfKey & 0xFFFF000000000000L) >>> 56);
-                partOfKey <<= 8;
+            for (int j = 7; j >= 0; j--) {
+                vectorOfBytes[j + 8 * i] = (char) ((partOfKey & 0xFF));
+                partOfKey >>>= 8;
             }
         }
         return vectorOfBytes;
     }
+
+    /**
+     * Преобразование массива char-ов в массив long-ов (для формирования ключа)
+     *
+     * @param chars массив из элементов 0..255, которые надо преобразовать в массив long
+     * @return массив long, соответствующий массиву chars
+     * @author Ilya Ryzhov
+     */
     public static long[] convertCharArrayToLongArray(char[] chars) {
         long[] result = new long[chars.length / 8];
         for (int i = 0; i < result.length; i++) {
@@ -72,10 +101,21 @@ public class TwoFishUtils {
         }
         return result;
     }
-    public static void main(String[] args) {
-        TwoFishUtils twoFishUtils = new TwoFishUtils(2);
-        for (int i = 0; i < 16; i++) {
-            System.out.println("i:" + Integer.toBinaryString(i) + " rotated" + Integer.toBinaryString(twoFishUtils.ROR4(i)));
+
+    /**
+     * Преобразование массива char-ов в массив int-ов (для формирования ключа)
+     *
+     * @param chars массив из элементов 0..255, которые надо преобразовать в массив int
+     * @return массив int-ов, соответствующий массиву chars, байты в элементах выходноо массива располагаются в порядке little-endian
+     * @author Ilya Ryzhov
+     */
+    public int[] convertCharArrayToIntArray(char[] chars) {
+        int[] ints = new int[4];
+        for (int i = 0; i < ints.length; i++) {
+            for (int j = 0; j < 4; j++) {
+                ints[i] += chars[4 * i + j] * (int) Math.pow(2, 8 * j);
+            }
         }
+        return ints;
     }
 }
