@@ -48,106 +48,7 @@ public class TwoFish {
         initializeKeyBasis();
         initializeExpandedKeyWords();
     }
-/*User (odd, even) keys  --> S-Box keys:
-0x322C12F6  0x5C9F589F --> 0x149C8A18
-0x5AC3E82A  0x2FECBFB6 --> 0xDC538B81
 
-Round keys:
-0x6A82F19B  0x509B2202
-0x78EA11EA  0xA1980BAE
-0x1FA27EF5  0x78F305E0
-0x984D4B31  0x6F8DA8C9
-0x2FA295F5  0xCACAC6B3
-0xD76E1622  0x11A04725
-0x20138AA3  0x0E351308
-0x54481A28  0x24FADDA0
-0x0C63C319  0xCCB2C05B
-0xE2F042D5  0xE9158B9F
-0x4CDF657B  0x36E28921
-0xFCB3D025  0xA66E1EEB
-0x19460597  0x77F0F7CC
-0x8A2DB2D5  0x10593266
-0x3936CBFD  0x91BA53D8
-0xB8592DFD  0x49AF519C
-0xA2035716  0x62F8ABBD
-0xF413E86A  0x36D0D8F3
-0xCCCBFFE4  0x1F4460FD
-0x38FDDFAA  0xEBC1F456
-
-<== Twofish_Algorithm.makeKey()
-==> Twofish_Algorithm.blockEncrypt([B@3ffc5af1, 0, [Ljava.lang.Object;@5e5792a0)
-PT=D491DB16E7B1C39E86CB086B789F5419
-PTw=7C59604FCE5893E513E2DA6CB8CC94D6
-t0: 369402942 t1: 1569100539
-CT0=7C59604FCE5893E558678BA1EA45B94A
-t0: -1609597041 t1: -459757290
-CT1=1027AF44E6503F2B58678BA1EA45B94A
-t0: 715019879 t1: -960288289
-CT2=1027AF44E6503F2B248940A412D2CFB8
-t0: -698205827 t1: 1198495757
-CT3=311F227B469C3960248940A412D2CFB8
-t0: -1277823115 t1: 1885488341
-CT4=311F227B469C39608A095FE344E8DE0A
-t0: -574490284 t1: -55505174
-CT5=463E34B44D01D0078A095FE344E8DE0A
-t0: -996624009 t1: 830232136
-CT6=463E34B44D01D007E47E956CD7A2533C
-t0: -259925028 t1: 1976408099
-CT7=129EB84818888B03E47E956CD7A2533C
-t0: -1546326113 t1: -636143531
-CT8=129EB84818888B03B9A75C7360B4FE6C
-t0: 928077003 t1: -1922375362
-CT9=2E3BA84B53915FABB9A75C7360B4FE6C
-t0: -2142281888 t1: -1379134802
-CT10=2E3BA84B53915FAB6F7AB13CACC8244C
-t0: -2121272164 t1: 804528679
-CT11=A3F376458C0535D06F7AB13CACC8244C
-t0: 157616814 t1: -1757834088
-CT12=A3F376458C0535D016EDA3B0C3409702
-t0: -566969873 t1: -1267653023
-CT13=92A55F7F65EDB40516EDA3B0C3409702
-t0: 2138695082 t1: -296584502
-CT14=92A55F7F65EDB405163AE1F4FDE2123E
-t0: -578188145 t1: -818860086
-CT15=3B8EE1BEAC768873163AE1F4FDE2123E
-CTw=A3C3AA8FC3FB20BA09989F01851117DE
-CT=019F9809DE1711858FAAC3A3BA20FBC3
-
-<== Twofish_Algorithm.blockEncrypt()
-
-Process finished with exit code 0
-*/
-
-    //Неправильно
-//TODO Не работате I=3
-    /*User (odd, even) keys  --> S-Box keys:
-<== Twofish_Algorithm.makeKey()
-==> Twofish_Algorithm.blockEncrypt([B@548e7350, 0, [Ljava.lang.Object;@1a968a59)
-0x462EA36E  0x55B73BD4 --> 0x42DECDAD
-0x0D4E5BD4  0xB782A2F2 --> 0x0F8E3CE2
-0x1B2CC94D  0x9D73FF57 --> 0x1B016E6E
-0x6F21C80C  0x7001FCD7 --> 0x10CD15C7
-    Round keys:
-0xA354793D  0x6E1A33F0
-0x6AB01A83  0x7DF52A97
-0x12FBC877  0xD427152A
-0xCF9EB934  0x69F6E699
-0x3CE0B947  0x7C5AB06D
-0x66D41AD8  0x4E9F86DD
-0xD25F6999  0xA3A35380
-0x5C7CC0E2  0x27517CE9
-0x9C43A538  0xB58D216A
-0x49136074  0x4053FA28
-0x8DD37CAC  0x2D732874
-0x725E993F  0x3F874A31
-0xC06B1D66  0xB3045D42
-0x69A78BF1  0x318E9035
-0x795D6178  0x7692A11C
-0xCF239AE9  0xBAFEB974
-0x8926908B  0xFFFC400D
-0x16A21CF1  0xEC65CFB2
-0x22AD4541  0x01A0F21F
-0x08FE84AB  0xEF282332*/
     public char[] cipherOneBlock(char[] plainText) {
         int[] plainTextWords = new int[4];
         for (int i = 0; i < plainTextWords.length; i++) {
@@ -176,13 +77,11 @@ Process finished with exit code 0
         }
         char[] cipherBytes = new char[16];
         for (int i = 0; i < cipherBytes.length; i++) {
-            // cipherBytes[i] = (char) ((cipherWords[i / 4] / (int) Math.pow(2, 8 * (i % 4))) & 0xFF);
             cipherBytes[i] = (char) ((cipherWords[i / 4] >>> 8 * (i % 4)) & 0xFF);
         }
         return cipherBytes;
     }
 
-    //скорее всего
     int[] fFnunction(int rZero, int rOne, int roundNumber) {
         int tZero = gFunction(rZero);
         int tOne = gFunction(Integer.rotateLeft(rOne, 8));
@@ -191,8 +90,6 @@ Process finished with exit code 0
         return new int[]{fZero, fOne};
     }
 
-    //Скорее всего не работает
-    //Todo попробоват подавать разные xi в h, получить вектор y и умножить
     int gFunction(int x) {
         int[] inputForHFunction = new int[k + 1];
         inputForHFunction[0] = x;
@@ -211,11 +108,10 @@ Process finished with exit code 0
         for (int i = 0; i < k; i++) {
             byte[] mVector = new byte[8];
             System.arraycopy(mKeys, 8 * i, mVector, 0, 8);
-            sVector[k - 1 - i] = twoFishUtils.multiplyMatrixByVectorModPrimitive(mVector, RS, RS_PRIMITIVE);//svector[i]
+            sVector[k - 1 - i] = twoFishUtils.multiplyMatrixByVectorModPrimitive(mVector, RS, RS_PRIMITIVE);
         }
     }
 
-    //Работает
     private void initializeExpandedKeyWords() {
         int p = (int) Math.pow(2, 24) + (int) Math.pow(2, 16) + (int) Math.pow(2, 8) + 1;
         for (int i = 0; i < 20; i++) {
@@ -245,7 +141,6 @@ Process finished with exit code 0
         }
         return MKeys;
     }
-
 
     int hFunction(int[] words) {
         int x = words[0];
@@ -304,38 +199,7 @@ Process finished with exit code 0
 
     //TODO оформить вывод, дописать расшифровку, протестить над k=4
     public static void main(String[] args) {
-/*        TwoFish twoFish2 = new TwoFish(new long[]{0xD43BB7556EA32E46L,0xF2A282B7D45B4E0DL,0x57FF739D4DC92C1BL,0xD7FC01700CC8216FL});
-        char[] cipherBytes = twoFish2.cipherOneBlock(new char[]{0xd4,0x91,0xdb,0x16,0xe7,0xb1,0xc3,0x9e,0x86,0xcb,0x08,0x6b,0x78,0x9f,0x54,0x19});
-*//*        TwoFish twoFish2= new TwoFish(new long[]{0,0});
-        char[] cipherBytes=twoFish2.cipherOneBlock(new char[16]);*//*
-        StringBuilder string2 = new StringBuilder();
-        for (int i = 0; i < cipherBytes.length; i++) {
-            //   string2.append(Integer.toHexString(Byte.toUnsignedInt(cipherBytes[i])));
-            StringBuilder hex = new StringBuilder(Integer.toHexString(cipherBytes[i]));
-            if (hex.length() == 1) {
-                hex.insert(0, "0");
-            }
-            string2.append(hex);
-        }
-        System.out.println(string2.toString());*/
-      /*  System.out.println(string2.toString().toUpperCase().equals("D491DB16E7B1C39E86CB086B789F5419")); //ne rabotaet
-        TwoFish twoFish_k_2 = new TwoFish(new long[]{0, 0});
-        char[] plainText = new char[]{0xd4, 0x91, 0xdb, 0x16, 0xe7, 0xb1, 0xc3, 0x9e, 0x86, 0xcb, 0x08, 0x6b, 0x78, 0x9f, 0x54, 0x19};
-        char[] cipherText = twoFish_k_2.cipherOneBlock(plainText);
-        for (int k = 0; k < cipherText.length; k++) {
-            StringBuilder hex = new StringBuilder(Integer.toHexString(cipherText[k]));
-            StringBuilder hexPT = new StringBuilder(Integer.toHexString(plainText[k]));
-            if (hex.length() == 1) {
-                hex.insert(0, "0");
-            }
-            if (hexPT.length() == 1) {
-                hexPT.insert(0, "0");
-            }
-            string2.append(hex);
-            //plainTextStringBuilder.append(hexPT);
-        }*/
-        /*System.out.println(string2);
-        new TwoFish(new long[]{0x9f589f5cf6122c32L, 0xb6bfec2f2ae8c35aL}).cipherOneBlock(new char[]{0xd4, 0x91, 0xdb, 0x16, 0xe7, 0xb1, 0xc3, 0x9e, 0x86, 0xcb, 0x08, 0x6b, 0x78, 0x9f, 0x54, 0x19});*/
+
         TwoFish twoFish_k_2 = new TwoFish(new long[]{0, 0});
         char[] plainText = new char[16];
         char[] cipherText = twoFish_k_2.cipherOneBlock(plainText);

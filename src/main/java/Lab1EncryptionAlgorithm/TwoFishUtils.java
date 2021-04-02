@@ -7,7 +7,6 @@ public class TwoFishUtils {
         this.k = k;
     }
 
-    //Правильно
     public int ROR4(int a) {//Циклический правый сдвиг для 4-х битных значений
         int lastBit = a & 1;
         a >>>= 1;
@@ -15,7 +14,6 @@ public class TwoFishUtils {
         return a;
     }
 
-    //Скорее всего правильно
     public int multiplyMatrixByVectorModPrimitive(byte[] vector, char[][] matrix, char primitive) {
         byte[] resultVector = new byte[matrix.length];
         for (int i = 0; i < matrix.length; i++) {
@@ -30,9 +28,7 @@ public class TwoFishUtils {
         return result;
     }
 
-    //вроде не используется
     private char multiplyPolynomialsModPrimitive(char a, char b, char primitive) {
-
         int result = 0;
         for (int i = 0; i < 8; i++) {
             int lastBit = b & 1;
@@ -48,12 +44,10 @@ public class TwoFishUtils {
         return (char) result;
     }
 
-    //вроде не используется
     private char modPrimitive(char a, char primitive) {
         return (a & 0b100000000) != 0 ? (char) (a ^ primitive) : a;
     }
 
-    //Правильно
     public byte[] splitLongArrayToByteArray(long[] longs) {// разбиваем ключ M на mi
         byte[] vectorOfBytes = new byte[8 * k];
         for (int i = 0; i < k; i++) {
@@ -65,7 +59,19 @@ public class TwoFishUtils {
         }
         return vectorOfBytes;
     }
-
+    public static long[] convertCharArrayToLongArray(char[] chars) {
+        long[] result = new long[chars.length / 8];
+        for (int i = 0; i < result.length; i++) {
+            long element = 0;
+            for (int j = 0; j < 8; j++) {
+                element ^= chars[8 * i + j];
+                if (j != 7)
+                    element <<= 8;
+            }
+            result[i] = element;
+        }
+        return result;
+    }
     public static void main(String[] args) {
         TwoFishUtils twoFishUtils = new TwoFishUtils(2);
         for (int i = 0; i < 16; i++) {
