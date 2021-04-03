@@ -1,11 +1,6 @@
 package Lab1EncryptionAlgorithm;
 
 public class TwoFishUtils {
-    private final int k;
-
-    public TwoFishUtils(int k) {
-        this.k = k;
-    }
 
     /**
      * Циклический правый сдвиг для 4-х битных значений
@@ -14,7 +9,7 @@ public class TwoFishUtils {
      * @return результат применения циклического сдвига вправо для числа a
      * @author Ilya Ryzhov
      */
-    public int ROR4(int a) {
+    public static int ROR4(int a) {
         int lastBit = a & 1;
         a >>>= 1;
         a ^= (lastBit << 3);
@@ -27,22 +22,29 @@ public class TwoFishUtils {
      * @param matrix    матрица многочленов
      * @param vector    вектор многочленов
      * @param primitive примитивный многочлен степени 9
+     * @return возвращает число полученное из вектора после умножения
+     * @author Ilya Ryzhov
      */
-    public int multiplyMatrixByVectorModPrimitive(char[] vector, char[][] matrix, char primitive) {
+    public static int multiplyMatrixByVectorModPrimitiveWithIntResult(char[] vector, char[][] matrix, char primitive) {
+        char[] resultVector = multiplyMatrixByVectorModPrimitive(vector, matrix, primitive);
+        int result = 0;
+        for (int i = 0; i < resultVector.length; i++) {
+            result += (resultVector[i] & 0xFF) * (1 << (8 * i));
+        }
+        return result;
+    }
+
+    public static char[] multiplyMatrixByVectorModPrimitive(char[] vector, char[][] matrix, char primitive) {
         char[] resultVector = new char[matrix.length];
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
                 resultVector[i] ^= multiplyPolynomialsModPrimitive(matrix[i][j], (char) (vector[j] & 0xFF), primitive);
             }
         }
-        int result = 0;
-        for (int i = 0; i < resultVector.length; i++) {
-            result += (resultVector[i] & 0xFF) * (int) Math.pow(2, 8 * i);
-        }
-        return result;
+        return resultVector;
     }
 
-    private char multiplyPolynomialsModPrimitive(char a, char b, char primitive) {
+    private static char multiplyPolynomialsModPrimitive(char a, char b, char primitive) {
         int result = 0;
         for (int i = 0; i < 8; i++) {
             int lastBit = b & 1;
@@ -58,7 +60,7 @@ public class TwoFishUtils {
         return (char) result;
     }
 
-    private char modPrimitive(char a, char primitive) {
+    private static char modPrimitive(char a, char primitive) {
         return (a & 0b100000000) != 0 ? (char) (a ^ primitive) : a;
     }
 
@@ -69,9 +71,9 @@ public class TwoFishUtils {
      * @return массив char-ов содержащий в себе элементы от 0 до 255
      * @author Ilya Ryzhov
      */
-    public char[] splitLongArrayToByteArray(long[] longs) {
-        char[] vectorOfBytes = new char[8 * k];
-        for (int i = 0; i < k; i++) {
+    public static char[] splitLongArrayToByteArray(long[] longs) {
+        char[] vectorOfBytes = new char[8 * longs.length];
+        for (int i = 0; i < longs.length; i++) {
             long partOfKey = longs[i];
             for (int j = 7; j >= 0; j--) {
                 vectorOfBytes[j + 8 * i] = (char) ((partOfKey & 0xFF));
@@ -109,11 +111,11 @@ public class TwoFishUtils {
      * @return массив int-ов, соответствующий массиву chars, байты в элементах выходноо массива располагаются в порядке little-endian
      * @author Ilya Ryzhov
      */
-    public int[] convertCharArrayToIntArray(char[] chars) {
+    public static int[] convertCharArrayToIntArray(char[] chars) {
         int[] ints = new int[4];
         for (int i = 0; i < ints.length; i++) {
             for (int j = 0; j < 4; j++) {
-                ints[i] += chars[4 * i + j] * (int) Math.pow(2, 8 * j);
+                ints[i] += chars[4 * i + j] * (1 << (8 * j));
             }
         }
         return ints;

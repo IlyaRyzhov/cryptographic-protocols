@@ -1,52 +1,72 @@
 package Lab1EncryptionAlgorithm;
 
+import java.util.Arrays;
+
+import static Lab1EncryptionAlgorithm.TwoFishUtils.*;
+
 public class TwoFish {
     private final int k;
     private final int[] wordsOfExpandedKey;
     private final long[] key;
-    private static final char MDS_PRIMITIVE = 0b101101001;
-    private static final char RS_PRIMITIVE = 0b101001101;
-    private final TwoFishUtils twoFishUtils;
+    private static final char MDS_PRIMITIVE;
+    private static final char RS_PRIMITIVE;
     private final int[] evenMMembers;
     private final int[] oddMMembers;
     private final int[] sVector;
-    private static final char[][] Q_ZERO = {
-            {0x8, 0x1, 0x7, 0xD, 0x6, 0xF, 0x3, 0x2, 0x0, 0xB, 0x5, 0x9, 0xE, 0xC, 0xA, 0x4},
-            {0xE, 0xC, 0xB, 0x8, 0x1, 0x2, 0x3, 0x5, 0xF, 0x4, 0xA, 0x6, 0x7, 0x0, 0x9, 0xD},
-            {0xB, 0xA, 0x5, 0xE, 0x6, 0xD, 0x9, 0x0, 0xC, 0x8, 0xF, 0x3, 0x2, 0x4, 0x7, 0x1},
-            {0xD, 0x7, 0xF, 0x4, 0x1, 0x2, 0x6, 0xE, 0x9, 0xB, 0x3, 0x0, 0x8, 0x5, 0xC, 0xA}
-    };
-    private static final char[][] Q_ONE = {
-            {0x2, 0x8, 0xB, 0xD, 0xF, 0x7, 0x6, 0xE, 0x3, 0x1, 0x9, 0x4, 0x0, 0xA, 0xC, 0x5},
-            {0x1, 0xE, 0x2, 0xB, 0x4, 0xC, 0x3, 0x7, 0x6, 0xD, 0xA, 0x5, 0xF, 0x9, 0x0, 0x8},
-            {0x4, 0xC, 0x7, 0x5, 0x1, 0x6, 0x9, 0xA, 0x0, 0xE, 0xD, 0x8, 0x2, 0xB, 0x3, 0xF},
-            {0xB, 0x9, 0x5, 0x1, 0xC, 0x3, 0xD, 0xE, 0x6, 0x4, 0x7, 0xF, 0x2, 0x0, 0x8, 0xA}
-    };
-    private static final char[][] MDS = {
-            {0x01, 0xEF, 0x5B, 0x5B},
-            {0x5B, 0xEF, 0xEF, 0x01},
-            {0xEF, 0x5B, 0x01, 0xEF},
-            {0xEF, 0x01, 0xEF, 0x5B}
-    };
-    private final char[][] RS = {
-            {0x01, 0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E},
-            {0xA4, 0x56, 0x82, 0xF3, 0x1E, 0xC6, 0x68, 0xE5},
-            {0x02, 0xA1, 0xFC, 0xC1, 0x47, 0xAE, 0x3D, 0x19},
-            {0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E, 0x03}
-    };
+    private final char[][] keyDependentSBoxes;
+    private static final char[][] Q_ZERO;
+    private static final char[][] Q_ONE;
+    private static final char[][] MDS;
+    private static final char[][] RS;
+    private static final char[][][] coordinatesOfResultVectorMdsMultipliedByYVector;
+
+    static {
+        RS = new char[][]{
+                {0x01, 0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E},
+                {0xA4, 0x56, 0x82, 0xF3, 0x1E, 0xC6, 0x68, 0xE5},
+                {0x02, 0xA1, 0xFC, 0xC1, 0x47, 0xAE, 0x3D, 0x19},
+                {0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E, 0x03}
+        };
+        Q_ONE = new char[][]{
+                {0x2, 0x8, 0xB, 0xD, 0xF, 0x7, 0x6, 0xE, 0x3, 0x1, 0x9, 0x4, 0x0, 0xA, 0xC, 0x5},
+                {0x1, 0xE, 0x2, 0xB, 0x4, 0xC, 0x3, 0x7, 0x6, 0xD, 0xA, 0x5, 0xF, 0x9, 0x0, 0x8},
+                {0x4, 0xC, 0x7, 0x5, 0x1, 0x6, 0x9, 0xA, 0x0, 0xE, 0xD, 0x8, 0x2, 0xB, 0x3, 0xF},
+                {0xB, 0x9, 0x5, 0x1, 0xC, 0x3, 0xD, 0xE, 0x6, 0x4, 0x7, 0xF, 0x2, 0x0, 0x8, 0xA}
+        };
+        MDS = new char[][]{
+                {0x01, 0xEF, 0x5B, 0x5B},
+                {0x5B, 0xEF, 0xEF, 0x01},
+                {0xEF, 0x5B, 0x01, 0xEF},
+                {0xEF, 0x01, 0xEF, 0x5B}
+        };
+        Q_ZERO = new char[][]{
+                {0x8, 0x1, 0x7, 0xD, 0x6, 0xF, 0x3, 0x2, 0x0, 0xB, 0x5, 0x9, 0xE, 0xC, 0xA, 0x4},
+                {0xE, 0xC, 0xB, 0x8, 0x1, 0x2, 0x3, 0x5, 0xF, 0x4, 0xA, 0x6, 0x7, 0x0, 0x9, 0xD},
+                {0xB, 0xA, 0x5, 0xE, 0x6, 0xD, 0x9, 0x0, 0xC, 0x8, 0xF, 0x3, 0x2, 0x4, 0x7, 0x1},
+                {0xD, 0x7, 0xF, 0x4, 0x1, 0x2, 0x6, 0xE, 0x9, 0xB, 0x3, 0x0, 0x8, 0x5, 0xC, 0xA}
+        };
+        MDS_PRIMITIVE = 0b101101001;
+        RS_PRIMITIVE = 0b101001101;
+        coordinatesOfResultVectorMdsMultipliedByYVector = new char[4][256][4];
+        initializeCoordinatesOfResultVectorMdsMultipliedByYVector();
+    }
+
+    {
+        wordsOfExpandedKey = new int[40];
+        keyDependentSBoxes = new char[4][256];
+    }
 
     public TwoFish(long[] key) {
         if (key.length == 1) {
             this.key = new long[]{key[0], 0L};
         } else this.key = key;
         k = key.length;
-        twoFishUtils = new TwoFishUtils(k);
         evenMMembers = new int[k];
         oddMMembers = new int[k];
         sVector = new int[k];
-        wordsOfExpandedKey = new int[40];
         initializeKeyBasis();
         initializeExpandedKeyWords();
+        initializeSBoxes();
     }
 
     /**
@@ -57,7 +77,7 @@ public class TwoFish {
      * @author Ilya Ryzhov
      */
     public char[] encryptOneBlock(char[] plainText) {
-        int[] plainTextWords = twoFishUtils.convertCharArrayToIntArray(plainText);
+        int[] plainTextWords = convertCharArrayToIntArray(plainText);
         int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = plainTextWords[i] ^ wordsOfExpandedKey[i];
@@ -92,8 +112,8 @@ public class TwoFish {
      * @author Ilya Ryzhov
      */
     public char[] decryptOneBlock(char[] cipherText) {
-        int[] cipherTextWords = twoFishUtils.convertCharArrayToIntArray(cipherText);
-        int[] rZero = new int[4];//отбел
+        int[] cipherTextWords = convertCharArrayToIntArray(cipherText);
+        int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = cipherTextWords[i] ^ wordsOfExpandedKey[i + 4];
         }
@@ -111,7 +131,6 @@ public class TwoFish {
             roundMinusOneR[0] = roundR[2];
             roundMinusOneR[1] = roundR[3];
             System.arraycopy(roundMinusOneR, 0, roundR, 0, roundMinusOneR.length);
-
         }
         int[] plainWords = new int[4];
         for (int i = 0; i < plainWords.length; i++) {
@@ -135,10 +154,26 @@ public class TwoFish {
     }
 
     private int gFunction(int x) {
+        int yVector = (keyDependentSBoxes[0][(x & 0xFF)]) << 24 ^ (keyDependentSBoxes[1][((x >>> 8) & 0xFF)]) << 16
+                ^ (keyDependentSBoxes[2][((x >>> 16) & 0xFF)]) << 8 ^ (keyDependentSBoxes[3][((x >>> 24) & 0xFF)]);
+        return multiplyMdsByYVector(yVector);
+    }
+
+    private void initializeSBoxes() {
         int[] inputForHFunction = new int[k + 1];
-        inputForHFunction[0] = x;
         System.arraycopy(sVector, 0, inputForHFunction, 1, sVector.length);
-        return hFunction(inputForHFunction);
+        for (int i = 0; i < 256; i++) {
+            inputForHFunction[0] = 0;
+            for (int j = 0; j < 4; j++) {
+                inputForHFunction[0] ^= i;
+                if (j != 3)
+                    inputForHFunction[0] <<= 8;
+            }
+            char[] yVector = getYVectorOfHFunction(inputForHFunction);
+            for (int j = 0; j < 4; j++) {
+                keyDependentSBoxes[j][i] = yVector[j];
+            }
+        }
     }
 
     private void initializeKeyBasis() {
@@ -148,16 +183,39 @@ public class TwoFish {
                 evenMMembers[i / 2] = vectorM[i];
             else oddMMembers[i / 2] = vectorM[i];
         }
-        char[] mKeys = twoFishUtils.splitLongArrayToByteArray(key);
+        char[] mKeys = splitLongArrayToByteArray(key);
         for (int i = 0; i < k; i++) {
             char[] mVector = new char[8];
             System.arraycopy(mKeys, 8 * i, mVector, 0, 8);
-            sVector[k - 1 - i] = twoFishUtils.multiplyMatrixByVectorModPrimitive(mVector, RS, RS_PRIMITIVE);
+            sVector[k - 1 - i] = multiplyMatrixByVectorModPrimitiveWithIntResult(mVector, RS, RS_PRIMITIVE);
         }
     }
 
+    private static void initializeCoordinatesOfResultVectorMdsMultipliedByYVector() {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 256; j++) {
+                char[] vector = new char[4];
+                vector[i] = (char) j;
+                coordinatesOfResultVectorMdsMultipliedByYVector[i][j] = multiplyMatrixByVectorModPrimitive(vector, MDS, MDS_PRIMITIVE);
+            }
+        }
+    }
+
+    private int multiplyMdsByYVector(int yVector) {
+        int resultOfMultiplication = 0;
+        yVector = Integer.reverseBytes(yVector);
+        for (int i = 0; i < 4; i++) {
+            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][0]);
+            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][1] << 8);
+            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][2] << 16);
+            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][3] << 24);
+            yVector >>>= 8;
+        }
+        return resultOfMultiplication;
+    }
+
     private void initializeExpandedKeyWords() {
-        int p = (int) Math.pow(2, 24) + (int) Math.pow(2, 16) + (int) Math.pow(2, 8) + 1;
+        int p = (1 << 24) + (1 << 16) + (1 << 8) + 1;
         for (int i = 0; i < 20; i++) {
             int[] hInputForA = new int[evenMMembers.length + 1];
             hInputForA[0] = 2 * i * p;
@@ -173,12 +231,12 @@ public class TwoFish {
     }
 
     private int[] generateMKeys(long[] key) {
-        char[] mKeys = twoFishUtils.splitLongArrayToByteArray(key);
+        char[] mKeys = splitLongArrayToByteArray(key);
         int[] MKeys = new int[2 * k];
         for (int i = 0; i < 2 * k; i++) {
             int Mi = 0;
             for (int j = 0; j < 4; j++) {
-                int term = (mKeys[4 * i + j] & 0xFF) * (int) Math.pow(2, 8 * j);
+                int term = (mKeys[4 * i + j] & 0xFF) * (1 << (8 * j));
                 Mi += term;
             }
             MKeys[i] = Mi;
@@ -186,7 +244,7 @@ public class TwoFish {
         return MKeys;
     }
 
-    private int hFunction(int[] words) {
+    private char[] getYVectorOfHFunction(int[] words) {
         int x = words[0];
         char[] bytesOfX = new char[4];
         for (int i = 0; i < 4; i++) {
@@ -223,7 +281,13 @@ public class TwoFish {
                 y[0][3] = qSubstitution((char) (qSubstitution((char) (qSubstitution(y[1][3], Q_ONE) ^ bytesOfL[1][3]), Q_ONE) ^ bytesOfL[0][3]), Q_ZERO);
             }
         }
-        return twoFishUtils.multiplyMatrixByVectorModPrimitive(y[0], MDS, MDS_PRIMITIVE);
+        return y[0];
+    }
+
+    private int hFunction(int[] words) {
+        char[] yVectorArray = getYVectorOfHFunction(words);
+        int yVector = yVectorArray[0] << 24 ^ yVectorArray[1] << 16 ^ yVectorArray[2] << 8 ^ yVectorArray[3];
+        return multiplyMdsByYVector(yVector);
     }
 
     private char qSubstitution(char x, char[][] qTable) {
@@ -231,11 +295,11 @@ public class TwoFish {
         int a0 = unsignedX / 16;
         int b0 = unsignedX % 16;
         int a1 = a0 ^ b0;
-        int b1 = (a0 ^ twoFishUtils.ROR4(b0) ^ (8 * a0)) % 16;
+        int b1 = (a0 ^ ROR4(b0) ^ (8 * a0)) % 16;
         int a2 = qTable[0][a1];
         int b2 = qTable[1][b1];
         int a3 = a2 ^ b2;
-        int b3 = (a2 ^ twoFishUtils.ROR4(b2) ^ (8 * a2)) % 16;
+        int b3 = (a2 ^ ROR4(b2) ^ (8 * a2)) % 16;
         int a4 = qTable[2][a3];
         int b4 = qTable[3][b3];
         return (char) (16 * b4 + a4);
@@ -243,12 +307,25 @@ public class TwoFish {
 
     //TODO добавить работу с файлами, протестить скорость работы
     public static void main(String[] args) {
-        TwoFish twoFish = new TwoFish(new long[2]);
-        long start=System.currentTimeMillis();
+
+        TwoFish twoFish = new TwoFish(new long[4]);
+        System.out.println(twoFish.multiplyMdsByYVector(-1289790555));
+        char[] y = new char[4];
+        y[0] = 0xB3;
+        y[1] = 0x1f;
+        y[2] = 0x5b;
+        y[3] = 0xa5;
+        System.out.println(multiplyMatrixByVectorModPrimitiveWithIntResult(y, MDS, MDS_PRIMITIVE));
+        long start = System.currentTimeMillis();
+        char[] chars = new char[16];
+        Arrays.fill(chars, (char) 0xFF);
         for (int i = 0; i < 1000000; i++) {
-            twoFish.encryptOneBlock(new char[16]);
+               twoFish.encryptOneBlock(new char[16]);
+           // twoFish.gFunction(Integer.MAX_VALUE);
+            //   twoFish.multiplyMdsByYVector(chars);
         }
-        System.out.println((System.currentTimeMillis()-start)/1000);
+        System.out.println((System.currentTimeMillis() - start));
+
     }
 }
 
