@@ -1,5 +1,7 @@
 package Lab1EncryptionAlgorithm;
 
+import java.util.Arrays;
+
 public class TwoFishUtils {
 
     /**
@@ -25,31 +27,27 @@ public class TwoFishUtils {
      * @return возвращает число полученное из вектора после умножения
      * @author Ilya Ryzhov
      */
-    public static int multiplyMatrixByVectorModPrimitiveWithIntResult(char[] vector, char[][] matrix, char primitive) {
-        char[] resultVector = multiplyMatrixByVectorModPrimitive(vector, matrix, primitive);
-        int result = 0;
-        for (int i = 0; i < resultVector.length; i++) {
-            result += (resultVector[i] & 0xFF) * (1 << (8 * i));
-        }
-        return result;
+    public static int multiplyMatrixByVectorModPrimitiveWithIntResult(byte[] vector, byte[][] matrix, char primitive) {
+        byte[] resultVector = multiplyMatrixByVectorModPrimitive(vector, matrix, primitive);
+        return Integer.reverseBytes(convertByteArrayToInt(resultVector));
     }
 
-    public static char[] multiplyMatrixByVectorModPrimitive(char[] vector, char[][] matrix, char primitive) {
-        char[] resultVector = new char[matrix.length];
+    public static byte[] multiplyMatrixByVectorModPrimitive(byte[] vector, byte[][] matrix, char primitive) {
+        byte[] resultVector = new byte[matrix.length];
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
-                resultVector[i] ^= multiplyPolynomialsModPrimitive(matrix[i][j], (char) (vector[j] & 0xFF), primitive);
+                resultVector[i] ^= multiplyPolynomialsModPrimitive(matrix[i][j], vector[j], primitive);
             }
         }
         return resultVector;
     }
 
-    private static char multiplyPolynomialsModPrimitive(char a, char b, char primitive) {
+    private static byte multiplyPolynomialsModPrimitive(byte a, byte b, char primitive) {
         int result = 0;
         for (int i = 0; i < 8; i++) {
             int lastBit = b & 1;
             if (lastBit != 0) {
-                int addendum = a;
+                int addendum = a & 0xFF;
                 for (int j = 0; j < i; j++) {
                     addendum = modPrimitive((char) (addendum << 1), primitive);
                 }
@@ -57,7 +55,7 @@ public class TwoFishUtils {
             }
             b >>>= 1;
         }
-        return (char) result;
+        return (byte) result;
     }
 
     private static char modPrimitive(char a, char primitive) {
@@ -65,18 +63,18 @@ public class TwoFishUtils {
     }
 
     /**
-     * Представление массива элементов типа long в виде массива элемента типов char(для разбиения ключа на 8-битные значения)
+     * Представление массива элементов типа long в виде массива элементов типа byte(для разбиения ключа на 8-битные значения)
      *
      * @param longs массив long-ов
-     * @return массив char-ов содержащий в себе элементы от 0 до 255
+     * @return массив байтов
      * @author Ilya Ryzhov
      */
-    public static char[] splitLongArrayToByteArray(long[] longs) {
-        char[] vectorOfBytes = new char[8 * longs.length];
+    public static byte[] splitLongArrayToByteArray(long[] longs) {
+        byte[] vectorOfBytes = new byte[8 * longs.length];
         for (int i = 0; i < longs.length; i++) {
             long partOfKey = longs[i];
             for (int j = 7; j >= 0; j--) {
-                vectorOfBytes[j + 8 * i] = (char) ((partOfKey & 0xFF));
+                vectorOfBytes[j + 8 * i] = (byte) (partOfKey);
                 partOfKey >>>= 8;
             }
         }
@@ -84,18 +82,18 @@ public class TwoFishUtils {
     }
 
     /**
-     * Преобразование массива char-ов в массив long-ов (для формирования ключа)
+     * Преобразование массива байтов в массив long-ов (для формирования ключа)
      *
-     * @param chars массив из элементов 0..255, которые надо преобразовать в массив long
-     * @return массив long, соответствующий массиву chars
+     * @param bytes массив байтов, которые надо преобразовать в массив long
+     * @return массив long, соответствующий массиву bytes
      * @author Ilya Ryzhov
      */
-    public static long[] convertCharArrayToLongArray(char[] chars) {
-        long[] result = new long[chars.length / 8];
+    public static long[] convertByteArrayToLongArray(byte[] bytes) {
+        long[] result = new long[bytes.length / 8];
         for (int i = 0; i < result.length; i++) {
             long element = 0;
             for (int j = 0; j < 8; j++) {
-                element ^= chars[8 * i + j];
+                element ^= (bytes[8 * i + j] & 0xFF);
                 if (j != 7)
                     element <<= 8;
             }
@@ -105,19 +103,35 @@ public class TwoFishUtils {
     }
 
     /**
-     * Преобразование массива char-ов в массив int-ов (для формирования ключа)
+     * Преобразование массива байтов в массив int-ов (для формирования ключа)
      *
-     * @param chars массив из элементов 0..255, которые надо преобразовать в массив int
-     * @return массив int-ов, соответствующий массиву chars, байты в элементах выходноо массива располагаются в порядке little-endian
+     * @param bytes массив байтов, которые надо преобразовать в массив int
+     * @return массив int-ов, соответствующий массиву bytes, байты в элементах выходноо массива располагаются в порядке little-endian
      * @author Ilya Ryzhov
      */
-    public static int[] convertCharArrayToIntArray(char[] chars) {
+    public static int[] convertByteArrayToIntArray(byte[] bytes) {
         int[] ints = new int[4];
         for (int i = 0; i < ints.length; i++) {
-            for (int j = 0; j < 4; j++) {
-                ints[i] += chars[4 * i + j] * (1 << (8 * j));
-            }
+            ints[i] = Integer.reverseBytes(convertByteArrayToInt(Arrays.copyOfRange(bytes, 4 * i, 4 * i + 4)));
         }
         return ints;
     }
+
+    /**
+     * Преобразование массива байтов в целое число
+     *
+     * @param bytes массив байтов
+     * @return целое число, составленное из массива bytes, байты в числе идут в том же порядке, что и в массиве
+     * @author ILya Ryzhov
+     */
+    public static int convertByteArrayToInt(byte[] bytes) {
+        return (bytes[0] & 0xFF) << 24 ^ (bytes[1] & 0xFF) << 16 ^ (bytes[2] & 0xFF) << 8 ^ (bytes[3] & 0xFF);
+    }
+
+ /*   public static String createEncryptedFileName(String fileName) {
+        int indexOfLastDotInFileName = fileName.lastIndexOf('.');
+        String extension = fileName.substring(indexOfLastDotInFileName);
+        return fileName.substring(0, fileName.lastIndexOf(".")) + "Encrypted" + extension;
+    }*/
+
 }

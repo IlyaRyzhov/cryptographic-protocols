@@ -1,5 +1,6 @@
 package Lab1EncryptionAlgorithm;
 
+import java.io.*;
 import java.util.Arrays;
 
 import static Lab1EncryptionAlgorithm.TwoFishUtils.*;
@@ -13,33 +14,33 @@ public class TwoFish {
     private final int[] evenMMembers;
     private final int[] oddMMembers;
     private final int[] sVector;
-    private final char[][] keyDependentSBoxes;
-    private static final char[][] Q_ZERO;
-    private static final char[][] Q_ONE;
-    private static final char[][] MDS;
-    private static final char[][] RS;
-    private static final char[][][] coordinatesOfResultVectorMdsMultipliedByYVector;
+    private final byte[][] keyDependentSBoxes;
+    private static final byte[][] Q_ZERO;
+    private static final byte[][] Q_ONE;
+    private static final byte[][] MDS;
+    private static final byte[][] RS;
+    private static final byte[][][] coordinatesOfResultVectorMdsMultipliedByYVector;
 
     static {
-        RS = new char[][]{
-                {0x01, 0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E},
-                {0xA4, 0x56, 0x82, 0xF3, 0x1E, 0xC6, 0x68, 0xE5},
-                {0x02, 0xA1, 0xFC, 0xC1, 0x47, 0xAE, 0x3D, 0x19},
-                {0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E, 0x03}
+        RS = new byte[][]{
+                {0x01, (byte) 0xA4, 0x55, (byte) 0x87, 0x5A, 0x58, (byte) 0xDB, (byte) 0x9E},
+                {(byte) 0xA4, 0x56, (byte) 0x82, (byte) 0xF3, 0x1E, (byte) 0xC6, 0x68, (byte) 0xE5},
+                {0x02, (byte) 0xA1, (byte) 0xFC, (byte) 0xC1, 0x47, (byte) 0xAE, 0x3D, 0x19},
+                {(byte) 0xA4, 0x55, (byte) 0x87, 0x5A, 0x58, (byte) 0xDB, (byte) 0x9E, 0x03}
         };
-        Q_ONE = new char[][]{
+        Q_ONE = new byte[][]{
                 {0x2, 0x8, 0xB, 0xD, 0xF, 0x7, 0x6, 0xE, 0x3, 0x1, 0x9, 0x4, 0x0, 0xA, 0xC, 0x5},
                 {0x1, 0xE, 0x2, 0xB, 0x4, 0xC, 0x3, 0x7, 0x6, 0xD, 0xA, 0x5, 0xF, 0x9, 0x0, 0x8},
                 {0x4, 0xC, 0x7, 0x5, 0x1, 0x6, 0x9, 0xA, 0x0, 0xE, 0xD, 0x8, 0x2, 0xB, 0x3, 0xF},
                 {0xB, 0x9, 0x5, 0x1, 0xC, 0x3, 0xD, 0xE, 0x6, 0x4, 0x7, 0xF, 0x2, 0x0, 0x8, 0xA}
         };
-        MDS = new char[][]{
-                {0x01, 0xEF, 0x5B, 0x5B},
-                {0x5B, 0xEF, 0xEF, 0x01},
-                {0xEF, 0x5B, 0x01, 0xEF},
-                {0xEF, 0x01, 0xEF, 0x5B}
+        MDS = new byte[][]{
+                {0x01, (byte) 0xEF, 0x5B, 0x5B},
+                {0x5B, (byte) 0xEF, (byte) 0xEF, 0x01},
+                {(byte) 0xEF, 0x5B, 0x01, (byte) 0xEF},
+                {(byte) 0xEF, 0x01, (byte) 0xEF, 0x5B}
         };
-        Q_ZERO = new char[][]{
+        Q_ZERO = new byte[][]{
                 {0x8, 0x1, 0x7, 0xD, 0x6, 0xF, 0x3, 0x2, 0x0, 0xB, 0x5, 0x9, 0xE, 0xC, 0xA, 0x4},
                 {0xE, 0xC, 0xB, 0x8, 0x1, 0x2, 0x3, 0x5, 0xF, 0x4, 0xA, 0x6, 0x7, 0x0, 0x9, 0xD},
                 {0xB, 0xA, 0x5, 0xE, 0x6, 0xD, 0x9, 0x0, 0xC, 0x8, 0xF, 0x3, 0x2, 0x4, 0x7, 0x1},
@@ -47,13 +48,13 @@ public class TwoFish {
         };
         MDS_PRIMITIVE = 0b101101001;
         RS_PRIMITIVE = 0b101001101;
-        coordinatesOfResultVectorMdsMultipliedByYVector = new char[4][256][4];
+        coordinatesOfResultVectorMdsMultipliedByYVector = new byte[4][256][4];
         initializeCoordinatesOfResultVectorMdsMultipliedByYVector();
     }
 
     {
         wordsOfExpandedKey = new int[40];
-        keyDependentSBoxes = new char[4][256];
+        keyDependentSBoxes = new byte[4][256];
     }
 
     public TwoFish(long[] key) {
@@ -76,8 +77,9 @@ public class TwoFish {
      * @return зашифрованный блок
      * @author Ilya Ryzhov
      */
-    public char[] encryptOneBlock(char[] plainText) {
-        int[] plainTextWords = convertCharArrayToIntArray(plainText);
+    public byte[] encryptOneBlock(byte[] plainText) {
+
+        int[] plainTextWords = convertByteArrayToIntArray(plainText);
         int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = plainTextWords[i] ^ wordsOfExpandedKey[i];
@@ -97,9 +99,9 @@ public class TwoFish {
         for (int i = 0; i < cipherWords.length; i++) {
             cipherWords[i] = roundPlusOneR[(i + 2) % 4] ^ wordsOfExpandedKey[i + 4];
         }
-        char[] cipherBytes = new char[16];
+        byte[] cipherBytes = new byte[16];
         for (int i = 0; i < cipherBytes.length; i++) {
-            cipherBytes[i] = (char) ((cipherWords[i / 4] >>> 8 * (i % 4)) & 0xFF);
+            cipherBytes[i] = (byte) ((cipherWords[i / 4] >>> 8 * (i % 4)));
         }
         return cipherBytes;
     }
@@ -111,8 +113,8 @@ public class TwoFish {
      * @return расшифрованный блок
      * @author Ilya Ryzhov
      */
-    public char[] decryptOneBlock(char[] cipherText) {
-        int[] cipherTextWords = convertCharArrayToIntArray(cipherText);
+    public byte[] decryptOneBlock(byte[] cipherText) {
+        int[] cipherTextWords = convertByteArrayToIntArray(cipherText);
         int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = cipherTextWords[i] ^ wordsOfExpandedKey[i + 4];
@@ -136,10 +138,10 @@ public class TwoFish {
         for (int i = 0; i < plainWords.length; i++) {
             plainWords[i] = roundMinusOneR[(i + 2) % 4] ^ wordsOfExpandedKey[(i + 2) % 4];
         }
-        char[] plainBytes = new char[16];
+        byte[] plainBytes = new byte[16];
         for (int i = 0; i < plainWords.length; i++) {
             for (int j = 0; j < 4; j++) {
-                plainBytes[4 * i + j] = (char) ((plainWords[(i + 2) % 4] >>> 8 * j) & 0xFF);
+                plainBytes[4 * i + j] = (byte) ((plainWords[(i + 2) % 4] >>> 8 * j));
             }
         }
         return plainBytes;
@@ -154,8 +156,9 @@ public class TwoFish {
     }
 
     private int gFunction(int x) {
-        int yVector = (keyDependentSBoxes[0][(x & 0xFF)]) << 24 ^ (keyDependentSBoxes[1][((x >>> 8) & 0xFF)]) << 16
-                ^ (keyDependentSBoxes[2][((x >>> 16) & 0xFF)]) << 8 ^ (keyDependentSBoxes[3][((x >>> 24) & 0xFF)]);
+        byte[] yVectorArray = new byte[]{keyDependentSBoxes[0][x & 0xFF], keyDependentSBoxes[1][(x >>> 8) & 0xFF],
+                keyDependentSBoxes[2][(x >>> 16) & 0xFF], keyDependentSBoxes[3][(x >>> 24) & 0xFF]};
+        int yVector = convertByteArrayToInt(yVectorArray);
         return multiplyMdsByYVector(yVector);
     }
 
@@ -169,7 +172,7 @@ public class TwoFish {
                 if (j != 3)
                     inputForHFunction[0] <<= 8;
             }
-            char[] yVector = getYVectorOfHFunction(inputForHFunction);
+            byte[] yVector = getYVectorOfHFunction(inputForHFunction);
             for (int j = 0; j < 4; j++) {
                 keyDependentSBoxes[j][i] = yVector[j];
             }
@@ -183,9 +186,9 @@ public class TwoFish {
                 evenMMembers[i / 2] = vectorM[i];
             else oddMMembers[i / 2] = vectorM[i];
         }
-        char[] mKeys = splitLongArrayToByteArray(key);
+        byte[] mKeys = splitLongArrayToByteArray(key);
         for (int i = 0; i < k; i++) {
-            char[] mVector = new char[8];
+            byte[] mVector = new byte[8];
             System.arraycopy(mKeys, 8 * i, mVector, 0, 8);
             sVector[k - 1 - i] = multiplyMatrixByVectorModPrimitiveWithIntResult(mVector, RS, RS_PRIMITIVE);
         }
@@ -194,8 +197,8 @@ public class TwoFish {
     private static void initializeCoordinatesOfResultVectorMdsMultipliedByYVector() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 256; j++) {
-                char[] vector = new char[4];
-                vector[i] = (char) j;
+                byte[] vector = new byte[4];
+                vector[i] = (byte) j;
                 coordinatesOfResultVectorMdsMultipliedByYVector[i][j] = multiplyMatrixByVectorModPrimitive(vector, MDS, MDS_PRIMITIVE);
             }
         }
@@ -205,10 +208,7 @@ public class TwoFish {
         int resultOfMultiplication = 0;
         yVector = Integer.reverseBytes(yVector);
         for (int i = 0; i < 4; i++) {
-            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][0]);
-            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][1] << 8);
-            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][2] << 16);
-            resultOfMultiplication ^= (coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector&0xFF][3] << 24);
+            resultOfMultiplication ^= Integer.reverseBytes(convertByteArrayToInt(coordinatesOfResultVectorMdsMultipliedByYVector[i][yVector & 0xFF]));
             yVector >>>= 8;
         }
         return resultOfMultiplication;
@@ -231,7 +231,7 @@ public class TwoFish {
     }
 
     private int[] generateMKeys(long[] key) {
-        char[] mKeys = splitLongArrayToByteArray(key);
+        byte[] mKeys = splitLongArrayToByteArray(key);
         int[] MKeys = new int[2 * k];
         for (int i = 0; i < 2 * k; i++) {
             int Mi = 0;
@@ -244,88 +244,158 @@ public class TwoFish {
         return MKeys;
     }
 
-    private char[] getYVectorOfHFunction(int[] words) {
+    private byte[] getYVectorOfHFunction(int[] words) {
         int x = words[0];
-        char[] bytesOfX = new char[4];
+        byte[] bytesOfX = new byte[4];
         for (int i = 0; i < 4; i++) {
-            bytesOfX[i] = (char) (x & 0xFF);
+            bytesOfX[i] = (byte) x;
             x >>>= 8;
         }
-        char[][] bytesOfL = new char[k][4];
+        byte[][] bytesOfL = new byte[k][4];
         for (int i = 0; i < k; i++) {
             int word = words[i + 1];
             for (int j = 0; j < 4; j++) {
-                bytesOfL[i][j] = (char) (word & 0xFF);
+                bytesOfL[i][j] = (byte) word;
                 word >>>= 8;
             }
         }
-        char[][] y = new char[k][4];
+        byte[][] y = new byte[k][4];
         System.arraycopy(bytesOfX, 0, y[k - 1], 0, 4);
         switch (k) {
             case 4: {
-                y[2][0] = (char) (qSubstitution(y[3][0], Q_ONE) ^ bytesOfL[3][0]);
-                y[2][1] = (char) (qSubstitution(y[3][1], Q_ZERO) ^ bytesOfL[3][1]);
-                y[2][2] = (char) (qSubstitution(y[3][2], Q_ZERO) ^ bytesOfL[3][2]);
-                y[2][3] = (char) (qSubstitution(y[3][3], Q_ONE) ^ bytesOfL[3][3]);
+                y[2][0] = (byte) (qSubstitution(y[3][0], Q_ONE) ^ bytesOfL[3][0]);
+                y[2][1] = (byte) (qSubstitution(y[3][1], Q_ZERO) ^ bytesOfL[3][1]);
+                y[2][2] = (byte) (qSubstitution(y[3][2], Q_ZERO) ^ bytesOfL[3][2]);
+                y[2][3] = (byte) (qSubstitution(y[3][3], Q_ONE) ^ bytesOfL[3][3]);
             }
             case 3: {
-                y[1][0] = (char) (qSubstitution(y[2][0], Q_ONE) ^ bytesOfL[2][0]);
-                y[1][1] = (char) (qSubstitution(y[2][1], Q_ONE) ^ bytesOfL[2][1]);
-                y[1][2] = (char) (qSubstitution(y[2][2], Q_ZERO) ^ bytesOfL[2][2]);
-                y[1][3] = (char) (qSubstitution(y[2][3], Q_ZERO) ^ bytesOfL[2][3]);
+                y[1][0] = (byte) (qSubstitution(y[2][0], Q_ONE) ^ bytesOfL[2][0]);
+                y[1][1] = (byte) (qSubstitution(y[2][1], Q_ONE) ^ bytesOfL[2][1]);
+                y[1][2] = (byte) (qSubstitution(y[2][2], Q_ZERO) ^ bytesOfL[2][2]);
+                y[1][3] = (byte) (qSubstitution(y[2][3], Q_ZERO) ^ bytesOfL[2][3]);
             }
             default: {
-                y[0][0] = qSubstitution((char) (qSubstitution((char) (qSubstitution(y[1][0], Q_ZERO) ^ bytesOfL[1][0]), Q_ZERO) ^ bytesOfL[0][0]), Q_ONE);
-                y[0][1] = qSubstitution((char) (qSubstitution((char) (qSubstitution(y[1][1], Q_ONE) ^ bytesOfL[1][1]), Q_ZERO) ^ bytesOfL[0][1]), Q_ZERO);
-                y[0][2] = qSubstitution((char) (qSubstitution((char) (qSubstitution(y[1][2], Q_ZERO) ^ bytesOfL[1][2]), Q_ONE) ^ bytesOfL[0][2]), Q_ONE);
-                y[0][3] = qSubstitution((char) (qSubstitution((char) (qSubstitution(y[1][3], Q_ONE) ^ bytesOfL[1][3]), Q_ONE) ^ bytesOfL[0][3]), Q_ZERO);
+                y[0][0] = qSubstitution((byte) (qSubstitution((byte) (qSubstitution(y[1][0], Q_ZERO) ^ bytesOfL[1][0]), Q_ZERO) ^ bytesOfL[0][0]), Q_ONE);
+                y[0][1] = qSubstitution((byte) (qSubstitution((byte) (qSubstitution(y[1][1], Q_ONE) ^ bytesOfL[1][1]), Q_ZERO) ^ bytesOfL[0][1]), Q_ZERO);
+                y[0][2] = qSubstitution((byte) (qSubstitution((byte) (qSubstitution(y[1][2], Q_ZERO) ^ bytesOfL[1][2]), Q_ONE) ^ bytesOfL[0][2]), Q_ONE);
+                y[0][3] = qSubstitution((byte) (qSubstitution((byte) (qSubstitution(y[1][3], Q_ONE) ^ bytesOfL[1][3]), Q_ONE) ^ bytesOfL[0][3]), Q_ZERO);
             }
         }
         return y[0];
     }
 
     private int hFunction(int[] words) {
-        char[] yVectorArray = getYVectorOfHFunction(words);
-        int yVector = yVectorArray[0] << 24 ^ yVectorArray[1] << 16 ^ yVectorArray[2] << 8 ^ yVectorArray[3];
+        byte[] yVectorArray = getYVectorOfHFunction(words);
+        int yVector = convertByteArrayToInt(yVectorArray);
         return multiplyMdsByYVector(yVector);
     }
 
-    private char qSubstitution(char x, char[][] qTable) {
+    private byte qSubstitution(byte x, byte[][] qTable) {
         int unsignedX = x & 0xFF;
         int a0 = unsignedX / 16;
         int b0 = unsignedX % 16;
         int a1 = a0 ^ b0;
         int b1 = (a0 ^ ROR4(b0) ^ (8 * a0)) % 16;
-        int a2 = qTable[0][a1];
-        int b2 = qTable[1][b1];
+        int a2 = qTable[0][a1] & 0xFF;
+        int b2 = qTable[1][b1] & 0xFF;
         int a3 = a2 ^ b2;
         int b3 = (a2 ^ ROR4(b2) ^ (8 * a2)) % 16;
-        int a4 = qTable[2][a3];
-        int b4 = qTable[3][b3];
-        return (char) (16 * b4 + a4);
+        int a4 = qTable[2][a3] & 0xFF;
+        int b4 = qTable[3][b3] & 0xFF;
+        return (byte) (16 * b4 + a4);
+    }
+
+    public boolean encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
+        try (FileInputStream fileInputStream = new FileInputStream(fileToEncrypt)) {
+            File encryptedFile = new File(pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted");
+            if (!encryptedFile.exists()) {
+                encryptedFile.createNewFile();
+                try (FileOutputStream fileOutputStream = new FileOutputStream(encryptedFile)) {
+                    byte[] bytes = fileInputStream.readAllBytes();
+                    int numberOfBlocksToEncrypt = bytes.length / 16;
+                    for (int i = 0; i < numberOfBlocksToEncrypt; i++) {
+                        fileOutputStream.write(encryptOneBlock(Arrays.copyOfRange(bytes, i * 16, i * 16 + 16)));
+                    }
+                    int numberOfLastBytes = bytes.length % 16;
+                    if (numberOfLastBytes != 0) {
+                        byte[] lastBlock = new byte[16];
+                        System.arraycopy(bytes, numberOfBlocksToEncrypt * 16, lastBlock, 0, numberOfLastBytes);
+                        fileOutputStream.write(encryptOneBlock(lastBlock));
+                    }
+                }
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
+        try (FileInputStream fileInputStream = new FileInputStream(fileToDecrypt)) {
+            String nameOfFileToDecrypt = fileToDecrypt.getName();
+            int lastIndexOfDot = nameOfFileToDecrypt.lastIndexOf('.');
+            String extension = nameOfFileToDecrypt.substring(lastIndexOfDot);
+            if (!extension.equals(".encrypted"))
+                return false;
+            String decryptedFileName = "decrypted_" + nameOfFileToDecrypt.substring(0, lastIndexOfDot);
+            File decryptedFile = new File(pathForDecryptedFile + File.separator + decryptedFileName);
+            if (!decryptedFile.exists()) {
+                decryptedFile.createNewFile();
+                try (FileOutputStream fileOutputStream = new FileOutputStream(decryptedFile)) {
+                    byte[] bytes = fileInputStream.readAllBytes();
+                    int numberOfBlocksToDecrypt = bytes.length / 16;
+                    for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
+                        fileOutputStream.write(decryptOneBlock(Arrays.copyOfRange(bytes, i * 16, i * 16 + 16)));
+                    }
+                }
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     //TODO добавить работу с файлами, протестить скорость работы
-    public static void main(String[] args) {
-
-        TwoFish twoFish = new TwoFish(new long[4]);
+    public static void main(String[] args) throws IOException {
+       /* TwoFish twoFish=new TwoFish(new long[2]);
+        System.out.println(TwoFishUtils.multiplyMatrixByVectorModPrimitiveWithIntResult(new byte[]{0,0,0,1},MDS,MDS_PRIMITIVE));
+        System.out.println(Integer.toHexString(twoFish.multiplyMdsByYVector(1)));
+        byte[] b=twoFish.encryptOneBlock(new byte[16]);
+        for (int i = 0; i <b.length ; i++) {
+            System.out.print(Integer.toHexString(b[i]&0xff));
+        }*/
+        File file = new File("C:\\Users\\fvd\\Desktop\\SleepTimeRecommendations.jpg");
+        TwoFish twoFish = new TwoFish(new long[2]);
+        System.out.println(twoFish.encryptFile(file, "C:\\Users\\fvd\\Desktop"));
+        File file1 = new File("C:\\Users\\fvd\\Desktop\\SleepTimeRecommendations.jpg.encrypted");
+        System.out.println(twoFish.decryptFile(file1, "D:\\JavaProjects\\cryptographic-protocols\\src\\main\\java\\Lab1EncryptionAlgorithm"));
+/*        byte[] bytes = fileInputStream.readAllBytes();
+        for (int i = 0; i < bytes.length; i++) {
+            System.out.print(Integer.toHexString(bytes[i] & 0xFF) + " ");
+        }
+        for (int i = 0; i < bytes.length - 1; i++) {
+            System.out.print((char) ((bytes[i])));
+        }*/
+        //    byte[] mas = fileInputStream.readAllBytes();
+/*        TwoFish twoFish = new TwoFish(new long[4]);
         System.out.println(twoFish.multiplyMdsByYVector(-1289790555));
         char[] y = new char[4];
         y[0] = 0xB3;
         y[1] = 0x1f;
         y[2] = 0x5b;
         y[3] = 0xa5;
-        System.out.println(multiplyMatrixByVectorModPrimitiveWithIntResult(y, MDS, MDS_PRIMITIVE));
+        //System.out.println(multiplyMatrixByVectorModPrimitiveWithIntResult(y, MDS, MDS_PRIMITIVE));
         long start = System.currentTimeMillis();
-        char[] chars = new char[16];
-        Arrays.fill(chars, (char) 0xFF);
+        byte[] bytes1 = new byte[16];
+        Arrays.fill(bytes1, (byte) 0xFF);
         for (int i = 0; i < 1000000; i++) {
-               twoFish.encryptOneBlock(new char[16]);
-           // twoFish.gFunction(Integer.MAX_VALUE);
+            twoFish.encryptOneBlock(new byte[16]);
+            // twoFish.gFunction(Integer.MAX_VALUE);
             //   twoFish.multiplyMdsByYVector(chars);
         }
-        System.out.println((System.currentTimeMillis() - start));
-
+        System.out.println((System.currentTimeMillis() - start));*/
     }
 }
 

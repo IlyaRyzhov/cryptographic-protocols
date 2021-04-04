@@ -1,3 +1,6 @@
 /out/
 /.idea/
 /cryptographic-protocols.iml
+/target/
+/src/main/java/Lab1EncryptionAlgorithm/Twofish_Algorithm.java
+/src/main/java/Lab1EncryptionAlgorithm/Twofish_Properties.java
