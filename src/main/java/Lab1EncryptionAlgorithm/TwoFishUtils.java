@@ -1,5 +1,6 @@
 package Lab1EncryptionAlgorithm;
 
+import java.io.File;
 import java.util.Arrays;
 
 public class TwoFishUtils {
@@ -19,7 +20,7 @@ public class TwoFishUtils {
     }
 
     /**
-     * Умножение матрицы многочленов на вектор многочленов
+     * Умножение матрицы многочленов на вектор многочленов с целочисленным результатом
      *
      * @param matrix    матрица многочленов
      * @param vector    вектор многочленов
@@ -31,7 +32,15 @@ public class TwoFishUtils {
         byte[] resultVector = multiplyMatrixByVectorModPrimitive(vector, matrix, primitive);
         return Integer.reverseBytes(convertByteArrayToInt(resultVector));
     }
-
+    /**
+     * Умножение матрицы многочленов на вектор многочленов с результатом в виде массива байтов.
+     *
+     * @param matrix    матрица многочленов
+     * @param vector    вектор многочленов
+     * @param primitive примитивный многочлен степени 9
+     * @return возвращает массив byte полученный из вектора после умножения
+     * @author Ilya Ryzhov
+     */
     public static byte[] multiplyMatrixByVectorModPrimitive(byte[] vector, byte[][] matrix, char primitive) {
         byte[] resultVector = new byte[matrix.length];
         for (int i = 0; i < matrix.length; i++) {
@@ -69,7 +78,7 @@ public class TwoFishUtils {
      * @return массив байтов
      * @author Ilya Ryzhov
      */
-    public static byte[] splitLongArrayToByteArray(long[] longs) {
+    public static byte[] convertLongArrayToByteArray(long[] longs) {
         byte[] vectorOfBytes = new byte[8 * longs.length];
         for (int i = 0; i < longs.length; i++) {
             long partOfKey = longs[i];
@@ -128,10 +137,29 @@ public class TwoFishUtils {
         return (bytes[0] & 0xFF) << 24 ^ (bytes[1] & 0xFF) << 16 ^ (bytes[2] & 0xFF) << 8 ^ (bytes[3] & 0xFF);
     }
 
- /*   public static String createEncryptedFileName(String fileName) {
-        int indexOfLastDotInFileName = fileName.lastIndexOf('.');
-        String extension = fileName.substring(indexOfLastDotInFileName);
-        return fileName.substring(0, fileName.lastIndexOf(".")) + "Encrypted" + extension;
-    }*/
+    /**
+     * Создает абсолютное имя зашифрованного файла
+     *
+     * @param fileToEncrypt        файл, который нужно зашифровать
+     * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
+     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, имени файла и постфикса .encrypted
+     * @author ILya Ryzhov
+     */
+    public static String createAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
+        return pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted";
+    }
 
+    /**
+     * Создает абсолютное имя расшифрованного файла
+     *
+     * @param fileToDecrypt        файл, который нужно расшифровать
+     * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
+     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, префикса decrypted_
+     * и исходного имени файла до шифрования(без постфикса .encrypted)
+     * @author ILya Ryzhov
+     */
+    public static String createAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
+        String nameOfFileToDecrypt = fileToDecrypt.getName();
+        return pathForDecryptedFile + File.separator + "decrypted_" + nameOfFileToDecrypt.substring(0, nameOfFileToDecrypt.indexOf(".encrypted"));
+    }
 }

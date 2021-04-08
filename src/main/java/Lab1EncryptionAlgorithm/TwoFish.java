@@ -147,6 +147,83 @@ public class TwoFish {
         return plainBytes;
     }
 
+    /**
+     * Шифрует файл
+     *
+     * @param fileToEncrypt        файл, который нужно зашифровать
+     * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
+     * @author ILya Ryzhov
+     */
+    public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
+            while (bufferedInputStream.available() > 0) {
+                byte[] plainData = new byte[Math.min(1048576, bufferedInputStream.available())];
+                bufferedInputStream.read(plainData, 0, plainData.length);
+                int numberOfBlocksToEncrypt = plainData.length / 16;
+                int remainderBytes = plainData.length % 16;
+                byte[] cipherData = new byte[(numberOfBlocksToEncrypt + 1) * 16];
+                for (int i = 0; i < numberOfBlocksToEncrypt; i++) {
+                    byte[] blockOfPlainData = Arrays.copyOfRange(plainData, i * 16, (i + 1) * 16);
+                    System.arraycopy(encryptOneBlock(blockOfPlainData), 0, cipherData, i * 16, 16);
+                }
+                byte[] paddingBlock = new byte[16];
+                if (remainderBytes == 0) {
+                    paddingBlock[0] = 1;
+                } else {
+                    System.arraycopy(plainData, numberOfBlocksToEncrypt * 16, paddingBlock, 0, remainderBytes);
+                    paddingBlock[remainderBytes] = 1;
+                }
+                System.arraycopy(encryptOneBlock(paddingBlock), 0, cipherData, numberOfBlocksToEncrypt * 16, 16);
+                bufferedOutputStream.write(cipherData);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Расшифровывает файл
+     *
+     * @param fileToDecrypt        файл, который нужно расшифровать, имеет расширение .encrypted
+     * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
+     * @author ILya Ryzhov
+     */
+    public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
+            while (bufferedInputStream.available() > 0) {
+                byte[] cipherData = new byte[Math.min(1048576, bufferedInputStream.available())];
+                bufferedInputStream.read(cipherData, 0, cipherData.length);
+                int numberOfBlocksToDecrypt = cipherData.length / 16;
+                byte[] plainData = new byte[numberOfBlocksToDecrypt * 16];
+                for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
+                    byte[] blockOfCipherData = Arrays.copyOfRange(cipherData, i * 16, (i + 1) * 16);
+                    System.arraycopy(decryptOneBlock(blockOfCipherData), 0, plainData, i * 16, 16);
+                }
+                if (bufferedInputStream.available() > 0)
+                    bufferedOutputStream.write(plainData);
+                else {
+                    byte[] lastBlock = new byte[16];
+                    System.arraycopy(plainData, (numberOfBlocksToDecrypt - 1) * 16, lastBlock, 0, 16);
+                    int indexOfLastOne = 0;
+                    for (int i = 15; i >= 0; i--) {
+                        if (lastBlock[i] == 1) {
+                            indexOfLastOne = i;
+                            break;
+                        }
+                    }
+                    bufferedOutputStream.write(plainData, 0, plainData.length - 16);
+                    bufferedOutputStream.write(Arrays.copyOfRange(lastBlock, 0, indexOfLastOne));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private int[] fFunction(int rZero, int rOne, int roundNumber) {
         int tZero = gFunction(rZero);
         int tOne = gFunction(Integer.rotateLeft(rOne, 8));
@@ -166,12 +243,9 @@ public class TwoFish {
         int[] inputForHFunction = new int[k + 1];
         System.arraycopy(sVector, 0, inputForHFunction, 1, sVector.length);
         for (int i = 0; i < 256; i++) {
-            inputForHFunction[0] = 0;
-            for (int j = 0; j < 4; j++) {
-                inputForHFunction[0] ^= i;
-                if (j != 3)
-                    inputForHFunction[0] <<= 8;
-            }
+            byte[] arrayOfI = new byte[4];
+            Arrays.fill(arrayOfI, (byte) i);
+            inputForHFunction[0] = convertByteArrayToInt(arrayOfI);
             byte[] yVector = getYVectorOfHFunction(inputForHFunction);
             for (int j = 0; j < 4; j++) {
                 keyDependentSBoxes[j][i] = yVector[j];
@@ -186,7 +260,7 @@ public class TwoFish {
                 evenMMembers[i / 2] = vectorM[i];
             else oddMMembers[i / 2] = vectorM[i];
         }
-        byte[] mKeys = splitLongArrayToByteArray(key);
+        byte[] mKeys = convertLongArrayToByteArray(key);
         for (int i = 0; i < k; i++) {
             byte[] mVector = new byte[8];
             System.arraycopy(mKeys, 8 * i, mVector, 0, 8);
@@ -231,7 +305,7 @@ public class TwoFish {
     }
 
     private int[] generateMKeys(long[] key) {
-        byte[] mKeys = splitLongArrayToByteArray(key);
+        byte[] mKeys = convertLongArrayToByteArray(key);
         int[] MKeys = new int[2 * k];
         for (int i = 0; i < 2 * k; i++) {
             int Mi = 0;
@@ -305,98 +379,18 @@ public class TwoFish {
         return (byte) (16 * b4 + a4);
     }
 
-    public boolean encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
-        try (FileInputStream fileInputStream = new FileInputStream(fileToEncrypt)) {
-            File encryptedFile = new File(pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted");
-            if (!encryptedFile.exists()) {
-                encryptedFile.createNewFile();
-                try (FileOutputStream fileOutputStream = new FileOutputStream(encryptedFile)) {
-                    byte[] bytes = fileInputStream.readAllBytes();
-                    int numberOfBlocksToEncrypt = bytes.length / 16;
-                    for (int i = 0; i < numberOfBlocksToEncrypt; i++) {
-                        fileOutputStream.write(encryptOneBlock(Arrays.copyOfRange(bytes, i * 16, i * 16 + 16)));
-                    }
-                    int numberOfLastBytes = bytes.length % 16;
-                    if (numberOfLastBytes != 0) {
-                        byte[] lastBlock = new byte[16];
-                        System.arraycopy(bytes, numberOfBlocksToEncrypt * 16, lastBlock, 0, numberOfLastBytes);
-                        fileOutputStream.write(encryptOneBlock(lastBlock));
-                    }
-                }
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+
+/*    public void setKey(long[] key) {
+        this.key = key;
+        initializeKeyBasis();
+        initializeExpandedKeyWords();
+        initializeSBoxes();
     }
 
-    public boolean decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
-        try (FileInputStream fileInputStream = new FileInputStream(fileToDecrypt)) {
-            String nameOfFileToDecrypt = fileToDecrypt.getName();
-            int lastIndexOfDot = nameOfFileToDecrypt.lastIndexOf('.');
-            String extension = nameOfFileToDecrypt.substring(lastIndexOfDot);
-            if (!extension.equals(".encrypted"))
-                return false;
-            String decryptedFileName = "decrypted_" + nameOfFileToDecrypt.substring(0, lastIndexOfDot);
-            File decryptedFile = new File(pathForDecryptedFile + File.separator + decryptedFileName);
-            if (!decryptedFile.exists()) {
-                decryptedFile.createNewFile();
-                try (FileOutputStream fileOutputStream = new FileOutputStream(decryptedFile)) {
-                    byte[] bytes = fileInputStream.readAllBytes();
-                    int numberOfBlocksToDecrypt = bytes.length / 16;
-                    for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
-                        fileOutputStream.write(decryptOneBlock(Arrays.copyOfRange(bytes, i * 16, i * 16 + 16)));
-                    }
-                }
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+    public long[] getKey() {
+        return key;
+    }*/
 
-    //TODO добавить работу с файлами, протестить скорость работы
-    public static void main(String[] args) throws IOException {
-       /* TwoFish twoFish=new TwoFish(new long[2]);
-        System.out.println(TwoFishUtils.multiplyMatrixByVectorModPrimitiveWithIntResult(new byte[]{0,0,0,1},MDS,MDS_PRIMITIVE));
-        System.out.println(Integer.toHexString(twoFish.multiplyMdsByYVector(1)));
-        byte[] b=twoFish.encryptOneBlock(new byte[16]);
-        for (int i = 0; i <b.length ; i++) {
-            System.out.print(Integer.toHexString(b[i]&0xff));
-        }*/
-        File file = new File("C:\\Users\\fvd\\Desktop\\SleepTimeRecommendations.jpg");
-        TwoFish twoFish = new TwoFish(new long[2]);
-        System.out.println(twoFish.encryptFile(file, "C:\\Users\\fvd\\Desktop"));
-        File file1 = new File("C:\\Users\\fvd\\Desktop\\SleepTimeRecommendations.jpg.encrypted");
-        System.out.println(twoFish.decryptFile(file1, "D:\\JavaProjects\\cryptographic-protocols\\src\\main\\java\\Lab1EncryptionAlgorithm"));
-/*        byte[] bytes = fileInputStream.readAllBytes();
-        for (int i = 0; i < bytes.length; i++) {
-            System.out.print(Integer.toHexString(bytes[i] & 0xFF) + " ");
-        }
-        for (int i = 0; i < bytes.length - 1; i++) {
-            System.out.print((char) ((bytes[i])));
-        }*/
-        //    byte[] mas = fileInputStream.readAllBytes();
-/*        TwoFish twoFish = new TwoFish(new long[4]);
-        System.out.println(twoFish.multiplyMdsByYVector(-1289790555));
-        char[] y = new char[4];
-        y[0] = 0xB3;
-        y[1] = 0x1f;
-        y[2] = 0x5b;
-        y[3] = 0xa5;
-        //System.out.println(multiplyMatrixByVectorModPrimitiveWithIntResult(y, MDS, MDS_PRIMITIVE));
-        long start = System.currentTimeMillis();
-        byte[] bytes1 = new byte[16];
-        Arrays.fill(bytes1, (byte) 0xFF);
-        for (int i = 0; i < 1000000; i++) {
-            twoFish.encryptOneBlock(new byte[16]);
-            // twoFish.gFunction(Integer.MAX_VALUE);
-            //   twoFish.multiplyMdsByYVector(chars);
-        }
-        System.out.println((System.currentTimeMillis() - start));*/
-    }
 }
 
 
