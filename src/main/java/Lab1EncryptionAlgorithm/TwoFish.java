@@ -3,8 +3,8 @@ package Lab1EncryptionAlgorithm;
 import java.io.*;
 import java.util.Arrays;
 
-import static Lab1EncryptionAlgorithm.TwoFishUtils.*;
-
+import static Utils.TwoFishUtils.*;
+import  static Utils.CommonUtils.*;
 public class TwoFish {
     private final int k;
     private final int[] wordsOfExpandedKey;
@@ -79,7 +79,7 @@ public class TwoFish {
      */
     public byte[] encryptOneBlock(byte[] plainText) {
 
-        int[] plainTextWords = convertByteArrayToIntArray(plainText);
+        int[] plainTextWords = convertByteArrayToIntArrayLittleEndian(plainText);
         int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = plainTextWords[i] ^ wordsOfExpandedKey[i];
@@ -114,7 +114,7 @@ public class TwoFish {
      * @author Ilya Ryzhov
      */
     public byte[] decryptOneBlock(byte[] cipherText) {
-        int[] cipherTextWords = convertByteArrayToIntArray(cipherText);
+        int[] cipherTextWords = convertByteArrayToIntArrayLittleEndian(cipherText);
         int[] rZero = new int[4];
         for (int i = 0; i < rZero.length; i++) {
             rZero[i] = cipherTextWords[i] ^ wordsOfExpandedKey[i + 4];

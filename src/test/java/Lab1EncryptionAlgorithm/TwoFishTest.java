@@ -3,7 +3,7 @@ package Lab1EncryptionAlgorithm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static Lab1EncryptionAlgorithm.TwoFishUtils.convertByteArrayToLongArray;
+import static Utils.CommonUtils.convertByteArrayToLongArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class TwoFishTest {
