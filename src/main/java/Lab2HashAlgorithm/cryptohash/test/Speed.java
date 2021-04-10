@@ -2,7 +2,9 @@
 
 package Lab2HashAlgorithm.cryptohash.test;
 
-import fr.cryptohash.Digest;
+//import fr.cryptohash.Digest;
+
+import Lab2HashAlgorithm.cryptohash.Digest;
 
 import java.util.Hashtable;
 import java.util.Vector;

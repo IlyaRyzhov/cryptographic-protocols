@@ -23,6 +23,25 @@ public class CommonUtils {
     }
 
     /**
+     * Представление массива элементов типа int в виде массива элементов типа byte
+     *
+     * @param ints массив int-ов
+     * @return массив байтов
+     * @author Ilya Ryzhov
+     */
+    public static byte[] convertIntArrayToByteArray(int[] ints) {
+        byte[] vectorOfBytes = new byte[4 * ints.length];
+        for (int i = 0; i < ints.length; i++) {
+            int word = ints[i];
+            for (int j = 3; j >= 0; j--) {
+                vectorOfBytes[j + 4 * i] = (byte) (word);
+                word >>>= 8;
+            }
+        }
+        return vectorOfBytes;
+    }
+
+    /**
      * Преобразование массива байтов в массив long-ов
      *
      * @param bytes массив байтов, которые надо преобразовать в массив long
@@ -51,7 +70,7 @@ public class CommonUtils {
      * @author Ilya Ryzhov
      */
     public static int[] convertByteArrayToIntArrayLittleEndian(byte[] bytes) {
-        int[] ints = new int[bytes.length/4];
+        int[] ints = new int[bytes.length / 4];
         for (int i = 0; i < ints.length; i++) {
             ints[i] = Integer.reverseBytes(convertByteArrayToInt(Arrays.copyOfRange(bytes, 4 * i, 4 * i + 4)));
         }
@@ -67,5 +86,13 @@ public class CommonUtils {
      */
     public static int convertByteArrayToInt(byte[] bytes) {
         return (bytes[0] & 0xFF) << 24 ^ (bytes[1] & 0xFF) << 16 ^ (bytes[2] & 0xFF) << 8 ^ (bytes[3] & 0xFF);
+    }
+
+    public static void main(String[] args) {
+        int[] mas = new int[]{0xff12345, 0xabcdef98};
+        byte[] arr=convertIntArrayToByteArray(mas);
+        for (int i = 0; i <arr.length ; i++) {
+            System.out.print(Integer.toHexString(arr[i]&0xff)+" ");
+        }
     }
 }

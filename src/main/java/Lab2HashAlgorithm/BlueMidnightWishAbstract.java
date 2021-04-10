@@ -5,6 +5,8 @@ public abstract class BlueMidnightWishAbstract {
     private int expandRoundsTwo = 14;
     private final BlueFishDigestSize digestSize;
 
+    private int numberOfBytesInDigest;
+
     protected abstract byte[] padMessage(byte[] message);
 
     protected abstract int solvePaddingEquation(long lengthOfMessage);
@@ -13,26 +15,33 @@ public abstract class BlueMidnightWishAbstract {
         this.digestSize = digestSize;
     }
 
-    protected int getExpandRoundsOne() {
+    protected final int getExpandRoundsOne() {
         return expandRoundsOne;
     }
 
-    protected void setExpandRoundsOne(int expandRoundsOne) {
+    protected final void setExpandRoundsOne(int expandRoundsOne) {
         this.expandRoundsOne = expandRoundsOne;
         this.expandRoundsTwo = 16 - expandRoundsOne;
     }
 
-    protected int getExpandRoundsTwo() {
+    protected final int getExpandRoundsTwo() {
         return expandRoundsTwo;
     }
 
-    protected void setExpandRoundsTwo(int expandRoundsTwo) {
+    protected final void setExpandRoundsTwo(int expandRoundsTwo) {
         this.expandRoundsTwo = expandRoundsTwo;
         this.expandRoundsOne = 16 - expandRoundsTwo;
     }
 
-    protected BlueFishDigestSize getDigestSize() {
+    protected final BlueFishDigestSize getDigestSize() {
         return digestSize;
     }
 
+    protected final int getNumberOfBytesInDigest() {
+        return numberOfBytesInDigest;
+    }
+
+    protected final void setNumberOfBytesInDigest(int numberOfBytesInDigest) {
+        this.numberOfBytesInDigest = numberOfBytesInDigest;
+    }
 }

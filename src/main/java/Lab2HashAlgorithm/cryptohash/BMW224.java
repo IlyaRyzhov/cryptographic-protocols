@@ -72,4 +72,14 @@ public class BMW224 extends BMWSmallCore {
 	{
 		return copyState(new BMW224());
 	}
+
+	public static void main(String[] args) {
+		BMW224 bmw224=new BMW224();
+		byte[] arr=new byte[129];
+		arr[0] = 'a';
+		arr[1] = 'b';
+		arr[2] = 'c';
+		int[] m=new int[16];
+		bmw224.compress(m);
+	}
 }

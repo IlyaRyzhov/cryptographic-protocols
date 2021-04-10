@@ -2,6 +2,8 @@
 
 package Lab2HashAlgorithm.cryptohash;
 
+import java.util.Arrays;
+
 /**
  * This class implements BMW-224 and BMW-256.
  *
@@ -76,7 +78,7 @@ abstract class BMWSmallCore extends DigestEngine {
 		0xaaaaaaac, 0xaaaaaaad, 0xaaaaaaae, 0xaaaaaaaf
 	};
 
-	private void compress(int[] m)
+	public void compress(int[] m)
 	{
 		int[] h = H;
 		int[] q = Q;
@@ -486,6 +488,8 @@ abstract class BMWSmallCore extends DigestEngine {
 			+ ((xl >>> 7) ^ q[21] ^ q[14]);
 		h[15] = circularLeft(h[3], 16) + (xh ^ q[31] ^ m[15])
 			+ ((xl >>> 2) ^ q[22] ^ q[15]);
+	//	System.out.println(Arrays.toString(h));
+	//	System.out.println(Arrays.toString(q));
 	}
 
 	/** @see DigestEngine */
@@ -585,5 +589,9 @@ abstract class BMWSmallCore extends DigestEngine {
 	public String toString()
 	{
 		return "BMW-" + (getDigestLength() << 3);
+	}
+
+	public static void main(String[] args) {
+
 	}
 }
