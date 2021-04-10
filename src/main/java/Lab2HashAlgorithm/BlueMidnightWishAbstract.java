@@ -1,17 +1,36 @@
 package Lab2HashAlgorithm;
 
-public abstract class BlueMidnightWishAbstract {
+import static Utils.CommonUtils.convertLongArrayToByteArray;
+
+public abstract class BlueMidnightWishAbstract implements HashFunction {
     private int expandRoundsOne = 2;
     private int expandRoundsTwo = 14;
-    private final BlueFishDigestSize digestSize;
+    private final BlueMidnightWishDigestSize digestSize;
 
     private int numberOfBytesInDigest;
 
-    protected abstract byte[] padMessage(byte[] message);
 
-    protected abstract int solvePaddingEquation(long lengthOfMessage);
+    protected int solvePaddingEquation(long lengthOfMessage, int lengthOfMessageBLockInBits) {
+        int l = (int) (lengthOfMessage % lengthOfMessageBLockInBits);
+        int k = (lengthOfMessageBLockInBits - 64) - (l + 1);
+        return k >= 0 ? k : k + lengthOfMessageBLockInBits;
+    }
 
-    protected BlueMidnightWishAbstract(BlueFishDigestSize digestSize) {
+    protected byte[] padMessage(byte[] message, int lengthOfMessageBLockInBits) {
+        long l = message.length * 8L;
+        int k = solvePaddingEquation(l, lengthOfMessageBLockInBits);
+        byte[] paddingBlockWithoutLastPart = new byte[(k + 1) / 8];
+        paddingBlockWithoutLastPart[0] = -128;
+        byte[] lastPart = convertLongArrayToByteArray(new long[]{Long.reverseBytes(l)});
+        byte[] resultMessage = new byte[message.length + paddingBlockWithoutLastPart.length + 8];
+        System.arraycopy(message, 0, resultMessage, 0, message.length);
+        System.arraycopy(paddingBlockWithoutLastPart, 0, resultMessage, message.length, paddingBlockWithoutLastPart.length);
+        System.arraycopy(lastPart, 0, resultMessage, message.length + paddingBlockWithoutLastPart.length, lastPart.length);
+        return resultMessage;
+    }
+
+
+    protected BlueMidnightWishAbstract(BlueMidnightWishDigestSize digestSize) {
         this.digestSize = digestSize;
     }
 
@@ -33,7 +52,7 @@ public abstract class BlueMidnightWishAbstract {
         this.expandRoundsOne = 16 - expandRoundsTwo;
     }
 
-    protected final BlueFishDigestSize getDigestSize() {
+    protected final BlueMidnightWishDigestSize getDigestSize() {
         return digestSize;
     }
 

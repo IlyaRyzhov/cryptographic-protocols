@@ -2,11 +2,10 @@ package Lab2HashAlgorithm;
 
 import java.util.Arrays;
 
-import static Lab2HashAlgorithm.BlueFishDigestSize.*;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.*;
 import static Utils.BlueMidnightWishUtils.parseMessageIntoBlocks;
 import static Utils.CommonUtils.*;
 
-//TODO подумать, мб отказаться от дженериков, это должно сказаться на производительности
 public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstract {
     private final int[] currentDoublePipe;
 
@@ -20,18 +19,18 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
                 0xaaaaaaac, 0xaaaaaaad, 0xaaaaaaae, 0xaaaaaaaf};
     }
 
-    public BlueMidnightWishWithIntegerWord(BlueFishDigestSize digestSize) {
+    public BlueMidnightWishWithIntegerWord(BlueMidnightWishDigestSize digestSize) {
         super(digestSize);
-        if (digestSize == BLUE_FISH_224)
+        if (digestSize == BLUE_MIDNIGHT_WISH_224)
             setNumberOfBytesInDigest(28);
-        if (digestSize == BLUE_FISH_256)
+        if (digestSize == BLUE_MIDNIGHT_WISH_256)
             setNumberOfBytesInDigest(32);
         currentDoublePipe = new int[16];
         initializeInitialDoublePipe();
     }
 
     private void initializeInitialDoublePipe() {
-        if (getDigestSize() == BLUE_FISH_224) {
+        if (getDigestSize() == BLUE_MIDNIGHT_WISH_224) {
             currentDoublePipe[0] = 0x00010203;
             currentDoublePipe[1] = 0x04050607;
             currentDoublePipe[2] = 0x08090A0B;
@@ -50,7 +49,7 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
             currentDoublePipe[15] = 0x3C3D3E3F;
 
         }
-        if (getDigestSize() == BLUE_FISH_256) {
+        if (getDigestSize() == BLUE_MIDNIGHT_WISH_256) {
             currentDoublePipe[0] = 0x40414243;
             currentDoublePipe[1] = 0x44454647;
             currentDoublePipe[2] = 0x48494A4B;
@@ -70,37 +69,19 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         }
 
     }
-    private byte[] debugShit() {
-        //byte[] paddedMessage = padMessage(message);
 
-        //byte[][] parsedMessage = parseMessageIntoBlocks(paddedMessage, 64);
-        int[] mWords = new int[]{0x80636261, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x00000018, 0};
-
-        for (int i = 0; i < 1; i++) {
-            //int[] messageBlock = convertByteArrayToIntArrayLittleEndian(parsedMessage[i]);
-            int[] quadruplePipeLeftPart = fZeroFunction(mWords, currentDoublePipe);
-            int[] fullQuadruplePipe = fOneFunction(mWords, currentDoublePipe, quadruplePipeLeftPart);
-            fTwoFunction(mWords, fullQuadruplePipe);
-        }
-        int[] finalQuadruplePipeLeftPart = fZeroFunction(currentDoublePipe, finalizationConstant);
-        int[] finalFullQuadruplePipe = fOneFunction(currentDoublePipe, finalizationConstant, finalQuadruplePipeLeftPart);
-        fTwoFunction(currentDoublePipe, finalFullQuadruplePipe);
-        byte[] result = new byte[getNumberOfBytesInDigest()];
-        int[] reversed = new int[currentDoublePipe.length];
-        for (int i = 0; i < reversed.length; i++) {
-            reversed[i] = Integer.reverseBytes(currentDoublePipe[i]);
-        }
-        byte[] currentDoublePipeInBytes = convertIntArrayToByteArray(reversed);
-        System.arraycopy(currentDoublePipeInBytes, currentDoublePipeInBytes.length - getNumberOfBytesInDigest(), result, 0, result.length);
+    @Override
+    public byte[] computeHash(byte[] message) {
+        byte[] result = computeHashWithoutResetDoublePipe(message);
+        initializeInitialDoublePipe();
         return result;
     }
-    //TODO Доделать
-    private byte[] computeHashWithoutResetDoublePipe(byte[] message) {
-        byte[] paddedMessage = padMessage(message);
 
+    private byte[] computeHashWithoutResetDoublePipe(byte[] message) {
+        byte[] paddedMessage = padMessage(message,512);
         byte[][] parsedMessage = parseMessageIntoBlocks(paddedMessage, 64);
-        for (int i = 0; i < parsedMessage.length; i++) {
-            int[] messageBlock = convertByteArrayToIntArrayLittleEndian(parsedMessage[i]);
+        for (byte[] bytes : parsedMessage) {
+            int[] messageBlock = convertByteArrayToIntArrayLittleEndian(bytes);
             int[] quadruplePipeLeftPart = fZeroFunction(messageBlock, currentDoublePipe);
             int[] fullQuadruplePipe = fOneFunction(messageBlock, currentDoublePipe, quadruplePipeLeftPart);
             fTwoFunction(messageBlock, fullQuadruplePipe);
@@ -118,58 +99,22 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         return result;
     }
 
-    public byte[] computeHash(byte[] message) {
-        byte[] result = computeHashWithoutResetDoublePipe(message);
-        initializeInitialDoublePipe();
-        return result;
-    }
-
-    @Override
+ /*   @Override
     protected byte[] padMessage(byte[] message) {
         long l = message.length * 8L;
-        int k = solvePaddingEquation(l);
+        int k = solvePaddingEquation(l, 512);
         byte[] paddingBlockWithoutLastPart = new byte[(k + 1) / 8];
         paddingBlockWithoutLastPart[0] = -128;
-        byte[] lastPart = convertLongArrayToByteArray(new long[]{Long.reverseBytes(l)});//менять порядок байтов!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        int timesOfBlockLength = message.length / 64;
-          byte[] resultMessage = new byte[timesOfBlockLength * 64 + 64];
+        byte[] lastPart = convertLongArrayToByteArray(new long[]{Long.reverseBytes(l)});
+        byte[] resultMessage = new byte[message.length + paddingBlockWithoutLastPart.length + 8];
         System.arraycopy(message, 0, resultMessage, 0, message.length);
         System.arraycopy(paddingBlockWithoutLastPart, 0, resultMessage, message.length, paddingBlockWithoutLastPart.length);
         System.arraycopy(lastPart, 0, resultMessage, message.length + paddingBlockWithoutLastPart.length, lastPart.length);
-   /*     long l = message.length * 8L;
-        int k = solvePaddingEquation(l);
-        byte[] paddingBlockWithoutLastPart = new byte[(k + 1) / 8];
-        paddingBlockWithoutLastPart[0] = -128;
-        byte[] lastPart = convertLongArrayToByteArray(new long[]{Long.reverseBytes(l)});//менять порядок байтов!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        int timesOfBlockLength = message.length / 64;
-        byte[] resultMessage = new byte[timesOfBlockLength * 64 + 64];
-        for (int i = 0; i < message.length; i += 4) {
-         *//*   byte tmp = message[i];
-            message[i] = message[i + 3];
-            message[i + 3] = tmp;
-            tmp = message[i + 1];
-            message[i + 1] = message[i + 2];
-            message[i + 2] = tmp;*//*\
-            resultMessage[i] = message[i + 3];
-            resultMessage[i + 1] = message[i + 2];
-            resultMessage[i + 2] = message[i + 1];
-            resultMessage[i + 3] = message[i];
-        }*/
-
-    /*    System.arraycopy(message, 0, resultMessage, 0, message.length);
-        System.arraycopy(paddingBlockWithoutLastPart, 0, resultMessage, message.length, paddingBlockWithoutLastPart.length);
-        System.arraycopy(lastPart, 0, resultMessage, message.length + paddingBlockWithoutLastPart.length, lastPart.length);*/
         return resultMessage;
-    }
+    }*/
 
-    @Override
-    protected int solvePaddingEquation(long lengthOfMessage) {
-        int l = (int) (lengthOfMessage % 512);
-        int k = 448 - (l + 1);
-        return k > 0 ? k : k + 512;
-    }
 
-    int[] fZeroFunction(int[] messageBlock, int[] doublePipe) {// правильно +-
+    private int[] fZeroFunction(int[] messageBlock, int[] doublePipe) {
         int W0 = (messageBlock[5] ^ doublePipe[5]) - (messageBlock[7] ^ doublePipe[7]) + (messageBlock[10] ^ doublePipe[10]) + (messageBlock[13] ^ doublePipe[13]) + (messageBlock[14] ^ doublePipe[14]);
         int W1 = (messageBlock[6] ^ doublePipe[6]) - (messageBlock[8] ^ doublePipe[8]) + (messageBlock[11] ^ doublePipe[11]) + (messageBlock[14] ^ doublePipe[14]) - (messageBlock[15] ^ doublePipe[15]);
         int W2 = (messageBlock[0] ^ doublePipe[0]) + (messageBlock[7] ^ doublePipe[7]) + (messageBlock[9] ^ doublePipe[9]) - (messageBlock[12] ^ doublePipe[12]) + (messageBlock[15] ^ doublePipe[15]);
@@ -205,8 +150,7 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         return new int[]{Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15};
     }
 
-    //Возвращает всю 4-ную трубу правильно+-
-    int[] fOneFunction(int[] messageBlock, int[] doublePipe, int[] quadruplePipeLeftPart) {
+    private int[] fOneFunction(int[] messageBlock, int[] doublePipe, int[] quadruplePipeLeftPart) {
         int[] fullQuadruple = new int[32];
         System.arraycopy(quadruplePipeLeftPart, 0, fullQuadruple, 0, quadruplePipeLeftPart.length);
         for (int i = 0; i < getExpandRoundsOne(); i++) {
@@ -218,8 +162,7 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         return fullQuadruple;
     }
 
-    //правильно +-
-    void fTwoFunction(int[] messageBlock, int[] quadruplePipe) {
+    private void fTwoFunction(int[] messageBlock, int[] quadruplePipe) {
         int xL = 0;
         for (int i = 16; i < 24; i++) {
             xL ^= quadruplePipe[i];
@@ -310,14 +253,14 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         return (x >>> 2) ^ x;
     }
 
-    int addElement(int j, int[] messageBlock, int[] doublePipe) {
+    private int addElement(int j, int[] messageBlock, int[] doublePipe) {
         return (Integer.rotateLeft(messageBlock[(j) % 16], (j + 1) % 16 == 0 ? 16 : (j + 1) % 16)
                 + Integer.rotateLeft(messageBlock[(j + 3) % 16], (j + 4) % 16 == 0 ? 16 : (j + 4) % 16)
                 - Integer.rotateLeft(messageBlock[(j + 10) % 16], (j + 11) % 16 == 0 ? 16 : (j + 11) % 16)
                 + 0x05555555 * (j + 16)) ^ doublePipe[(j + 7) % 16];
     }
 
-    int expandONe(int j, int[] messageBlock, int[] doublePipe, int[] quadruplePipe) {
+    private int expandONe(int j, int[] messageBlock, int[] doublePipe, int[] quadruplePipe) {
         return s1(quadruplePipe[j - 16]) + s2(quadruplePipe[j - 15]) + s3(quadruplePipe[j - 14]) + s0(quadruplePipe[j - 13])
                 + s1(quadruplePipe[j - 12]) + s2(quadruplePipe[j - 11]) + s3(quadruplePipe[j - 10]) + s0(quadruplePipe[j - 9])
                 + s1(quadruplePipe[j - 8]) + s2(quadruplePipe[j - 7]) + s3(quadruplePipe[j - 6]) + s0(quadruplePipe[j - 5])
@@ -325,7 +268,7 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
                 + addElement(j - 16, messageBlock, doublePipe);
     }
 
-    int expandTwo(int j, int[] messageBlock, int[] doublePipe, int[] quadruplePipe) {
+    private int expandTwo(int j, int[] messageBlock, int[] doublePipe, int[] quadruplePipe) {
         return quadruplePipe[j - 16] + r1(quadruplePipe[j - 15]) + quadruplePipe[j - 14] + r2(quadruplePipe[j - 13])
                 + quadruplePipe[j - 12] + r3(quadruplePipe[j - 11]) + quadruplePipe[j - 10] + r4(quadruplePipe[j - 9])
                 + quadruplePipe[j - 8] + r5(quadruplePipe[j - 7]) + quadruplePipe[j - 6] + r6(quadruplePipe[j - 5])
@@ -334,35 +277,19 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
     }
 
 
-
     public static void main(String[] args) {
-/*[36, 102, 7, 121, 42, -46, 98, 84, 48, -56, 30, 44, 78, -95, 56, 10, -35, 91, 8, -5, -128, 117, -38, -19, 79, 64, 29, -68]
-24 66 7 79 2a d2 62 54 30 c8 1e 2c 4e a1 38 a dd 5b 8 fb 80 75 da ed 4f 40 1d bc
-*/
-        /*[114, -122, 93, -45, 27, -30, -20, 90, -96, 49, 43, -56, -98, -4, -33, -41, 71, 2, 54, -68, -37, 28, 13, -94, 108, -31, -36, 23]
-72 86 5d d3 1b e2 ec 5a a0 31 2b c8 9e fc df d7 47 2 36 bc db 1c d a2 6c e1 dc 17 */
-        /*[74, 30, -22, 25, -49, 29, 90, 33, 81, 36, -87, -69, 62, -92, -11, 39, 15, 122, 5, 57, -28, 105, 1, 0, 114, 117, 121, 113]
-4a 1e ea 19 cf 1d 5a 21 51 24 a9 bb 3e a4 f5 27 f 7a 5 39 e4 69 1 0 72 75 79 71 */
-        /*[-42, 70, -79, 57, -104, -99, -19, 92, -77, 123, -45, 48, 18, 113, -11, -13, 32, -25, 41, 74, -54, 54, -12, 5, -75, 89, 105, 22]
-d6 46 b1 39 98 9d ed 5c b3 7b d3 30 12 71 f5 f3 20 e7 29 4a ca 36 f4 5 b5 59 69 16 */
-        BlueMidnightWishWithIntegerWord blueMidnightWishWithIntegerWord = new BlueMidnightWishWithIntegerWord(BLUE_FISH_256);
-        /*[109, 61, 46, -94, 125, 20, -6, 37, 80, 111, -53, -124, -17, 11, -128, -98, 55, 29, 119, 97, 79, 78, -110, -23, 53, -42, 96, -34, -34, 84, -5, -127]
-6d 3d 2e a2 7d 14 fa 25 50 6f cb 84 ef b 80 9e 37 1d 77 61 4f 4e 92 e9 35 d6 60 de de 54 fb 81 */
-        /*[40, 67, 85, -88, -57, -120, 16, -124, 101, -77, -24, -61, -48, -60, -94, -97, -43, -111, -21, -36, 121, 126, 40, -91, -90, 79, 28, 93, 93, 45, -43, 45]
-28 43 55 a8 c7 88 10 84 65 b3 e8 c3 d0 c4 a2 9f d5 91 eb dc 79 7e 28 a5 a6 4f 1c 5d 5d 2d d5 2d */
-        byte[] arr = new byte[10];
+
+        BlueMidnightWishWithIntegerWord blueMidnightWishWithIntegerWord = new BlueMidnightWishWithIntegerWord(BLUE_MIDNIGHT_WISH_256);
+        byte[] arr = new byte[64];
         arr[0] = 'a';
         arr[1] = 'b';
         arr[2] = 'c';
         Arrays.fill(arr, (byte) 0x15);
         System.out.println(Arrays.toString(blueMidnightWishWithIntegerWord.computeHash(arr)));
-        //   byte[] mas=blueMidnightWishWithIntegerWord.computeHashWithoutResetDoublePipe(arr);
-        byte[] mas = blueMidnightWishWithIntegerWord.debugShit();
-        for (int i = 0; i < mas.length; i++) {
-            System.out.print(Integer.toHexString(mas[i] & 0xff) + " ");
-        }
-        System.out.println();
-
+        byte[] mas = new byte[64000000];
+        long start = System.currentTimeMillis();
+        blueMidnightWishWithIntegerWord.computeHash(mas);
+        System.out.println(System.currentTimeMillis()-start);
     }
 
 }
