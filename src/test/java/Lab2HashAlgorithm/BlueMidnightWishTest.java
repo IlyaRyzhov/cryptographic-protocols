@@ -1,15 +1,14 @@
 package Lab2HashAlgorithm;
 
-import Lab2HashAlgorithm.cryptohash.BMW224;
-import Lab2HashAlgorithm.cryptohash.BMW256;
-import Lab2HashAlgorithm.cryptohash.BMW384;
-import Lab2HashAlgorithm.cryptohash.BMW512;
+import Lab2HashAlgorithm.meetingImplementation.BMW224;
+import Lab2HashAlgorithm.meetingImplementation.BMW256;
+import Lab2HashAlgorithm.meetingImplementation.BMW384;
+import Lab2HashAlgorithm.meetingImplementation.BMW512;
+import Lab2HashAlgorithm.myImplementation.BlueMidnightWish;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
-import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.*;
+import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class BlueMidnightWishTest {
@@ -42,7 +41,6 @@ public class BlueMidnightWishTest {
         BMW384 bmw384 = new BMW384();
         for (int i = 0; i < 100000; i++) {
             byte[] data = new byte[i];
-            Arrays.fill(data, (byte) 0xff);
             assertArrayEquals(bmw384.copy().digest(data), blueMidnightWish.computeHash(data), "Ошибка при i=" + i);
         }
     }
