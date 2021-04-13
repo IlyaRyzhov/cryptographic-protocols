@@ -10,7 +10,7 @@ package Lab2HashAlgorithm.meetingImplementation;
  * ==========================(LICENSE BEGIN)============================
  *
  * Copyright (c) 2007-2010  Projet RNRT SAPHIR
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -18,10 +18,10 @@ package Lab2HashAlgorithm.meetingImplementation;
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -33,43 +33,47 @@ package Lab2HashAlgorithm.meetingImplementation;
  * ===========================(LICENSE END)=============================
  * </pre>
  *
- * @version   $Revision: 166 $
- * @author    Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
+ * @author Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
+ * @version $Revision: 166 $
  */
 
 public class BMW256 extends BMWSmallCore {
 
-	/**
-	 * Create the engine.
-	 */
-	public BMW256()
-	{
-		super();
-	}
+    /**
+     * Create the engine.
+     */
+    public BMW256() {
+        super();
+    }
 
-	/** The initial value for BMW-256. */
-	private static final int[] initVal = {
-		0x40414243, 0x44454647, 0x48494A4B, 0x4C4D4E4F,
-		0x50515253, 0x54555657, 0x58595A5B, 0x5C5D5E5F,
-		0x60616263, 0x64656667, 0x68696A6B, 0x6C6D6E6F,
-		0x70717273, 0x74757677, 0x78797A7B, 0x7C7D7E7F
-	};
+    /**
+     * The initial value for BMW-256.
+     */
+    private static final int[] initVal = {
+            0x40414243, 0x44454647, 0x48494A4B, 0x4C4D4E4F,
+            0x50515253, 0x54555657, 0x58595A5B, 0x5C5D5E5F,
+            0x60616263, 0x64656667, 0x68696A6B, 0x6C6D6E6F,
+            0x70717273, 0x74757677, 0x78797A7B, 0x7C7D7E7F
+    };
 
-	/** @see BMWSmallCore */
-	int[] getInitVal()
-	{
-		return initVal;
-	}
+    /**
+     * @see BMWSmallCore
+     */
+    int[] getInitVal() {
+        return initVal;
+    }
 
-	/** @see Digest */
-	public int getDigestLength()
-	{
-		return 32;
-	}
+    /**
+     * @see Digest
+     */
+    public int getDigestLength() {
+        return 32;
+    }
 
-	/** @see Digest */
-	public Digest copy()
-	{
-		return copyState(new BMW256());
-	}
+    /**
+     * @see Digest
+     */
+    public Digest copy() {
+        return copyState(new BMW256());
+    }
 }

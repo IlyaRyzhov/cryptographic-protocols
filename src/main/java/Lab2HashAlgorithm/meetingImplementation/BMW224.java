@@ -10,7 +10,7 @@ package Lab2HashAlgorithm.meetingImplementation;
  * ==========================(LICENSE BEGIN)============================
  *
  * Copyright (c) 2007-2010  Projet RNRT SAPHIR
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -18,10 +18,10 @@ package Lab2HashAlgorithm.meetingImplementation;
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -33,53 +33,47 @@ package Lab2HashAlgorithm.meetingImplementation;
  * ===========================(LICENSE END)=============================
  * </pre>
  *
- * @version   $Revision: 166 $
- * @author    Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
+ * @author Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
+ * @version $Revision: 166 $
  */
 
 public class BMW224 extends BMWSmallCore {
 
-	/**
-	 * Create the engine.
-	 */
-	public BMW224()
-	{
-		super();
-	}
+    /**
+     * Create the engine.
+     */
+    public BMW224() {
+        super();
+    }
 
-	/** The initial value for BMW-224. */
-	private static final int[] initVal = {
-		0x00010203, 0x04050607, 0x08090A0B, 0x0C0D0E0F,
-		0x10111213, 0x14151617, 0x18191A1B, 0x1C1D1E1F,
-		0x20212223, 0x24252627, 0x28292A2B, 0x2C2D2E2F,
-		0x30313233, 0x34353637, 0x38393A3B, 0x3C3D3E3F
-	};
+    /**
+     * The initial value for BMW-224.
+     */
+    private static final int[] initVal = {
+            0x00010203, 0x04050607, 0x08090A0B, 0x0C0D0E0F,
+            0x10111213, 0x14151617, 0x18191A1B, 0x1C1D1E1F,
+            0x20212223, 0x24252627, 0x28292A2B, 0x2C2D2E2F,
+            0x30313233, 0x34353637, 0x38393A3B, 0x3C3D3E3F
+    };
 
-	/** @see BMWSmallCore */
-	int[] getInitVal()
-	{
-		return initVal;
-	}
+    /**
+     * @see BMWSmallCore
+     */
+    int[] getInitVal() {
+        return initVal;
+    }
 
-	/** @see Digest */
-	public int getDigestLength()
-	{
-		return 28;
-	}
+    /**
+     * @see Digest
+     */
+    public int getDigestLength() {
+        return 28;
+    }
 
-	/** @see Digest */
-	public Digest copy()
-	{
-		return copyState(new BMW224());
-	}
-
-	public static void main(String[] args) {
-		BMW224 bmw224=new BMW224();
-		byte[] arr=new byte[129];
-		arr[0] = 'a';
-		arr[1] = 'b';
-		arr[2] = 'c';
-		int[] m=new int[16];
-		bmw224.compress(m);
-	}
+    /**
+     * @see Digest
+     */
+    public Digest copy() {
+        return copyState(new BMW224());
+    }
 }

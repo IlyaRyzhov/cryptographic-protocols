@@ -31,6 +31,13 @@ public class HMAC {
         initializeKeyXoredWithOpad();
     }
 
+    /**
+     * Вычислет HMAC сообщения
+     *
+     * @param text сообщение, MAC которого нужно получить
+     * @return HMAC сообщения
+     * @author Ilya Ryzhov
+     */
     public byte[] computeMAC(String text) {
         byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
         byte[] concatenatedKeyXoredWithIpadAndText = new byte[blockSizeInBytes + textBytes.length];
@@ -64,6 +71,12 @@ public class HMAC {
         }
     }
 
+    /**
+     * Изменяет ключ
+     *
+     * @param key новый ключ
+     * @author Ilya Ryzhov
+     */
     public void setKey(byte[] key) {
         this.key = key;
         Arrays.fill(alteredKey, (byte) 0);

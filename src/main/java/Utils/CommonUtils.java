@@ -116,14 +116,4 @@ public class CommonUtils {
         return (bytes[0] & 0xFFL) << 56 ^ (bytes[1] & 0xFFL) << 48 ^ (bytes[2] & 0xFFL) << 40 ^ (bytes[3] & 0xFFL) << 32
                 ^ (bytes[4] & 0xFFL) << 24 ^ (bytes[5] & 0xFFL) << 16 ^ (bytes[6] & 0xFFL) << 8 ^ (bytes[7] & 0xFFL);
     }
-
-    public static void main(String[] args) {
-        int[] mas = new int[]{0xff12345, 0xabcdef98};
-        byte[] arr = convertIntArrayToByteArray(mas);
-        for (int i = 0; i < arr.length; i++) {
-            System.out.print(Integer.toHexString(arr[i] & 0xff) + " ");
-        }
-        System.out.println();
-        System.out.println(Long.toHexString(convertByteArrayToLongArrayLittleEndian(new byte[]{0x12, 0x34, 0x55, 0x77, 0x12, 0x34, 0x55, 0x77})[0]));
-    }
 }

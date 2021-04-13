@@ -5,7 +5,7 @@ import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.BLUE
 import static Utils.CommonUtils.convertByteArrayToIntArrayLittleEndian;
 import static Utils.CommonUtils.convertIntArrayToByteArray;
 
-public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstract {
+final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstract {
     private final int[] currentDoublePipe;
     private final int[] finalizationConstant;
 
@@ -27,6 +27,9 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
             setOutputLength(32);
     }
 
+    /**
+     * @see BlueMidnightWishAbstract
+     */
     @Override
     protected void initializeInitialDoublePipe() {
         if (getDigestSize() == BLUE_MIDNIGHT_WISH_224) {
@@ -67,11 +70,14 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         }
     }
 
+    /**
+     * @see BlueMidnightWishAbstract
+     */
     @Override
-    protected byte[] computeHashWithoutResetDoublePipe(byte[] message) {
+    protected byte[] computeHashWithoutResetDoublePipe(byte[] message, long totalLengthOfMessage) {
         int blockSize = getBlockSize();
         byte[] lastBlock = repeatCompressIterationUntilLastBlock(message);
-        byte[] paddedMessage = padMessage(lastBlock, 512, message.length * 8L);
+        byte[] paddedMessage = padMessage(lastBlock, 512, totalLengthOfMessage * 8L);
         for (int i = 0; i < paddedMessage.length; i += blockSize) {
             byte[] messageBlock = new byte[blockSize];
             System.arraycopy(paddedMessage, i, messageBlock, 0, blockSize);
@@ -90,6 +96,9 @@ public final class BlueMidnightWishWithIntegerWord extends BlueMidnightWishAbstr
         return result;
     }
 
+    /**
+     * @see BlueMidnightWishAbstract
+     */
     @Override
     protected void compressIteration(byte[] messageBlock) {
         int[] messageBlockInLittleEndian = convertByteArrayToIntArrayLittleEndian(messageBlock);
