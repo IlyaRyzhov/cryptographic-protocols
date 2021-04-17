@@ -20,6 +20,12 @@ public class BlueMidnightWish implements HashFunction {
         return blueMidnightWishImplementation.computeHash(message);
     }
 
+    /**
+     * Изменяет реализацию(длину выхода) алгоритма BMW
+     *
+     * @param blueMidnightWishDigestSize новый размер выхода функции хеширования
+     * @author ILya Ryzhov
+     */
     public void setOutputSize(BlueMidnightWishDigestSize blueMidnightWishDigestSize) {
         if (blueMidnightWishDigestSize == BLUE_MIDNIGHT_WISH_224 || blueMidnightWishDigestSize == BLUE_MIDNIGHT_WISH_256) {
             blueMidnightWishImplementation = new BlueMidnightWishWithIntegerWord(blueMidnightWishDigestSize);

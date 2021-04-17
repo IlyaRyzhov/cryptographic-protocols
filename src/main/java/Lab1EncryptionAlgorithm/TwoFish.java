@@ -1,11 +1,11 @@
 package Lab1EncryptionAlgorithm;
 
-import java.io.*;
 import java.util.Arrays;
 
+import static Utils.CommonUtils.*;
 import static Utils.TwoFishUtils.*;
-import  static Utils.CommonUtils.*;
-public class TwoFish {
+
+public class TwoFish implements EncryptionAlgorithm {
     private final int k;
     private final int[] wordsOfExpandedKey;
     private final long[] key;
@@ -77,6 +77,7 @@ public class TwoFish {
      * @return зашифрованный блок
      * @author Ilya Ryzhov
      */
+    @Override
     public byte[] encryptOneBlock(byte[] plainText) {
 
         int[] plainTextWords = convertByteArrayToIntArrayLittleEndian(plainText);
@@ -113,6 +114,7 @@ public class TwoFish {
      * @return расшифрованный блок
      * @author Ilya Ryzhov
      */
+    @Override
     public byte[] decryptOneBlock(byte[] cipherText) {
         int[] cipherTextWords = convertByteArrayToIntArrayLittleEndian(cipherText);
         int[] rZero = new int[4];
@@ -147,81 +149,9 @@ public class TwoFish {
         return plainBytes;
     }
 
-    /**
-     * Шифрует файл
-     *
-     * @param fileToEncrypt        файл, который нужно зашифровать
-     * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
-     * @author ILya Ryzhov
-     */
-    public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
-            while (bufferedInputStream.available() > 0) {
-                byte[] plainData = new byte[Math.min(1048576, bufferedInputStream.available())];
-                bufferedInputStream.read(plainData, 0, plainData.length);
-                int numberOfBlocksToEncrypt = plainData.length / 16;
-                int remainderBytes = plainData.length % 16;
-                byte[] cipherData = new byte[(numberOfBlocksToEncrypt + 1) * 16];
-                for (int i = 0; i < numberOfBlocksToEncrypt; i++) {
-                    byte[] blockOfPlainData = Arrays.copyOfRange(plainData, i * 16, (i + 1) * 16);
-                    System.arraycopy(encryptOneBlock(blockOfPlainData), 0, cipherData, i * 16, 16);
-                }
-                byte[] paddingBlock = new byte[16];
-                if (remainderBytes == 0) {
-                    paddingBlock[0] = 1;
-                } else {
-                    System.arraycopy(plainData, numberOfBlocksToEncrypt * 16, paddingBlock, 0, remainderBytes);
-                    paddingBlock[remainderBytes] = 1;
-                }
-                System.arraycopy(encryptOneBlock(paddingBlock), 0, cipherData, numberOfBlocksToEncrypt * 16, 16);
-                bufferedOutputStream.write(cipherData);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Расшифровывает файл
-     *
-     * @param fileToDecrypt        файл, который нужно расшифровать, имеет расширение .encrypted
-     * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
-     * @author ILya Ryzhov
-     */
-    public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
-            while (bufferedInputStream.available() > 0) {
-                byte[] cipherData = new byte[Math.min(1048576, bufferedInputStream.available())];
-                bufferedInputStream.read(cipherData, 0, cipherData.length);
-                int numberOfBlocksToDecrypt = cipherData.length / 16;
-                byte[] plainData = new byte[numberOfBlocksToDecrypt * 16];
-                for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
-                    byte[] blockOfCipherData = Arrays.copyOfRange(cipherData, i * 16, (i + 1) * 16);
-                    System.arraycopy(decryptOneBlock(blockOfCipherData), 0, plainData, i * 16, 16);
-                }
-                if (bufferedInputStream.available() > 0)
-                    bufferedOutputStream.write(plainData);
-                else {
-                    byte[] lastBlock = new byte[16];
-                    System.arraycopy(plainData, (numberOfBlocksToDecrypt - 1) * 16, lastBlock, 0, 16);
-                    int indexOfLastOne = 0;
-                    for (int i = 15; i >= 0; i--) {
-                        if (lastBlock[i] == 1) {
-                            indexOfLastOne = i;
-                            break;
-                        }
-                    }
-                    bufferedOutputStream.write(plainData, 0, plainData.length - 16);
-                    bufferedOutputStream.write(Arrays.copyOfRange(lastBlock, 0, indexOfLastOne));
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public int getBlockSizeInBytes() {
+        return 16;
     }
 
     private int[] fFunction(int rZero, int rOne, int roundNumber) {

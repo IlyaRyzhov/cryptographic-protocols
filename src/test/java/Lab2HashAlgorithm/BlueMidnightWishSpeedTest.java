@@ -43,7 +43,7 @@ public class BlueMidnightWishSpeedTest {
             BlueMidnightWish blueMidnightWish = new BlueMidnightWish(blueMidnightWishDigestSize);
             System.out.println("=====" + blueMidnightWishDigestSize.getAlgorithmName() + "=====");
             speedTestForArbitraryBlocksOfHashableMessage(blueMidnightWish);
-         //   speedTestForArbitraryHashableFiles(blueMidnightWish);
+            speedTestForArbitraryHashableFiles(blueMidnightWish);
         });
     }
 }

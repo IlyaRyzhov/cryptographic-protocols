@@ -1,5 +1,7 @@
 package Lab1EncryptionAlgorithm;
 
+import Lab4EncryptionModes.EncryptionAlgorithmWithMode;
+
 import java.io.File;
 import java.util.Arrays;
 
@@ -26,7 +28,7 @@ public class TwoFishSpeedTest {
         System.out.println("На шифрование 1000000 блоков затрачено: " + (millionBlocksTime - start) + " мс");
     }
 
-    public static void speedTestForArbitraryFiles(TwoFish twoFish) {
+    public static void speedTestForArbitraryFiles(EncryptionAlgorithmWithMode twoFish) {
         File oneMbFile = new File("C:\\Users\\fvd\\Desktop\\1MB.txt");
         File hundredMbFile = new File("C:\\Users\\fvd\\Desktop\\100MB.txt");
         File thousandMbFile = new File("C:\\Users\\fvd\\Desktop\\1000MB.txt");
@@ -78,7 +80,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.encryptOneBlock(data);
+            twoFish.encryptMessage(data);
         }
         System.out.println("На шифрование 1000000 блоков открытого текста со сменой ключа каждые 10 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
@@ -91,7 +93,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.decryptOneBlock(data);
+            twoFish.decryptMessage(data);
         }
         System.out.println("На расшифровку 1000000 блоков открытого текста со сменой ключа каждые 10 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
@@ -105,7 +107,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.encryptOneBlock(data);
+            twoFish.encryptMessage(data);
         }
         System.out.println("На шифрование 1000000 блоков открытого текста со сменой ключа каждые 100 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
@@ -118,7 +120,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.decryptOneBlock(data);
+            twoFish.decryptMessage(data);
         }
         System.out.println("На расшифровку 1000000 блоков открытого текста со сменой ключа каждые 100 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
@@ -132,7 +134,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.encryptOneBlock(data);
+            twoFish.encryptMessage(data);
         }
         System.out.println("На шифрование 1000000 блоков открытого текста со сменой ключа каждые 1000 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
@@ -145,7 +147,7 @@ public class TwoFishSpeedTest {
                 twoFish.setKey(startKey);
                 keyFlag = false;
             }
-            twoFish.decryptOneBlock(data);
+            twoFish.decryptMessage(data);
         }
         System.out.println("На расшифровку 1000000 блоков открытого текста со сменой ключа каждые 1000 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
