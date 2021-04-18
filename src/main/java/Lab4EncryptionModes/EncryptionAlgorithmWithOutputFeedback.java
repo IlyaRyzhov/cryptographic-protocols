@@ -52,7 +52,8 @@ public class EncryptionAlgorithmWithOutputFeedback extends EncryptionAlgorithmAb
         }
     }
 
-    private void encryptRemainderBytes(byte[] currentInitializationVector, int blockSizeInBytes, byte[] plainData, int numberOfBlocksToEncrypt, int remainderBytes, byte[] cipherData) {
+    private void encryptRemainderBytes(byte[] currentInitializationVector, int blockSizeInBytes, byte[] plainData,
+                                       int numberOfBlocksToEncrypt, int remainderBytes, byte[] cipherData) {
         if (remainderBytes != 0) {
             byte[] gamma = encryptionAlgorithm.encryptOneBlock(Arrays.copyOf(currentInitializationVector, blockSizeInBytes));
             shiftLeftRegisterWithFillingLSB(currentInitializationVector, gamma);

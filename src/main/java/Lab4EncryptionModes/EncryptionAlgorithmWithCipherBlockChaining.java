@@ -44,7 +44,6 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
         return encryptedMessage;
     }
 
-    //TODO оптимизироваать работу с файлами и в ECB
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
@@ -120,6 +119,7 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
         }
     }
 
+    //TODO Подумать, мб убрать выделенные методы с кучей параметров и вынести параметры типа blockSizeInBytes в поля класса
     private void decryptSequenceOfBlocksInMessage(byte[] currentInitializationVector, int blockSizeInBytes, byte[] cipherData, int numberOfBlocksToDecrypt, byte[] plainData) {
         for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
             byte[] decryptedBlock = encryptionAlgorithm.decryptOneBlock(Arrays.copyOfRange(cipherData, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));

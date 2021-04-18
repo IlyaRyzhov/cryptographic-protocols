@@ -5,15 +5,15 @@ import java.util.Arrays;
 import static Utils.CommonUtils.*;
 import static Utils.TwoFishUtils.*;
 
-public class TwoFish implements EncryptionAlgorithm {
-    private final int k;
+public class TwoFish implements EncryptionAlgorithm, Cloneable {
+    private int k;
     private final int[] wordsOfExpandedKey;
-    private final long[] key;
+    private long[] key;
     private static final char MDS_PRIMITIVE;
     private static final char RS_PRIMITIVE;
-    private final int[] evenMMembers;
-    private final int[] oddMMembers;
-    private final int[] sVector;
+    private int[] evenMMembers;
+    private int[] oddMMembers;
+    private int[] sVector;
     private final byte[][] keyDependentSBoxes;
     private static final byte[][] Q_ZERO;
     private static final byte[][] Q_ONE;
@@ -58,6 +58,11 @@ public class TwoFish implements EncryptionAlgorithm {
     }
 
     public TwoFish(long[] key) {
+        setKey(key);
+    }
+
+    @Override
+    public void setKey(long[] key) {
         if (key.length == 1) {
             this.key = new long[]{key[0], 0L};
         } else this.key = key;
@@ -152,6 +157,11 @@ public class TwoFish implements EncryptionAlgorithm {
     @Override
     public int getBlockSizeInBytes() {
         return 16;
+    }
+
+    @Override
+    public int getKeySizeInBytes() {
+        return key.length * 8;
     }
 
     private int[] fFunction(int rZero, int rOne, int roundNumber) {
@@ -309,14 +319,18 @@ public class TwoFish implements EncryptionAlgorithm {
         return (byte) (16 * b4 + a4);
     }
 
-
-/*    public void setKey(long[] key) {
-        this.key = key;
-        initializeKeyBasis();
-        initializeExpandedKeyWords();
-        initializeSBoxes();
+    @Override
+    protected final Object clone() {
+        long[] keyCopy = new long[key.length];
+        System.arraycopy(key, 0, keyCopy, 0, key.length);
+        return new TwoFish(keyCopy);
     }
 
+    @Override
+    public EncryptionAlgorithm getInstance() {
+        return (EncryptionAlgorithm) clone();
+    }
+/*
     public long[] getKey() {
         return key;
     }*/

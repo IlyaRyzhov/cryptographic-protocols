@@ -6,4 +6,10 @@ public interface EncryptionAlgorithm {
     byte[] decryptOneBlock(byte[] cipherText);
 
     int getBlockSizeInBytes();
+
+    int getKeySizeInBytes();
+
+    void setKey(long[] key);
+
+    EncryptionAlgorithm getInstance();
 }
