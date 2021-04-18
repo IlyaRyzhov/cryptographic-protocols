@@ -6,32 +6,34 @@ import Lab1EncryptionAlgorithm.TwoFish;
 import java.io.*;
 import java.util.Arrays;
 
-import static Utils.TwoFishUtils.createAbsoluteDecryptedFileName;
-import static Utils.TwoFishUtils.createAbsoluteEncryptedFileName;
+import static Utils.CommonUtils.createAbsoluteDecryptedFileName;
+import static Utils.CommonUtils.createAbsoluteEncryptedFileName;
 
-class EncryptionAlgorithmWithElectronicCodebook extends AbstractEncryptionAlgorithm {
+class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstract {
 
     public EncryptionAlgorithmWithElectronicCodebook(EncryptionAlgorithm encryptionAlgorithm) {
         super(encryptionAlgorithm);
     }
 
-    @Override
-    protected byte[] getInitializationVector() {
-        return null;
-    }
-
-    @Override
-    protected void setInitializationVector(byte[] initializationVector) {
-    }
-
+    //TODO Продебажить
     @Override
     public byte[] encryptMessage(byte[] plainText) {
-        byte[] paddedMessage = padMessage(plainText);
         int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
-        int numberOfBlocks = paddedMessage.length / blockSizeInBytes;
-        byte[] encryptedMessage = new byte[paddedMessage.length];
-        for (int i = 0; i < numberOfBlocks; i++) {
-            byte[] encryptedBlock = encryptionAlgorithm.encryptOneBlock(Arrays.copyOfRange(paddedMessage, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
+        int numberOfBlocksInEncryptedMessage = (plainText.length / blockSizeInBytes) + 1;
+        byte[] encryptedMessage = new byte[numberOfBlocksInEncryptedMessage * blockSizeInBytes];
+        int remainderBytes = plainText.length % encryptionAlgorithm.getBlockSizeInBytes();
+        byte[] paddingBlock = new byte[16];
+        if (remainderBytes == 0) {
+            paddingBlock[0] = 1;
+        } else {
+            System.arraycopy(plainText, (numberOfBlocksInEncryptedMessage - 1) * 16, paddingBlock, 0, remainderBytes);
+            paddingBlock[remainderBytes] = 1;
+        }
+        for (int i = 0; i < numberOfBlocksInEncryptedMessage; i++) {
+            byte[] encryptedBlock = new byte[blockSizeInBytes];
+            if (i != numberOfBlocksInEncryptedMessage - 1)
+                encryptedBlock = encryptionAlgorithm.encryptOneBlock(Arrays.copyOfRange(plainText, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
+            else encryptedBlock = encryptionAlgorithm.encryptOneBlock(paddingBlock);
             System.arraycopy(encryptedBlock, 0, encryptedMessage, i * blockSizeInBytes, blockSizeInBytes);
         }
         return encryptedMessage;
@@ -133,7 +135,7 @@ class EncryptionAlgorithmWithElectronicCodebook extends AbstractEncryptionAlgori
         TwoFish twoFish = new TwoFish(new long[2]);
         EncryptionAlgorithmWithElectronicCodebook electronicCodebook = new EncryptionAlgorithmWithElectronicCodebook(twoFish);
         byte[] pt = new byte[48];
-        Arrays.fill(pt, (byte) 0xff);
+        //Arrays.fill(pt, (byte) 0xff);
         byte[] ct = electronicCodebook.encryptMessage(pt);
         for (int i = 0; i < ct.length; i++) {
             System.out.print(Integer.toHexString(ct[i] & 0xff));

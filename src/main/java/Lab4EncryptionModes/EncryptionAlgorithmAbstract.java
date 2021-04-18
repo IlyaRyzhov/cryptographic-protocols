@@ -5,21 +5,13 @@ import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithmWithMode {
+abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
     protected final EncryptionAlgorithm encryptionAlgorithm;
 
-    protected AbstractEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
+    protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
     }
 
-    protected abstract byte[] getInitializationVector();
-
-    protected abstract void setInitializationVector(byte[] initializationVector);
-
-    protected final void generateInitializationVector(byte[] initializationVector) {
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(initializationVector);
-    }
 
     private int findLastOne(byte[] message) {
         int indexOfLastOne = 0;

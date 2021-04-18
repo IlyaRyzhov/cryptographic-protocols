@@ -9,7 +9,7 @@ import static Lab4EncryptionModes.EncryptionMode.*;
 
 public class Cipher implements EncryptionAlgorithmWithMode {
     private EncryptionMode encryptionMode;
-    private AbstractEncryptionAlgorithm encryptionAlgorithmWithMode;
+    private EncryptionAlgorithmAbstract encryptionAlgorithmWithMode;
 
     public Cipher(EncryptionAlgorithm encryptionAlgorithm, EncryptionMode encryptionMode) {
         this.encryptionMode = encryptionMode;

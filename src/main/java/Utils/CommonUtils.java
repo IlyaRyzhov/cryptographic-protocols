@@ -1,5 +1,7 @@
 package Utils;
 
+import java.io.File;
+
 public class CommonUtils {
 
     /**
@@ -115,5 +117,32 @@ public class CommonUtils {
     public static long convertByteArrayToLong(byte[] bytes) {
         return (bytes[0] & 0xFFL) << 56 ^ (bytes[1] & 0xFFL) << 48 ^ (bytes[2] & 0xFFL) << 40 ^ (bytes[3] & 0xFFL) << 32
                 ^ (bytes[4] & 0xFFL) << 24 ^ (bytes[5] & 0xFFL) << 16 ^ (bytes[6] & 0xFFL) << 8 ^ (bytes[7] & 0xFFL);
+    }
+
+    /**
+     * Создает абсолютное имя зашифрованного файла
+     *
+     * @param fileToEncrypt        файл, который нужно зашифровать
+     * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
+     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, имени файла и постфикса .encrypted
+     * @author ILya Ryzhov
+     */
+    public static String createAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
+        return pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted";
+    }
+
+
+    /**
+     * Создает абсолютное имя расшифрованного файла
+     *
+     * @param fileToDecrypt        файл, который нужно расшифровать
+     * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
+     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, префикса decrypted_
+     * и исходного имени файла до шифрования(без постфикса .encrypted)
+     * @author ILya Ryzhov
+     */
+    public static String createAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
+        String nameOfFileToDecrypt = fileToDecrypt.getName();
+        return pathForDecryptedFile + File.separator + "decrypted_" + nameOfFileToDecrypt.substring(0, nameOfFileToDecrypt.indexOf(".encrypted"));
     }
 }

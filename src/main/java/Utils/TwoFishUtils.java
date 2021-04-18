@@ -73,29 +73,4 @@ public class TwoFishUtils {
         return (a & 0b100000000) != 0 ? (char) (a ^ primitive) : a;
     }
 
-    /**
-     * Создает абсолютное имя зашифрованного файла
-     *
-     * @param fileToEncrypt        файл, который нужно зашифровать
-     * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
-     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, имени файла и постфикса .encrypted
-     * @author ILya Ryzhov
-     */
-    public static String createAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
-        return pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted";
-    }
-
-    /**
-     * Создает абсолютное имя расшифрованного файла
-     *
-     * @param fileToDecrypt        файл, который нужно расшифровать
-     * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
-     * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, префикса decrypted_
-     * и исходного имени файла до шифрования(без постфикса .encrypted)
-     * @author ILya Ryzhov
-     */
-    public static String createAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
-        String nameOfFileToDecrypt = fileToDecrypt.getName();
-        return pathForDecryptedFile + File.separator + "decrypted_" + nameOfFileToDecrypt.substring(0, nameOfFileToDecrypt.indexOf(".encrypted"));
-    }
 }
