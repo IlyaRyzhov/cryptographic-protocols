@@ -22,15 +22,15 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
         int numberOfBlocksInEncryptedMessage = (plainText.length / blockSizeInBytes) + 1;
         byte[] encryptedMessage = new byte[numberOfBlocksInEncryptedMessage * blockSizeInBytes];
         int remainderBytes = plainText.length % encryptionAlgorithm.getBlockSizeInBytes();
-        byte[] paddingBlock = new byte[16];
+        byte[] paddingBlock = new byte[blockSizeInBytes];
         if (remainderBytes == 0) {
             paddingBlock[0] = 1;
         } else {
-            System.arraycopy(plainText, (numberOfBlocksInEncryptedMessage - 1) * 16, paddingBlock, 0, remainderBytes);
+            System.arraycopy(plainText, (numberOfBlocksInEncryptedMessage - 1) * blockSizeInBytes, paddingBlock, 0, remainderBytes);
             paddingBlock[remainderBytes] = 1;
         }
         for (int i = 0; i < numberOfBlocksInEncryptedMessage; i++) {
-            byte[] encryptedBlock = new byte[blockSizeInBytes];
+            byte[] encryptedBlock;
             if (i != numberOfBlocksInEncryptedMessage - 1)
                 encryptedBlock = encryptionAlgorithm.encryptOneBlock(Arrays.copyOfRange(plainText, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
             else encryptedBlock = encryptionAlgorithm.encryptOneBlock(paddingBlock);
@@ -58,32 +58,34 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
      * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
      * @author ILya Ryzhov
      */
-    //TODO проверить на соответствие режиму шифрования
+    //TODO заменить в енкрипте и декрипте 16 на блоксайзинбайтс
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
+        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
                 byte[] plainData = new byte[Math.min(1048576, bufferedInputStream.available())];
                 bufferedInputStream.read(plainData, 0, plainData.length);
-                int numberOfBlocksToEncrypt = plainData.length / 16;
-                int remainderBytes = plainData.length % 16;
-                byte[] cipherData = new byte[(numberOfBlocksToEncrypt + 1) * 16];
+                int numberOfBlocksToEncrypt = plainData.length / blockSizeInBytes;
+                int remainderBytes = plainData.length % blockSizeInBytes;
+                byte[] cipherData = new byte[numberOfBlocksToEncrypt * blockSizeInBytes];
                 for (int i = 0; i < numberOfBlocksToEncrypt; i++) {
-                    byte[] blockOfPlainData = Arrays.copyOfRange(plainData, i * 16, (i + 1) * 16);
-                    System.arraycopy(encryptMessage(blockOfPlainData), 0, cipherData, i * 16, 16);
+                    byte[] blockOfPlainData = Arrays.copyOfRange(plainData, i * blockSizeInBytes, (i + 1) * blockSizeInBytes);
+                    System.arraycopy(encryptionAlgorithm.encryptOneBlock(blockOfPlainData), 0, cipherData, i * blockSizeInBytes, blockSizeInBytes);
                 }
-                byte[] paddingBlock = new byte[16];
-                if (remainderBytes == 0) {
-                    paddingBlock[0] = 1;
-                } else {
-                    System.arraycopy(plainData, numberOfBlocksToEncrypt * 16, paddingBlock, 0, remainderBytes);
-                    paddingBlock[remainderBytes] = 1;
-                }
-                System.arraycopy(encryptMessage(paddingBlock), 0, cipherData, numberOfBlocksToEncrypt * 16, 16);
                 bufferedOutputStream.write(cipherData);
+                if (bufferedInputStream.available() == 0) {
+                    byte[] paddingBlock = new byte[blockSizeInBytes];
+                    if (remainderBytes == 0) {
+                        paddingBlock[0] = 1;
+                    } else {
+                        System.arraycopy(plainData, numberOfBlocksToEncrypt * blockSizeInBytes, paddingBlock, 0, remainderBytes);
+                        paddingBlock[remainderBytes] = 1;
+                    }
+                    bufferedOutputStream.write(encryptionAlgorithm.encryptOneBlock(paddingBlock));
+                }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,34 +100,24 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
      */
     @Override
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
+        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
                 byte[] cipherData = new byte[Math.min(1048576, bufferedInputStream.available())];
                 bufferedInputStream.read(cipherData, 0, cipherData.length);
-                int numberOfBlocksToDecrypt = cipherData.length / 16;
-                byte[] plainData = new byte[numberOfBlocksToDecrypt * 16];
+                int numberOfBlocksToDecrypt = cipherData.length / blockSizeInBytes;
+                byte[] plainData = new byte[numberOfBlocksToDecrypt * blockSizeInBytes];
                 for (int i = 0; i < numberOfBlocksToDecrypt; i++) {
-                    byte[] blockOfCipherData = Arrays.copyOfRange(cipherData, i * 16, (i + 1) * 16);
-                    System.arraycopy(decryptMessage(blockOfCipherData), 0, plainData, i * 16, 16);
+                    byte[] blockOfCipherData = Arrays.copyOfRange(cipherData, i * blockSizeInBytes, (i + 1) * blockSizeInBytes);
+                    System.arraycopy(encryptionAlgorithm.decryptOneBlock(blockOfCipherData), 0, plainData, i * blockSizeInBytes, blockSizeInBytes);
                 }
                 if (bufferedInputStream.available() > 0)
                     bufferedOutputStream.write(plainData);
                 else {
-                    byte[] lastBlock = new byte[16];
-                    System.arraycopy(plainData, (numberOfBlocksToDecrypt - 1) * 16, lastBlock, 0, 16);
-                    int indexOfLastOne = 0;
-                    for (int i = 15; i >= 0; i--) {
-                        if (lastBlock[i] == 1) {
-                            indexOfLastOne = i;
-                            break;
-                        }
-                    }
-                    bufferedOutputStream.write(plainData, 0, plainData.length - 16);
-                    bufferedOutputStream.write(Arrays.copyOfRange(lastBlock, 0, indexOfLastOne));
+                    bufferedOutputStream.write(removePadding(plainData));
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -134,19 +126,6 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
     public static void main(String[] args) {
         TwoFish twoFish = new TwoFish(new long[2]);
         EncryptionAlgorithmWithElectronicCodebook electronicCodebook = new EncryptionAlgorithmWithElectronicCodebook(twoFish);
-        byte[] pt = new byte[48];
-        //Arrays.fill(pt, (byte) 0xff);
-        byte[] ct = electronicCodebook.encryptMessage(pt);
-        for (int i = 0; i < ct.length; i++) {
-            System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }
-        System.out.println();
-        pt = electronicCodebook.decryptMessage(ct);
-        for (int i = 0; i < pt.length; i++) {
-            System.out.print(Integer.toHexString(pt[i] & 0xff));
-        }
-        System.out.println();
-        //ct = electronicCodebook.encryptMessage(pt);
-
+        electronicCodebook.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");
     }
 }
