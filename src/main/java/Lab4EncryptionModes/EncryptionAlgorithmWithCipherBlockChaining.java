@@ -18,11 +18,6 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
         generateInitializationVector(initializationVector);
     }
 
-    public EncryptionAlgorithmWithCipherBlockChaining(EncryptionAlgorithm encryptionAlgorithm, byte[] initializationVector) {
-        super(encryptionAlgorithm);
-        setInitializationVector(initializationVector);
-    }
-
     @Override
     public byte[] encryptMessage(byte[] plainText) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
@@ -132,23 +127,16 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
                 decryptedBlock[j] ^= currentInitializationVector[j];
             }
             byte[] encryptedBlock = Arrays.copyOfRange(cipherData, i * blockSizeInBytes, (i + 1) * blockSizeInBytes);
-            /*byte[] rightPartOfCurrentInitializationVector = Arrays.copyOfRange(currentInitializationVector, blockSizeInBytes, initializationVector.length);
-            System.arraycopy(rightPartOfCurrentInitializationVector, 0, currentInitializationVector, 0, rightPartOfCurrentInitializationVector.length);
-            System.arraycopy(cipherData, i * blockSizeInBytes, currentInitializationVector, rightPartOfCurrentInitializationVector.length, blockSizeInBytes);*/
-            shiftRegisterWithFillingLSB(currentInitializationVector, encryptedBlock);
+            shiftLeftRegisterWithFillingLSB(currentInitializationVector, encryptedBlock);
             System.arraycopy(decryptedBlock, 0, plainData, i * blockSizeInBytes, blockSizeInBytes);
         }
     }
 
     private void encryptOneBlockOfMessage(byte[] currentInitializationVector, int blockSizeInBytes, byte[] cipherData, int offsetBlocksInCipherData) {
         byte[] encryptedBlock = encryptionAlgorithm.encryptOneBlock(Arrays.copyOf(currentInitializationVector, blockSizeInBytes));
-        /*byte[] rightPartOfCurrentInitializationVector = Arrays.copyOfRange(currentInitializationVector, blockSizeInBytes, initializationVector.length);
-        System.arraycopy(rightPartOfCurrentInitializationVector, 0, currentInitializationVector, 0, rightPartOfCurrentInitializationVector.length);
-        System.arraycopy(encryptedBlock, 0, currentInitializationVector, rightPartOfCurrentInitializationVector.length, encryptedBlock.length);*/
-        shiftRegisterWithFillingLSB(currentInitializationVector, encryptedBlock);
+        shiftLeftRegisterWithFillingLSB(currentInitializationVector, encryptedBlock);
         System.arraycopy(encryptedBlock, 0, cipherData, offsetBlocksInCipherData * blockSizeInBytes, blockSizeInBytes);
     }
-
 
     @Override
     public byte[] getInitializationVector() {

@@ -58,7 +58,6 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
      * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
      * @author ILya Ryzhov
      */
-    //TODO заменить в енкрипте и декрипте 16 на блоксайзинбайтс
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
         int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();

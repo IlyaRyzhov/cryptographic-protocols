@@ -13,7 +13,7 @@ public interface EncryptionModeWithInitializationVector {
         secureRandom.nextBytes(initializationVector);
     }
 
-    default void shiftRegisterWithFillingLSB(byte[] register, byte[] fillingValue) {
+    default void shiftLeftRegisterWithFillingLSB(byte[] register, byte[] fillingValue) {
         byte[] rightPartOfRegister = Arrays.copyOfRange(register, fillingValue.length, register.length);
         System.arraycopy(rightPartOfRegister, 0, register, 0, rightPartOfRegister.length);
         System.arraycopy(fillingValue, 0, register, rightPartOfRegister.length, fillingValue.length);
