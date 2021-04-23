@@ -18,10 +18,9 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
     //TODO Продебажить
     @Override
     public byte[] encryptMessage(byte[] plainText) {
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         int numberOfBlocksInEncryptedMessage = (plainText.length / blockSizeInBytes) + 1;
         byte[] encryptedMessage = new byte[numberOfBlocksInEncryptedMessage * blockSizeInBytes];
-        int remainderBytes = plainText.length % encryptionAlgorithm.getBlockSizeInBytes();
+        int remainderBytes = plainText.length % blockSizeInBytes;
         byte[] paddingBlock = new byte[blockSizeInBytes];
         if (remainderBytes == 0) {
             paddingBlock[0] = 1;
@@ -41,7 +40,6 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
 
     @Override
     public byte[] decryptMessage(byte[] cipherText) {
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         int numberOfBlocks = cipherText.length / blockSizeInBytes;
         byte[] decryptedMessage = new byte[cipherText.length];
         for (int i = 0; i < numberOfBlocks; i++) {
@@ -60,7 +58,6 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
      */
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
@@ -99,7 +96,6 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
      */
     @Override
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {

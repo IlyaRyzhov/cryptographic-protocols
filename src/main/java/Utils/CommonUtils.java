@@ -145,4 +145,17 @@ public class CommonUtils {
         String nameOfFileToDecrypt = fileToDecrypt.getName();
         return pathForDecryptedFile + File.separator + "decrypted_" + nameOfFileToDecrypt.substring(0, nameOfFileToDecrypt.indexOf(".encrypted"));
     }
+
+    /**
+     * Выводит массив байтов в 16-ричном представлении
+     *
+     * @param array выводимый массив
+     * @author Ilya Ryzhov
+     */
+    public static void printByteArrayHexFormat(byte[] array) {
+        for (byte b : array) {
+            System.out.print(Integer.toHexString(b & 0xff));
+        }
+        System.out.println();
+    }
 }

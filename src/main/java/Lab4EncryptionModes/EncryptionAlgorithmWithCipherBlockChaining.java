@@ -1,6 +1,7 @@
 package Lab4EncryptionModes;
 
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
+import Lab1EncryptionAlgorithm.GOST34122015;
 import Lab1EncryptionAlgorithm.TwoFish;
 
 import java.io.*;
@@ -14,7 +15,7 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
 
     public EncryptionAlgorithmWithCipherBlockChaining(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister) {
         super(encryptionAlgorithm);
-        initializationVector = new byte[numberOfBlocksInShiftRegister * encryptionAlgorithm.getBlockSizeInBytes()];
+        initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
         generateInitializationVector(initializationVector);
     }
 
@@ -22,10 +23,9 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
     public byte[] encryptMessage(byte[] plainText) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
         System.arraycopy(initializationVector, 0, currentInitializationVector, 0, initializationVector.length);
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         int numberOfBlocksInEncryptedMessage = (plainText.length / blockSizeInBytes) + 1;
         byte[] encryptedMessage = new byte[numberOfBlocksInEncryptedMessage * blockSizeInBytes];
-        int remainderBytes = plainText.length % encryptionAlgorithm.getBlockSizeInBytes();
+        int remainderBytes = plainText.length % blockSizeInBytes;
         byte[] paddingBlock = new byte[blockSizeInBytes];
         if (remainderBytes == 0) {
             paddingBlock[0] = 1;
@@ -48,7 +48,6 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
         System.arraycopy(initializationVector, 0, currentInitializationVector, 0, initializationVector.length);
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
@@ -88,7 +87,6 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
     public byte[] decryptMessage(byte[] cipherText) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
         System.arraycopy(initializationVector, 0, currentInitializationVector, 0, initializationVector.length);
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         int numberOfBlocks = cipherText.length / blockSizeInBytes;
         byte[] decryptedMessage = new byte[cipherText.length];
         decryptSequenceOfBlocksInMessage(currentInitializationVector, blockSizeInBytes, cipherText, numberOfBlocks, decryptedMessage);
@@ -99,7 +97,6 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
         byte[] currentInitializationVector = new byte[initializationVector.length];
         System.arraycopy(initializationVector, 0, currentInitializationVector, 0, initializationVector.length);
-        int blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
@@ -149,20 +146,27 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
     }
 
     public static void main(String[] args) {
-        TwoFish twoFish = new TwoFish(new long[2]);
+/*        TwoFish twoFish = new TwoFish(new long[2]);
         EncryptionAlgorithmWithCipherBlockChaining encryptionAlgorithmWithCipherBlockChaining = new EncryptionAlgorithmWithCipherBlockChaining(twoFish, 3);
         encryptionAlgorithmWithCipherBlockChaining.encryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"), "C:\\Users\\fvd\\Desktop");
-        encryptionAlgorithmWithCipherBlockChaining.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");
-/*        byte[] iv = new byte[16];
-        Arrays.fill(iv, (byte) 0xff);
-        byte[] pt = new byte[16];
-        Arrays.fill(pt, (byte) 0xff);
-        encryptionAlgorithmWithCipherBlockChaining.setInitializationVector(iv);
-        byte[] ct = encryptionAlgorithmWithCipherBlockChaining.encryptMessage(pt);
-        System.out.println(Arrays.toString(ct));
-        System.out.println(Arrays.toString(encryptionAlgorithmWithCipherBlockChaining.decryptMessage(ct)));
-        //16 [-97, 88, -97, 92, -10, 18, 44, 50, -74, -65, -20, 47, 42, -24, -61, 90, -79, 64, -13, 66, 50, -23, -1, 87, -100, 24, 92, 11, 22, -103, -102, -77]
-        //10 [53, -74, 12, -121, 15, -26, 37, -120, 40, -3, 9, 112, -91, 17, 40, 38]*/
+        encryptionAlgorithmWithCipherBlockChaining.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");*/
+        byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0, (byte) 0xa1, (byte) 0xb2,
+                (byte) 0xc3, (byte) 0xd4, (byte) 0xe5, (byte) 0xf0, 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78,
+                (byte) 0x89, (byte) 0x90, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
+        GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
+                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98,
+                0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef});
+        byte[] pt1 = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99,
+                (byte) 0x88, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff,
+                0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
+                (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
+                (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11};
+        EncryptionAlgorithmWithCipherBlockChaining encryptionAlgorithmWithCipherBlockChaining1 = new EncryptionAlgorithmWithCipherBlockChaining(gost34122015, 2);
+        encryptionAlgorithmWithCipherBlockChaining1.setInitializationVector(iv);
+        byte[] ct=encryptionAlgorithmWithCipherBlockChaining1.encryptMessage(pt1);
+        for (int i = 0; i < ct.length; i++) {
+            System.out.print(Integer.toHexString(ct[i] & 0xff));
+        }
     }
 
 }

@@ -2,14 +2,16 @@ package Lab4EncryptionModes;
 
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
     protected final EncryptionAlgorithm encryptionAlgorithm;
 
+    protected final int blockSizeInBytes;
+
     protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
+        this.blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
     }
 
 
