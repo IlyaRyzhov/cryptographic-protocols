@@ -1,4 +1,6 @@
-package Lab1EncryptionAlgorithm;
+package Lab4EncryptionModes;
+
+import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 
 import static Utils.CommonUtils.*;
 

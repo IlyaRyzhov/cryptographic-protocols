@@ -15,7 +15,7 @@ public class Cipher implements EncryptionAlgorithmWithMode {
         this.encryptionMode = encryptionMode;
         switch (encryptionMode) {
             case ECB:
-                encryptionAlgorithmWithMode = new EncryptionAlgorithmWithElectronicCodebook(encryptionAlgorithm);
+                encryptionAlgorithmWithMode = new EncryptionAlgorithmWithECB(encryptionAlgorithm);
                 break;
         }
     }

@@ -9,9 +9,9 @@ import java.util.Arrays;
 import static Utils.CommonUtils.createAbsoluteDecryptedFileName;
 import static Utils.CommonUtils.createAbsoluteEncryptedFileName;
 
-class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstract {
+class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
 
-    public EncryptionAlgorithmWithElectronicCodebook(EncryptionAlgorithm encryptionAlgorithm) {
+    public EncryptionAlgorithmWithECB(EncryptionAlgorithm encryptionAlgorithm) {
         super(encryptionAlgorithm);
     }
 
@@ -120,7 +120,7 @@ class EncryptionAlgorithmWithElectronicCodebook extends EncryptionAlgorithmAbstr
 
     public static void main(String[] args) {
         TwoFish twoFish = new TwoFish(new long[2]);
-        EncryptionAlgorithmWithElectronicCodebook electronicCodebook = new EncryptionAlgorithmWithElectronicCodebook(twoFish);
+        EncryptionAlgorithmWithECB electronicCodebook = new EncryptionAlgorithmWithECB(twoFish);
         electronicCodebook.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");
     }
 }

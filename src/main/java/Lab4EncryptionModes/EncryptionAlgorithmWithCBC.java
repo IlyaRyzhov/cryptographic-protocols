@@ -1,19 +1,19 @@
 package Lab4EncryptionModes;
 
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
-import Lab1EncryptionAlgorithm.GOST34122015;
-import Lab1EncryptionAlgorithm.TwoFish;
 
 import java.io.*;
 import java.util.Arrays;
 
 import static Utils.CommonUtils.createAbsoluteDecryptedFileName;
 import static Utils.CommonUtils.createAbsoluteEncryptedFileName;
+import static Utils.EncryptionModesUtils.generateInitializationVector;
+import static Utils.EncryptionModesUtils.shiftLeftRegisterWithFillingLSB;
 
-class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
 
-    public EncryptionAlgorithmWithCipherBlockChaining(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister) {
+    public EncryptionAlgorithmWithCBC(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister) {
         super(encryptionAlgorithm);
         initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
         generateInitializationVector(initializationVector);
@@ -150,7 +150,7 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
         EncryptionAlgorithmWithCipherBlockChaining encryptionAlgorithmWithCipherBlockChaining = new EncryptionAlgorithmWithCipherBlockChaining(twoFish, 3);
         encryptionAlgorithmWithCipherBlockChaining.encryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"), "C:\\Users\\fvd\\Desktop");
         encryptionAlgorithmWithCipherBlockChaining.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");*/
-        byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0, (byte) 0xa1, (byte) 0xb2,
+ /*       byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0, (byte) 0xa1, (byte) 0xb2,
                 (byte) 0xc3, (byte) 0xd4, (byte) 0xe5, (byte) 0xf0, 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78,
                 (byte) 0x89, (byte) 0x90, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
         GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
@@ -161,12 +161,12 @@ class EncryptionAlgorithmWithCipherBlockChaining extends EncryptionAlgorithmAbst
                 0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
                 (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
                 (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11};
-        EncryptionAlgorithmWithCipherBlockChaining encryptionAlgorithmWithCipherBlockChaining1 = new EncryptionAlgorithmWithCipherBlockChaining(gost34122015, 2);
-        encryptionAlgorithmWithCipherBlockChaining1.setInitializationVector(iv);
-        byte[] ct=encryptionAlgorithmWithCipherBlockChaining1.encryptMessage(pt1);
+        EncryptionAlgorithmWithCBC encryptionAlgorithmWithCBC1 = new EncryptionAlgorithmWithCBC(gost34122015, 2);
+        encryptionAlgorithmWithCBC1.setInitializationVector(iv);
+        byte[] ct= encryptionAlgorithmWithCBC1.encryptMessage(pt1);
         for (int i = 0; i < ct.length; i++) {
             System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }
+        }*/
     }
 
 }

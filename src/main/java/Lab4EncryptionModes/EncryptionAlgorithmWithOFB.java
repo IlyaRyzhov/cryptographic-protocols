@@ -1,22 +1,20 @@
 package Lab4EncryptionModes;
 
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
-import Lab1EncryptionAlgorithm.GOST34122015;
-import Lab1EncryptionAlgorithm.TwoFish;
 
 import java.io.*;
 import java.util.Arrays;
 
 import static Utils.CommonUtils.createAbsoluteDecryptedFileName;
 import static Utils.CommonUtils.createAbsoluteEncryptedFileName;
-import static Utils.EncryptionModesUtils.xorByteArrays;
+import static Utils.EncryptionModesUtils.*;
 
-public class EncryptionAlgorithmWithOutputFeedback extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
 
     private final int gammaLengthInBytes;
 
-    protected EncryptionAlgorithmWithOutputFeedback(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister, int gammaLengthInBytes) {
+    public EncryptionAlgorithmWithOFB(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister, int gammaLengthInBytes) {
         super(encryptionAlgorithm);
         initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
         generateInitializationVector(initializationVector);
@@ -120,7 +118,7 @@ public class EncryptionAlgorithmWithOutputFeedback extends EncryptionAlgorithmAb
         byte[] ct = encryptionAlgorithmWithOutputFeedback.encryptMessage(pt);
         System.out.println(Arrays.toString(ct));
         System.out.println(Arrays.toString(encryptionAlgorithmWithOutputFeedback.decryptMessage(ct)));*/
-        byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0, (byte) 0xa1, (byte) 0xb2,
+      /*  byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0, (byte) 0xa1, (byte) 0xb2,
                 (byte) 0xc3, (byte) 0xd4, (byte) 0xe5, (byte) 0xf0, 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78,
                 (byte) 0x89, (byte) 0x90, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
         GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
@@ -131,12 +129,12 @@ public class EncryptionAlgorithmWithOutputFeedback extends EncryptionAlgorithmAb
                 0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
                 (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
                 (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11};
-        EncryptionAlgorithmWithOutputFeedback encryptionAlgorithmWithOutputFeedback = new EncryptionAlgorithmWithOutputFeedback(gost34122015, 2, 16);
-        encryptionAlgorithmWithOutputFeedback.setInitializationVector(iv);
+        EncryptionAlgorithmWithOFB encryptionAlgorithmWithOFB = new EncryptionAlgorithmWithOFB(gost34122015, 2, 16);
+        encryptionAlgorithmWithOFB.setInitializationVector(iv);
         System.out.println(pt1.length);
-        byte[] ct = encryptionAlgorithmWithOutputFeedback.encryptMessage(pt1);
+        byte[] ct = encryptionAlgorithmWithOFB.encryptMessage(pt1);
         for (int i = 0; i < ct.length; i++) {
             System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }
+        }*/
     }
 }
