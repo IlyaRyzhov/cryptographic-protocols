@@ -112,4 +112,10 @@ public class EncryptionModesTest {
                 (byte) 0x82, (byte) 0xFA, (byte) 0xc8, (byte) 0xD4, 0x69, (byte) 0xD2, 0x21, (byte) 0xe7, (byte) 0xFB, (byte) 0xD6, (byte) 0xDE, 0x5D};
         assertArrayEquals(cipherMessage, expected);
     }
+
+    @Test
+    void encryptionAlgorithmWithOMAC() {
+        EncryptionAlgorithmWithOMAC encryptionAlgorithmWithOMAC=new EncryptionAlgorithmWithOMAC(gost34122015,8);
+        assertArrayEquals(encryptionAlgorithmWithOMAC.getImitationInsertFromMessage(message),convertLongArrayToByteArray(new long[]{0x336f4d296059fbe3L}));
+    }
 }

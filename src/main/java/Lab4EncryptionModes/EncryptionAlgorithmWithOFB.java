@@ -22,30 +22,30 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
     }
 
     @Override
-    public byte[] encryptMessage(byte[] plainText) {
+    public byte[] encryptMessage(byte[] plainMessage) {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
-        return encryptDataInMessage(currentInitializationVector, plainText);
+        return encryptDataInMessage(currentInitializationVector, plainMessage);
     }
 
     @Override
-    public byte[] decryptMessage(byte[] cipherText) {
-        return encryptMessage(cipherText);
+    public byte[] decryptMessage(byte[] encryptedMessage) {
+        return encryptMessage(encryptedMessage);
     }
 
     private byte[] encryptDataInMessage(byte[] currentInitializationVector, byte[] plainData) {
-        byte[] cipherData = new byte[plainData.length];
+        byte[] encryptedData = new byte[plainData.length];
         for (int i = 0; i < plainData.length; i += gammaLengthInBytes) {
             byte[] gamma = encryptionAlgorithm.encryptOneBlock(Arrays.copyOf(currentInitializationVector, blockSizeInBytes));
             shiftLeftRegisterWithFillingLSB(currentInitializationVector, gamma);
             byte[] encryptedBlock = Arrays.copyOfRange(plainData, i, Math.min(i + gammaLengthInBytes, plainData.length));
-            xorByteArrays(encryptedBlock, gamma);
-            System.arraycopy(encryptedBlock, 0, cipherData, i, encryptedBlock.length);
+            xorByteArrays(encryptedBlock, gamma,encryptedBlock.length);
+            System.arraycopy(encryptedBlock, 0, encryptedData, i, encryptedBlock.length);
         }
-        return cipherData;
+        return encryptedData;
     }
 
     @Override
-    protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
+    protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
         while (bufferedInputStream.available() > 0) {
             byte[] plainData = bufferedInputStream.readNBytes(bufferSize);
@@ -54,8 +54,8 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
     }
 
     @Override
-    protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
-        encryptDataInFile(bufferedInputStream,bufferedOutputStream,bufferSize);
+    protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
+        encryptDataInFile(bufferedInputStream, bufferedOutputStream);
     }
 
     @Override

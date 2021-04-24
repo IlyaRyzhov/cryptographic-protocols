@@ -3,11 +3,11 @@ package Lab4EncryptionModes;
 import java.io.File;
 
 public interface EncryptionAlgorithmWithMode {
-    byte[] encryptMessage(byte[] plainText);
+    byte[] encryptMessage(byte[] plainMessage);
 
-    byte[] decryptMessage(byte[] cipherText);
+    byte[] decryptMessage(byte[] encryptedMessage);
 
-    void encryptFile(File fileToEncrypt, String pathForEncryptedFile, int bufferSize);
+    void encryptFile(File fileToEncrypt, String pathForEncryptedFile);
 
-    void decryptFile(File fileToDecrypt, String pathForDecryptedFile, int bufferSize);
+    void decryptFile(File fileToDecrypt, String pathForDecryptedFile);
 }

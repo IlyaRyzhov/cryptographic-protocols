@@ -10,8 +10,12 @@ import static Utils.CommonUtils.getAbsoluteEncryptedFileName;
 
 abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
     protected final EncryptionAlgorithm encryptionAlgorithm;
-
     protected final int blockSizeInBytes;
+    protected int bufferSize;//кратен длине обрабатываемого в режиме блока(либо блока базового шифра либо гаммы)
+
+    {
+        bufferSize = 1048576;
+    }
 
     protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
@@ -42,40 +46,42 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
     }
 
     protected final byte[] getPaddingBlock(byte[] message) {
-        int numberOfBlocksInEncryptedMessage = (message.length / blockSizeInBytes) + 1;
         int remainderBytes = message.length % blockSizeInBytes;
         byte[] paddingBlock = new byte[blockSizeInBytes];
         if (remainderBytes == 0) {
             paddingBlock[0] = 1;
         } else {
-            System.arraycopy(message, (numberOfBlocksInEncryptedMessage - 1) * blockSizeInBytes, paddingBlock, 0, remainderBytes);
+            System.arraycopy(message, message.length - remainderBytes, paddingBlock, 0, remainderBytes);
             paddingBlock[remainderBytes] = 1;
         }
         return paddingBlock;
     }
 
     @Override
-    public final void encryptFile(File fileToEncrypt, String pathForEncryptedFile, int bufferSize) {
+    public final void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), bufferSize);
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), bufferSize)) {
-            encryptDataInFile(inputStream, outputStream, bufferSize);
+            encryptDataInFile(inputStream, outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public final void decryptFile(File fileToDecrypt, String pathForDecryptedFile, int bufferSize) {
+    public final void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), bufferSize);
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), bufferSize)) {
-            decryptDataInFile(inputStream, outputStream, bufferSize);
+            decryptDataInFile(inputStream, outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public final void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
 
-    protected abstract void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException;
+    protected abstract void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException;
 
-    protected abstract void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException;
+    protected abstract void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException;
 }
