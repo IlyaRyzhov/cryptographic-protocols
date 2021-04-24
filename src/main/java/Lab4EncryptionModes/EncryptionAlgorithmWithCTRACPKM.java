@@ -10,10 +10,10 @@ import static Utils.EncryptionModesUtils.*;
 
 public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
-    private final int numberOfBlocksInSection;
     private final int gammaLengthInBytes;
-
+    private final int lengthOfSectionInBytes;
     private final byte[] dSubstitution;
+    private final int numberOfBlocksWithLengthOfGammaInSection;
 
     {
         dSubstitution = new byte[]{
@@ -36,28 +36,22 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
         initializationVector = new byte[blockSizeInBytes / 2];
         generateInitializationVector(initializationVector);
         this.gammaLengthInBytes = gammaLengthInBytes;
-        this.numberOfBlocksInSection = numberOfBlocksInSection;
+        this.lengthOfSectionInBytes = numberOfBlocksInSection * blockSizeInBytes;
+        this.numberOfBlocksWithLengthOfGammaInSection = lengthOfSectionInBytes / gammaLengthInBytes;
     }
 
 
     @Override
     public byte[] encryptMessage(byte[] plainText) {
-        int lengthOfSectionInBytes = numberOfBlocksInSection * blockSizeInBytes;
         int numberOfBlocksWithLengthOfGamma = (int) Math.ceil((double) plainText.length / gammaLengthInBytes);
-        int remainderBytes = plainText.length % gammaLengthInBytes;
         byte[] encryptedMessage = new byte[plainText.length];
         byte[] counter = Arrays.copyOf(initializationVector, blockSizeInBytes);
         EncryptionAlgorithm encryptionAlgorithm = this.encryptionAlgorithm.getInstance();
-        byte[] blockOfPlainText = new byte[gammaLengthInBytes];
-        int numberOfBlocksWithLengthOfGammaInSection = lengthOfSectionInBytes / gammaLengthInBytes;
+        byte[] blockOfPlainText;
         for (int i = 0; i < numberOfBlocksWithLengthOfGamma; i++) {
             if (i % numberOfBlocksWithLengthOfGammaInSection == 0 && i != 0)
                 encryptionAlgorithm.setKey(convertByteArrayToLongArray(getNextSectionKey(encryptionAlgorithm)));
-            if (remainderBytes != 0 && i == numberOfBlocksWithLengthOfGamma - 1) {
-                blockOfPlainText = Arrays.copyOfRange(plainText, i * gammaLengthInBytes, plainText.length);
-            } else {
-                System.arraycopy(plainText, i * gammaLengthInBytes, blockOfPlainText, 0, gammaLengthInBytes);
-            }
+            blockOfPlainText = Arrays.copyOfRange(plainText, i * gammaLengthInBytes, Math.min((i + 1) * gammaLengthInBytes, plainText.length));
             byte[] encryptedCounter = Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(counter), blockOfPlainText.length);
             xorByteArrays(encryptedCounter, blockOfPlainText);
             System.arraycopy(encryptedCounter, 0, encryptedMessage, i * gammaLengthInBytes, encryptedCounter.length);
@@ -70,40 +64,36 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
     public byte[] decryptMessage(byte[] cipherText) {
         return encryptMessage(cipherText);
     }
-
+    //TODO переделать работу с файлом
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
-        int lengthOfSectionInBytes = numberOfBlocksInSection * blockSizeInBytes;
         byte[] counter = Arrays.copyOf(initializationVector, blockSizeInBytes);
         EncryptionAlgorithm encryptionAlgorithm = this.encryptionAlgorithm.getInstance();
         byte[] blockOfPlainText = new byte[gammaLengthInBytes];
-        int numberOfBlocksWithLengthOfGammaInSection = lengthOfSectionInBytes / gammaLengthInBytes;
         int numberOfProcessedBlocksWithLengthOfGamma = 0;
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
             encryptDataInFile(counter, encryptionAlgorithm, blockOfPlainText, numberOfBlocksWithLengthOfGammaInSection, numberOfProcessedBlocksWithLengthOfGamma, bufferedInputStream, bufferedOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    //TODO переделать работу с файлом
     @Override
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
-        int lengthOfSectionInBytes = numberOfBlocksInSection * blockSizeInBytes;
         byte[] counter = Arrays.copyOf(initializationVector, blockSizeInBytes);
         EncryptionAlgorithm encryptionAlgorithm = this.encryptionAlgorithm.getInstance();
         byte[] blockOfPlainText = new byte[gammaLengthInBytes];
-        int numberOfBlocksWithLengthOfGammaInSection = lengthOfSectionInBytes / gammaLengthInBytes;
         int numberOfProcessedBlocksWithLengthOfGamma = 0;
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
             encryptDataInFile(counter, encryptionAlgorithm, blockOfPlainText, numberOfBlocksWithLengthOfGammaInSection,
                     numberOfProcessedBlocksWithLengthOfGamma, bufferedInputStream, bufferedOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    //TODO переделать работу с файлом
     private void encryptDataInFile(byte[] counter, EncryptionAlgorithm encryptionAlgorithm, byte[] blockOfPlainText,
                                    int numberOfBlocksWithLengthOfGammaInSection, int numberOfProcessedBlocksWithLengthOfGamma,
                                    BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
@@ -150,36 +140,5 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
             System.arraycopy(partOfNextKey, 0, nextKey, i * blockSizeInBytes, blockSizeInBytes);
         }
         return Arrays.copyOf(nextKey, keySizeInBytes);
-    }
-
-
-    public static void main(String[] args) {
-/*        TwoFish twoFish = new TwoFish(new long[2]);
-        EncryptionAlgorithmWithCTRACPKM encryptionAlgorithmWithCTRACPKM = new EncryptionAlgorithmWithCTRACPKM(twoFish, 2, 8);
-        encryptionAlgorithmWithCTRACPKM.encryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"), "C:\\Users\\fvd\\Desktop");
-        encryptionAlgorithmWithCTRACPKM.decryptFile(new File("C:\\Users\\fvd\\Desktop\\100MB.txt.encrypted"), "C:\\Users\\fvd\\Desktop");
-
-        byte[] pt = new byte[65];
-        byte[] ct = encryptionAlgorithmWithCTRACPKM.encryptMessage(pt);
-        System.out.println(Arrays.toString(ct));
-        System.out.println(Arrays.toString(encryptionAlgorithmWithCTRACPKM.decryptMessage(ct)));*/
-  /*      byte[] iv = new byte[]{0x12, 0x34, 0x56, 0x78, (byte) 0x90, (byte) 0xab, (byte) 0xce, (byte) 0xf0};
-        GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
-                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98,
-                0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef});
-        byte[] pt1 = new byte[]{
-                0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88,
-                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a,
-                0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00,
-                0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11,
-                0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xEE, (byte) 0xFF, 0x0A, 0x00, 0x11, 0x22,
-                0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xEE, (byte) 0xFF, 0x0A, 0x00, 0x11, 0x22, 0x33,
-                0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xEE, (byte) 0xFF, 0x0A, 0x00, 0x11, 0x22, 0x33, 0x44};
-        EncryptionAlgorithmWithCTRACPKM encryptionAlgorithmWithCTRACPKM = new EncryptionAlgorithmWithCTRACPKM(gost34122015, 2, 16);
-        encryptionAlgorithmWithCTRACPKM.setInitializationVector(iv);
-        byte[] ct = encryptionAlgorithmWithCTRACPKM.encryptMessage(pt1);
-        for (int i = 0; i < ct.length; i++) {
-            System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }*/
     }
 }

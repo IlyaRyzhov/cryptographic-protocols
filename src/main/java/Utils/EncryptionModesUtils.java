@@ -34,6 +34,17 @@ public class EncryptionModesUtils {
         }
     }
 
+    public static void xorByteArrays(byte[] firstArray, byte[] secondArray, int offsetInSecondArray, int numberOfElementsToXor) {
+        for (int i = 0; i < numberOfElementsToXor; i++) {
+            firstArray[i] ^= secondArray[i + offsetInSecondArray];
+        }
+    }
+
+    public static void xorByteArrays(byte[] firstArray, byte[] secondArray, int numberOfElementsToXor) {
+        for (int i = 0; i < numberOfElementsToXor; i++) {
+            firstArray[i] ^= secondArray[i];
+        }
+    }
 
     public static byte[] multiplyPolynomialsModPrimitivePolynomial(byte[] firstPolynomial, byte[] secondPolynomial, byte[] primitivePolynomial) {
         int degreeOfMonomial = 0;

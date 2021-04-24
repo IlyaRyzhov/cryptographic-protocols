@@ -6,8 +6,8 @@ import Lab1EncryptionAlgorithm.TwoFish;
 import java.io.*;
 import java.util.Arrays;
 
-import static Utils.CommonUtils.createAbsoluteDecryptedFileName;
-import static Utils.CommonUtils.createAbsoluteEncryptedFileName;
+import static Utils.CommonUtils.getAbsoluteDecryptedFileName;
+import static Utils.CommonUtils.getAbsoluteEncryptedFileName;
 
 class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
 
@@ -15,21 +15,13 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
         super(encryptionAlgorithm);
     }
 
-    //TODO Продебажить
     @Override
     public byte[] encryptMessage(byte[] plainText) {
         int numberOfBlocksInEncryptedMessage = (plainText.length / blockSizeInBytes) + 1;
         byte[] encryptedMessage = new byte[numberOfBlocksInEncryptedMessage * blockSizeInBytes];
-        int remainderBytes = plainText.length % blockSizeInBytes;
-        byte[] paddingBlock = new byte[blockSizeInBytes];
-        if (remainderBytes == 0) {
-            paddingBlock[0] = 1;
-        } else {
-            System.arraycopy(plainText, (numberOfBlocksInEncryptedMessage - 1) * blockSizeInBytes, paddingBlock, 0, remainderBytes);
-            paddingBlock[remainderBytes] = 1;
-        }
+        byte[] paddingBlock = getPaddingBlock(plainText);
+        byte[] encryptedBlock;
         for (int i = 0; i < numberOfBlocksInEncryptedMessage; i++) {
-            byte[] encryptedBlock;
             if (i != numberOfBlocksInEncryptedMessage - 1)
                 encryptedBlock = encryptionAlgorithm.encryptOneBlock(Arrays.copyOfRange(plainText, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
             else encryptedBlock = encryptionAlgorithm.encryptOneBlock(paddingBlock);
@@ -42,8 +34,9 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
     public byte[] decryptMessage(byte[] cipherText) {
         int numberOfBlocks = cipherText.length / blockSizeInBytes;
         byte[] decryptedMessage = new byte[cipherText.length];
+        byte[] decryptedBlock;
         for (int i = 0; i < numberOfBlocks; i++) {
-            byte[] decryptedBlock = encryptionAlgorithm.decryptOneBlock(Arrays.copyOfRange(cipherText, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
+            decryptedBlock = encryptionAlgorithm.decryptOneBlock(Arrays.copyOfRange(cipherText, i * blockSizeInBytes, (i + 1) * blockSizeInBytes));
             System.arraycopy(decryptedBlock, 0, decryptedMessage, i * blockSizeInBytes, blockSizeInBytes);
         }
         return removePadding(decryptedMessage);
@@ -56,10 +49,11 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
      * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
      * @author ILya Ryzhov
      */
+    //TODO переделать работу с файлом
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToEncrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteEncryptedFileName(fileToEncrypt, pathForEncryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
                 byte[] plainData = new byte[Math.min(1048576, bufferedInputStream.available())];
                 bufferedInputStream.read(plainData, 0, plainData.length);
@@ -94,10 +88,11 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
      * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
      * @author ILya Ryzhov
      */
+    //TODO переделать работу с файлом
     @Override
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileToDecrypt), 1048576);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(createAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(getAbsoluteDecryptedFileName(fileToDecrypt, pathForDecryptedFile)), 1048576)) {
             while (bufferedInputStream.available() > 0) {
                 byte[] cipherData = new byte[Math.min(1048576, bufferedInputStream.available())];
                 bufferedInputStream.read(cipherData, 0, cipherData.length);

@@ -8,8 +8,8 @@ import java.util.Arrays;
 import static Utils.EncryptionModesUtils.multiplyPolynomialsModPrimitivePolynomial;
 import static Utils.EncryptionModesUtils.xorByteArrays;
 
-public class EncryptionAlgorithmWithOMAC extends EncryptionAlgorithmAbstract {
-    private final int gammaLengthInBytes;
+public class EncryptionAlgorithmWithOMAC  {
+/*    private final int gammaLengthInBytes;
     private final byte[] auxiliaryKeyOne;
     private final byte[] auxiliaryKeyTwo;
     private static final byte[] primitivePolynomial;
@@ -94,31 +94,5 @@ public class EncryptionAlgorithmWithOMAC extends EncryptionAlgorithmAbstract {
         xorByteArrays(computedImitationInsert, auxiliaryKeyOne);
         computedImitationInsert = Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(computedImitationInsert), gammaLengthInBytes);
         return null;
-    }
-
-    @Override
-    public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
-
-    }
-
-    @Override
-    public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
-
-    }
-
-    public static void main(String[] args) {
-      /*  GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
-                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98,
-                0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef});
-        byte[] pt1 = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99,
-                (byte) 0x88, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff,
-                0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
-                (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
-                (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11};
-        EncryptionAlgorithmWithOMAC encryptionAlgorithmWithOMAC = new EncryptionAlgorithmWithOMAC(gost34122015, 8);
-        byte[] ct = encryptionAlgorithmWithOMAC.encryptMessage(pt1);
-        printByteArrayHexFormat(ct);
-        byte[] pt = encryptionAlgorithmWithOMAC.decryptMessage(ct);
-        printByteArrayHexFormat(pt);*/
-    }
+    }*/
 }

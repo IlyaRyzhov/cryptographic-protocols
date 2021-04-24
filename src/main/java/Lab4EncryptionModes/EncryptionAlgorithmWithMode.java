@@ -7,7 +7,7 @@ public interface EncryptionAlgorithmWithMode {
 
     byte[] decryptMessage(byte[] cipherText);
 
-    void encryptFile(File fileToEncrypt, String pathForEncryptedFile);
+    void encryptFile(File fileToEncrypt, String pathForEncryptedFile, int bufferSize);
 
-    void decryptFile(File fileToDecrypt, String pathForDecryptedFile);
+    void decryptFile(File fileToDecrypt, String pathForDecryptedFile, int bufferSize);
 }

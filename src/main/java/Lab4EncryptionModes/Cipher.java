@@ -7,6 +7,7 @@ import java.io.File;
 
 import static Lab4EncryptionModes.EncryptionMode.*;
 
+/*
 public class Cipher implements EncryptionAlgorithmWithMode {
     private EncryptionMode encryptionMode;
     private EncryptionAlgorithmAbstract encryptionAlgorithmWithMode;
@@ -36,7 +37,7 @@ public class Cipher implements EncryptionAlgorithmWithMode {
     }
 
     @Override
-    public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
+    public void decryptFile(File fileToDecrypt, String pathForDecryptedFile,int) {
         encryptionAlgorithmWithMode.decryptFile(fileToDecrypt, pathForDecryptedFile);
     }
 
@@ -49,3 +50,4 @@ public class Cipher implements EncryptionAlgorithmWithMode {
         }
     }
 }
+*/

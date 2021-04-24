@@ -127,7 +127,7 @@ public class CommonUtils {
      * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, имени файла и постфикса .encrypted
      * @author ILya Ryzhov
      */
-    public static String createAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
+    public static String getAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
         return pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted";
     }
 
@@ -141,7 +141,7 @@ public class CommonUtils {
      * и исходного имени файла до шифрования(без постфикса .encrypted)
      * @author ILya Ryzhov
      */
-    public static String createAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
+    public static String getAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
         String nameOfFileToDecrypt = fileToDecrypt.getName();
         return pathForDecryptedFile + File.separator + "decrypted_" + nameOfFileToDecrypt.substring(0, nameOfFileToDecrypt.indexOf(".encrypted"));
     }

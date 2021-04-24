@@ -3,7 +3,10 @@ package Lab4EncryptionModes;
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 import Utils.EncryptionModesUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static Utils.CommonUtils.convertLongArrayToByteArray;
@@ -32,7 +35,6 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         this.additionalAuthenticatedDataLengthInBytes = additionalAuthenticatedDataLengthInBytes;
     }
 
-    //TODO  проверка ad=0 pd=0
     @Override
     public byte[] encryptMessage(byte[] plainTextWithAdditionalAuthenticatedData) {
         byte[] additionalAuthenticatedData = Arrays.copyOf(plainTextWithAdditionalAuthenticatedData, additionalAuthenticatedDataLengthInBytes);
@@ -62,15 +64,19 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         return result;
     }
 
+/*
+    //TODO переделать работу с файлом
     @Override
     public void encryptFile(File fileToEncrypt, String pathForEncryptedFile) {
 
     }
 
+    //TODO переделать работу с файлом
     @Override
     public void decryptFile(File fileToDecrypt, String pathForDecryptedFile) {
 
     }
+*/
 
     @Override
     public void setInitializationVector(byte[] initializationVector) {
@@ -115,58 +121,32 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
     }
 
     private byte[] encryptPlainData(byte[] plainData, byte[] firstGamma) {
-        int remainder = plainData.length % blockSizeInBytes;
-        byte[] blockOfPlainText;
+        byte[] plainBlock;
         byte[] encryptedBlock;
         byte[] encryptedData = new byte[plainData.length];
         for (int i = 0; i < plainData.length; i += blockSizeInBytes) {
-            if (i != plainData.length - remainder) {
-                blockOfPlainText = Arrays.copyOfRange(plainData, i, i + blockSizeInBytes);
-            } else blockOfPlainText = Arrays.copyOfRange(plainData, i, plainData.length);
+            plainBlock = Arrays.copyOfRange(plainData, i, Math.min(i + blockSizeInBytes, plainData.length));
             encryptedBlock = encryptionAlgorithm.encryptOneBlock(firstGamma);
-            xorByteArrays(encryptedBlock, blockOfPlainText);
-            System.arraycopy(encryptedBlock, 0, encryptedData, i, blockOfPlainText.length);
+            xorByteArrays(encryptedBlock, plainBlock);
+            System.arraycopy(encryptedBlock, 0, encryptedData, i, plainBlock.length);
             EncryptionModesUtils.rightIncrementGamma(firstGamma);
         }
         return encryptedData;
     }
 
     private byte[] getNextH(byte[] currentGamma) {
-        byte[] nextH = new byte[blockSizeInBytes];
-        System.arraycopy(encryptionAlgorithm.encryptOneBlock(currentGamma), 0, nextH, 0, blockSizeInBytes);
+        byte[] nextH = encryptionAlgorithm.encryptOneBlock(currentGamma);
         leftIncrementGamma(currentGamma);
         return nextH;
     }
 
+    @Override
+    protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
 
-    public static void main(String[] args) {
-        /*GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
-                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98,
-                0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef});
-        byte[] iv = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xFF, (byte) 0xee, (byte) 0xDD, (byte) 0xcc, (byte) 0xbb,
-                (byte) 0xaa, (byte) 0x99, (byte) 0x88};
-        byte[] pt1 = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99,
-                (byte) 0x88, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff,
-                0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
-                (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
-                (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc};
-        byte[] ad = new byte[]{0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-                0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, (byte) 0xea, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05};
-        System.out.println(ad.length);
-        System.out.println(pt1.length);
-        byte[] data = new byte[]{0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-                0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, (byte) 0xea, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x11, 0x22, 0x33, 0x44,
-                0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99,
-                (byte) 0x88, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff,
-                0x0a, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
-                (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99,
-                (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, (byte) 0xff, 0x0a, 0x00, 0x11, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc};
-        System.out.println(data.length);
-        EncryptionAlgorithmWithMGM encryptionAlgorithmWithMGM = new EncryptionAlgorithmWithMGM(gost34122015, iv.length, 41);
-        encryptionAlgorithmWithMGM.setInitializationVector(iv);
-        byte[] ct = encryptionAlgorithmWithMGM.encryptMessage(data);
-        printByteArrayHexFormat(ct);
-        byte[] pt = encryptionAlgorithmWithMGM.decryptMessage(ct);
-        printByteArrayHexFormat(pt);*/
+    }
+
+    @Override
+    protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
+
     }
 }
