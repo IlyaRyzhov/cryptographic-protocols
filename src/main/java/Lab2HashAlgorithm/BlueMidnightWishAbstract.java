@@ -1,11 +1,11 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.*;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.*;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 
 abstract class BlueMidnightWishAbstract implements HashFunction {
@@ -207,8 +207,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
         long fileLength = hashableFile.length();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(hashableFile), 1048576)) {
             while (bufferedInputStream.available() > 0) {
-                byte[] data = new byte[Math.min(1048576, bufferedInputStream.available())];
-                bufferedInputStream.read(data, 0, data.length);
+                byte[] data = bufferedInputStream.readNBytes(1048576);
                 if (bufferedInputStream.available() > 0)
                     repeatCompressIterationUntilLastBlock(data);
                 else {

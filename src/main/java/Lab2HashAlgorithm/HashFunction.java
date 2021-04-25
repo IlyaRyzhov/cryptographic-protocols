@@ -1,4 +1,4 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
 import java.io.File;
 

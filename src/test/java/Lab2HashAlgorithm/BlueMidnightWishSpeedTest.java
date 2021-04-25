@@ -1,11 +1,9 @@
 package Lab2HashAlgorithm;
 
-import Lab2HashAlgorithm.myImplementation.BlueMidnightWish;
-
 import java.io.File;
 import java.util.Arrays;
 
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.values;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.values;
 
 public class BlueMidnightWishSpeedTest {
     public static void speedTestForArbitraryBlocksOfHashableMessage(BlueMidnightWish blueMidnightWish) {

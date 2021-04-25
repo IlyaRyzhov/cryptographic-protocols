@@ -1,4 +1,4 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

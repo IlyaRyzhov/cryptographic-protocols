@@ -1,4 +1,4 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
 public enum BlueMidnightWishDigestSize {
     BLUE_MIDNIGHT_WISH_224("BMW 224"),

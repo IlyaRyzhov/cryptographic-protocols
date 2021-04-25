@@ -1,9 +1,9 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
 import java.io.File;
 
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_224;
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_256;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_224;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_256;
 
 public class BlueMidnightWish implements HashFunction {
     private BlueMidnightWishAbstract blueMidnightWishImplementation;

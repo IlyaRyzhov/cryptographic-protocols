@@ -1,11 +1,9 @@
 package Lab2HashAlgorithm;
 
-import Lab2HashAlgorithm.myImplementation.BlueMidnightWish;
-import Lab2HashAlgorithm.myImplementation.HMAC;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.*;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.*;
 import static Utils.CommonUtils.convertIntArrayToByteArray;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

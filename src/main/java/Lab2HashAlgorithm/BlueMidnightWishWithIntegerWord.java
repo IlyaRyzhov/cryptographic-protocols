@@ -1,7 +1,7 @@
-package Lab2HashAlgorithm.myImplementation;
+package Lab2HashAlgorithm;
 
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_224;
-import static Lab2HashAlgorithm.myImplementation.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_256;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_224;
+import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_256;
 import static Utils.CommonUtils.convertByteArrayToIntArrayLittleEndian;
 import static Utils.CommonUtils.convertIntArrayToByteArray;
 
