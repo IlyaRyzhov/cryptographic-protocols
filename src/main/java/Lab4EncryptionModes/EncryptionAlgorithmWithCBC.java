@@ -16,6 +16,7 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         super(encryptionAlgorithm);
         initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
         generateInitializationVector(initializationVector);
+        setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
     @Override
@@ -44,6 +45,11 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         byte[] decryptedMessage = new byte[encryptedMessage.length];
         decryptDataInMessage(currentInitializationVector, encryptedMessage, decryptedMessage);
         return removePadding(decryptedMessage);
+    }
+
+    @Override
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 
     @Override
@@ -96,7 +102,6 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
 
 
     @Override
-
     public byte[] getInitializationVector() {
         return initializationVector;
     }

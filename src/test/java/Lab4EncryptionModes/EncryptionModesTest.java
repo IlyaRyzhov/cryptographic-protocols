@@ -1,8 +1,10 @@
 package Lab4EncryptionModes;
 
+import Lab1EncryptionAlgorithm.TwoFish;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.*;
 import java.util.Arrays;
 
 import static Utils.CommonUtils.*;
@@ -23,7 +25,7 @@ public class EncryptionModesTest {
 
     @Test
     @DisplayName("Шифрование и расшифровка сообщений в режиме CBC")
-    void encryptionAlgorithmWithCBC() {
+    void encryptMessageEncryptionAlgorithmWithCBCTest() {
         EncryptionAlgorithmWithCBC encryptionAlgorithmWithCBC = new EncryptionAlgorithmWithCBC(gost34122015, 2);
         encryptionAlgorithmWithCBC.setInitializationVector(initializationVector);
         byte[] cipherMessage = encryptionAlgorithmWithCBC.encryptMessage(message);
@@ -31,11 +33,12 @@ public class EncryptionModesTest {
                 0xaf1e8e448d5ea5acL, 0xfe7babf1e91999e8L, 0x5640e8b0f49d90d0L, 0x167688065a895c63L, 0x1a2d9a1560b63970L});
         assertArrayEquals(Arrays.copyOf(cipherMessage, expected.length), expected);
         assertArrayEquals(encryptionAlgorithmWithCBC.decryptMessage(cipherMessage), message);
+        encryptFileTest(new EncryptionAlgorithmWithCBC(new TwoFish(new long[2]), 2));
     }
 
     @Test
     @DisplayName("Шифрование и расшифровка сообщений в режиме ECB")
-    void encryptionAlgorithmWithECB() {
+    void encryptMessageEncryptionAlgorithmWithECBTest() {
         EncryptionAlgorithmWithECB encryptionAlgorithmWithECB = new EncryptionAlgorithmWithECB(gost34122015);
         byte[] cipherMessage = encryptionAlgorithmWithECB.encryptMessage(message);
         byte[] expected = convertLongArrayToByteArray(new long[]{0x7f679d90bebc2430L, 0x5a468d42b9d4edcdL, 0xb429912c6e0032f9L,
@@ -46,7 +49,7 @@ public class EncryptionModesTest {
 
     @Test
     @DisplayName("Шифрование и расшифровка сообщений в режиме OFB")
-    void encryptionAlgorithmWithOFB() {
+    void encryptMessageEncryptionAlgorithmWithOFBTest() {
         EncryptionAlgorithmWithOFB encryptionAlgorithmWithOFB = new EncryptionAlgorithmWithOFB(gost34122015, 2, 16);
         encryptionAlgorithmWithOFB.setInitializationVector(initializationVector);
         byte[] cipherMessage = encryptionAlgorithmWithOFB.encryptMessage(message);
@@ -58,7 +61,7 @@ public class EncryptionModesTest {
 
     @Test
     @DisplayName("Шифрование и расшифровка сообщений в режиме MGM")
-    void encryptionAlgorithmWithMGM() {
+    void encryptMessageEncryptionAlgorithmWithMGMTest() {
         byte[] message = new byte[]{0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x04, 0x04, 0x04, 0x04, 0x04,
                 0x04, 0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, (byte) 0xea, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x11, 0x22, 0x33,
                 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88, 0x00, 0x11,
@@ -86,11 +89,12 @@ public class EncryptionModesTest {
         assertArrayEquals(imitationInsert, expectedImitationInsert);
         byte[] plainMessage = encryptionAlgorithmWithMGM.decryptMessage(cipherMessage);
         assertArrayEquals(plainMessage, message);
+
     }
 
     @Test
     @DisplayName("Шифрование и расшифровка сообщений в режиме CTR-ACPKM")
-    void encryptionAlgorithmWithCTRACPKM() {
+    void encryptMessageEncryptionAlgorithmWithCTRACPKMTest() {
         EncryptionAlgorithmWithCTRACPKM encryptionAlgorithmWithCTRACPKM = new EncryptionAlgorithmWithCTRACPKM(gost34122015, 2, 16);
         byte[] message = new byte[]{
                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd, (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88,
@@ -114,8 +118,76 @@ public class EncryptionModesTest {
     }
 
     @Test
-    void encryptionAlgorithmWithOMAC() {
-        EncryptionAlgorithmWithOMAC encryptionAlgorithmWithOMAC=new EncryptionAlgorithmWithOMAC(gost34122015,8);
-        assertArrayEquals(encryptionAlgorithmWithOMAC.getImitationInsertFromMessage(message),convertLongArrayToByteArray(new long[]{0x336f4d296059fbe3L}));
+    @DisplayName("Получение имитовставки в режиме OMAC")
+    void getImitationInsertEncryptionAlgorithmWithOMACTest() {
+        EncryptionAlgorithmWithOMAC encryptionAlgorithmWithOMAC = new EncryptionAlgorithmWithOMAC(gost34122015, 8);
+        assertArrayEquals(encryptionAlgorithmWithOMAC.getImitationInsertFromMessage(message), convertLongArrayToByteArray(new long[]{0x336f4d296059fbe3L}));
+        encryptionAlgorithmWithOMAC = new EncryptionAlgorithmWithOMAC(new TwoFish(new long[2]), 8);
+        File file = new File("C:\\Users\\fvd\\Desktop\\10MB.txt");
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
+            byte[] plainData = bufferedInputStream.readAllBytes();
+            byte[] expectedImitationInsert = encryptionAlgorithmWithOMAC.getImitationInsertFromMessage(plainData);
+            byte[] realImitationInsert = encryptionAlgorithmWithOMAC.getImitationInsertFromFile(file);
+            assertArrayEquals(expectedImitationInsert, realImitationInsert);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //todo протвестить мгм
+    @Test
+    @DisplayName("Шифрование файлов в режимах CBC, CTR-ACPKM, ECB, MGM, OFB")
+    void encryptFileEncryptionAlgorithmWithModeTest() {
+        TwoFish twoFish = new TwoFish(new long[2]);
+        EncryptionAlgorithmWithECB encryptionAlgorithmWithECB = new EncryptionAlgorithmWithECB(twoFish);
+        encryptFileTest(encryptionAlgorithmWithECB);
+        decryptFileTest(encryptionAlgorithmWithECB);
+        EncryptionAlgorithmWithCBC encryptionAlgorithmWithCBC = new EncryptionAlgorithmWithCBC(twoFish, 2);
+        encryptFileTest(encryptionAlgorithmWithCBC);
+        decryptFileTest(encryptionAlgorithmWithCBC);
+        EncryptionAlgorithmWithOFB encryptionAlgorithmWithOFB = new EncryptionAlgorithmWithOFB(twoFish, 2, 16);
+        encryptFileTest(encryptionAlgorithmWithOFB);
+        decryptFileTest(encryptionAlgorithmWithOFB);
+        EncryptionAlgorithmWithCTRACPKM encryptionAlgorithmWithCTRACPKM = new EncryptionAlgorithmWithCTRACPKM(twoFish, 2, 16);
+        encryptFileTest(encryptionAlgorithmWithCTRACPKM);
+        decryptFileTest(encryptionAlgorithmWithCTRACPKM);
+    }
+
+    private void encryptFileTest(EncryptionAlgorithmAbstract encryptionAlgorithmAbstract) {
+        File file = new File("C:\\Users\\fvd\\Desktop\\10MB.txt");
+        File encryptedFile = new File("C:\\Users\\fvd\\Desktop\\10MB.txt.encrypted");
+        String pathForEncryptedFile = "C:\\Users\\fvd\\Desktop";
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
+             BufferedInputStream bufferedInputStreamEncrypted = new BufferedInputStream(new FileInputStream(encryptedFile))) {
+            byte[] plainData = bufferedInputStream.readAllBytes();
+            byte[] encryptedDataExpected = encryptionAlgorithmAbstract.encryptMessage(plainData);
+            encryptionAlgorithmAbstract.encryptFile(file, pathForEncryptedFile);
+            byte[] realEncryptedData = bufferedInputStreamEncrypted.readAllBytes();
+            assertArrayEquals(encryptedDataExpected, realEncryptedData, "" + encryptionAlgorithmAbstract);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void decryptFileTest(EncryptionAlgorithmAbstract encryptionAlgorithmAbstract) {
+        File plainFile = new File("C:\\Users\\fvd\\Desktop\\10MB.txt");
+        File encryptedFile = new File("C:\\Users\\fvd\\Desktop\\10MB.txt.encrypted");
+        File decryptedFile = new File("C:\\Users\\fvd\\Desktop\\decrypted_10MB.txt");
+        String pathForDecryptedFile = "C:\\Users\\fvd\\Desktop";
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(plainFile));
+             BufferedInputStream bufferedInputStreamDecrypted = new BufferedInputStream(new FileInputStream(decryptedFile))) {
+            byte[] expectedPlainData = bufferedInputStream.readAllBytes();
+            encryptionAlgorithmAbstract.decryptFile(encryptedFile, pathForDecryptedFile);
+            byte[] realPlainData = bufferedInputStreamDecrypted.readAllBytes();
+            assertArrayEquals(realPlainData, expectedPlainData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        EncryptionAlgorithmWithECB encryptionAlgorithmWithCBC = new EncryptionAlgorithmWithECB(new TwoFish(new long[2]));
+        encryptionAlgorithmWithCBC.encryptFile(new File("C:\\Users\\fvd\\Desktop\\10MB.txt"), "C:\\Users\\fvd\\Desktop");
     }
 }

@@ -11,11 +11,9 @@ import static Utils.CommonUtils.getAbsoluteEncryptedFileName;
 abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
     protected final EncryptionAlgorithm encryptionAlgorithm;
     protected final int blockSizeInBytes;
+    //TODO оптимизировать, проверять кратность в функциях
     protected int bufferSize;//кратен длине обрабатываемого в режиме блока(либо блока базового шифра либо гаммы)
-
-    {
-        bufferSize = 1048576;
-    }
+    protected static final int DEFAULT_BUFFER_SIZE = 1048576;
 
     protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
@@ -77,7 +75,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
         }
     }
 
-    public final void setBufferSize(int bufferSize) {
+    public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
 

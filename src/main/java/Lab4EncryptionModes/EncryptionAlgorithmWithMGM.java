@@ -32,6 +32,7 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
             initializationVector[0] ^= 0x80;
         this.gammaLengthInBytes = gammaLengthInBytes;
         this.additionalAuthenticatedDataLengthInBytes = additionalAuthenticatedDataLengthInBytes;
+        setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
     @Override
@@ -47,6 +48,7 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         return result;
     }
 
+    //TODO оптимизировать, читать сначала длину аад
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] plainData = bufferedInputStream.readAllBytes();

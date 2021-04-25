@@ -16,9 +16,10 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
 
     public EncryptionAlgorithmWithOFB(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister, int gammaLengthInBytes) {
         super(encryptionAlgorithm);
+        this.gammaLengthInBytes = gammaLengthInBytes;
         initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
         generateInitializationVector(initializationVector);
-        this.gammaLengthInBytes = gammaLengthInBytes;
+        setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
             byte[] gamma = encryptionAlgorithm.encryptOneBlock(Arrays.copyOf(currentInitializationVector, blockSizeInBytes));
             shiftLeftRegisterWithFillingLSB(currentInitializationVector, gamma);
             byte[] encryptedBlock = Arrays.copyOfRange(plainData, i, Math.min(i + gammaLengthInBytes, plainData.length));
-            xorByteArrays(encryptedBlock, gamma,encryptedBlock.length);
+            xorByteArrays(encryptedBlock, gamma, encryptedBlock.length);
             System.arraycopy(encryptedBlock, 0, encryptedData, i, encryptedBlock.length);
         }
         return encryptedData;
@@ -56,6 +57,11 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         encryptDataInFile(bufferedInputStream, bufferedOutputStream);
+    }
+
+    @Override
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = Math.max(bufferSize - bufferSize % gammaLengthInBytes, gammaLengthInBytes);
     }
 
     @Override

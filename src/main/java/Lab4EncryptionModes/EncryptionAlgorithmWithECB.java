@@ -11,6 +11,12 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
 
     public EncryptionAlgorithmWithECB(EncryptionAlgorithm encryptionAlgorithm) {
         super(encryptionAlgorithm);
+        setBufferSize(DEFAULT_BUFFER_SIZE);
+    }
+
+    @Override
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 
 

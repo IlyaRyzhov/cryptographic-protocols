@@ -13,6 +13,7 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
     private final int gammaLengthInBytes;
     private final byte[] dSubstitution;
     private final int numberOfBlocksWithLengthOfGammaInSection;
+    private final int lengthOfSectionInBytes;
 
     {
         dSubstitution = new byte[]{
@@ -35,7 +36,9 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
         initializationVector = new byte[blockSizeInBytes / 2];
         generateInitializationVector(initializationVector);
         this.gammaLengthInBytes = gammaLengthInBytes;
-        this.numberOfBlocksWithLengthOfGammaInSection = (numberOfBlocksInSection * blockSizeInBytes) / gammaLengthInBytes;
+        this.lengthOfSectionInBytes = numberOfBlocksInSection * blockSizeInBytes;
+        this.numberOfBlocksWithLengthOfGammaInSection = lengthOfSectionInBytes / gammaLengthInBytes;
+        setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
 
@@ -48,11 +51,11 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
         return encryptedMessage;
     }
 
-    private void encryptDataInMessage(EncryptionAlgorithm encryptionAlgorithm, byte[] plainMessage, byte[] encryptedMessage, byte[] counter, Integer numberOfProcessedBlocks) {
+    private int encryptDataInMessage(EncryptionAlgorithm encryptionAlgorithm, byte[] plainMessage, byte[] encryptedMessage, byte[] counter, int numberOfProcessedBlocks) {
         int numberOfBlocksWithLengthOfGamma = (int) Math.ceil((double) plainMessage.length / gammaLengthInBytes);
         byte[] blockOfPlainText;
         for (int i = 0; i < numberOfBlocksWithLengthOfGamma; i++) {
-            if (numberOfProcessedBlocks % numberOfBlocksWithLengthOfGammaInSection == 0 && !numberOfProcessedBlocks.equals(0))
+            if (numberOfProcessedBlocks % numberOfBlocksWithLengthOfGammaInSection == 0 && numberOfProcessedBlocks != 0)
                 encryptionAlgorithm.setKey(convertByteArrayToLongArray(getNextSectionKey(encryptionAlgorithm)));
             blockOfPlainText = Arrays.copyOfRange(plainMessage, i * gammaLengthInBytes, Math.min((i + 1) * gammaLengthInBytes, plainMessage.length));
             byte[] encryptedCounter = Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(counter), blockOfPlainText.length);
@@ -61,11 +64,17 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
             incrementCounter(counter);
             numberOfProcessedBlocks++;
         }
+        return numberOfProcessedBlocks;
     }
 
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         return encryptMessage(encryptedMessage);
+    }
+
+    @Override
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = Math.max(bufferSize - bufferSize % lengthOfSectionInBytes, lengthOfSectionInBytes);
     }
 
     @Override
@@ -76,11 +85,12 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
         while (bufferedInputStream.available() > 0) {
             byte[] plainData = bufferedInputStream.readNBytes(bufferSize);
             byte[] encryptedData = new byte[plainData.length];
-            encryptDataInMessage(encryptionAlgorithm, plainData, encryptedData, counter, numberOfProcessedBlocksWithLengthOfGamma);
+            numberOfProcessedBlocksWithLengthOfGamma += encryptDataInMessage(encryptionAlgorithm, plainData, encryptedData, counter, numberOfProcessedBlocksWithLengthOfGamma);
             bufferedOutputStream.write(encryptedData);
         }
     }
 
+    //TODO  оптимизировать, читать сначала длину ADD и в расшифровке
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         encryptDataInFile(bufferedInputStream, bufferedOutputStream);
