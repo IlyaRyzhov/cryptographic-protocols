@@ -28,12 +28,6 @@ public class EncryptionModesUtils {
         }
     }
 
-    public static void xorByteArrays(byte[] firstArray, byte[] secondArray) {
-        for (int i = 0; i < secondArray.length; i++) {
-            firstArray[i] ^= secondArray[i];
-        }
-    }
-
     public static void xorByteArrays(byte[] firstArray, byte[] secondArray, int offsetInSecondArray, int numberOfElementsToXor) {
         for (int i = 0; i < numberOfElementsToXor; i++) {
             firstArray[i] ^= secondArray[i + offsetInSecondArray];
@@ -111,5 +105,4 @@ public class EncryptionModesUtils {
         System.arraycopy(rightPartOfRegister, 0, register, 0, rightPartOfRegister.length);
         System.arraycopy(fillingValue, 0, register, rightPartOfRegister.length, fillingValue.length);
     }
-
 }

@@ -4,6 +4,12 @@ import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 
 import static Utils.CommonUtils.*;
 
+/**
+ * Реализация алгоритма шифрования Кузнечик написана Синевым Матвеем ККСО-01-16.
+ * Мною были реализованы методы интерфейса EncryptionAlgorithm.
+ *
+ * @author Ilya Ryzhov, Sinev Matvei
+ */
 public class GOST34122015 implements EncryptionAlgorithm {
 
     private final static int BLOCK_SIZE = 16;
@@ -291,8 +297,7 @@ public class GOST34122015 implements EncryptionAlgorithm {
 
     @Override
     public void setKey(long[] key) {
-        pass=convertLongArrayToByteArray(key);
-        //setKey(convertLongArrayToByteArray(key));
+        pass = convertLongArrayToByteArray(key);
     }
 
     @Override
@@ -300,44 +305,5 @@ public class GOST34122015 implements EncryptionAlgorithm {
         byte[] pass = new byte[this.pass.length];
         System.arraycopy(this.pass, 0, pass, 0, this.pass.length);
         return new GOST34122015(pass);
-    }
-
-    public static void main(String[] args) {
-
-        GOST34122015 gost34122015 = new GOST34122015(new byte[]{(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
-                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98,
-                0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef});
-        byte[] blk = new byte[16];
-        //1122334455667700ffeeddccbbaa9988
-        blk[0] = 0x11;
-        blk[1] = 0x22;
-        blk[2] = 0x33;
-        blk[3] = 0x44;
-        blk[4] = 0x55;
-        blk[5] = 0x66;
-        blk[6] = 0x77;
-        blk[7] = 0x00;
-        blk[8] = (byte) 0xff;
-        blk[9] = (byte) 0xee;
-        blk[10] = (byte) 0xdd;
-        blk[11] = (byte) 0xcc;
-        blk[12] = (byte) 0xbb;
-        blk[13] = (byte) 0xaa;
-        blk[14] = (byte) 0x99;
-        blk[15] = (byte) 0x88;
-        byte[] ct = gost34122015.encrypt(blk);
-        for (int i = 0; i < ct.length; i++) {
-            System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }
-        System.out.println();
-        ct = gost34122015.encrypt(blk);
-        for (int i = 0; i < ct.length; i++) {
-            System.out.print(Integer.toHexString(ct[i] & 0xff));
-        }
-        System.out.println();
-        byte[] pt = gost34122015.decrypt(ct);
-        for (int i = 0; i < pt.length; i++) {
-            System.out.print(Integer.toHexString(pt[i] & 0xff));
-        }
     }
 }

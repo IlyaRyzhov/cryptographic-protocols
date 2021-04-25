@@ -11,7 +11,7 @@ import java.util.Arrays;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 import static Utils.EncryptionModesUtils.*;
 
-public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
     private final int gammaLengthInBytes;
     private final int additionalAuthenticatedDataLengthInBytes;
@@ -48,19 +48,6 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         return result;
     }
 
-    //TODO оптимизировать, читать сначала длину аад
-    @Override
-    protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
-        byte[] plainData = bufferedInputStream.readAllBytes();
-        bufferedOutputStream.write(encryptMessage(plainData));
-    }
-
-    @Override
-    protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
-        byte[] encryptedData = bufferedInputStream.readAllBytes();
-        bufferedOutputStream.write(decryptMessage(encryptedData));
-    }
-
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         byte[] additionalAuthenticatedData = Arrays.copyOf(encryptedMessage, additionalAuthenticatedDataLengthInBytes);
@@ -70,37 +57,74 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         if (!Arrays.equals(computedImitationInsert, realImitationInsert)) {
             return null;
         }
-        byte[] plainText = encryptPlainData(encryptedData, encryptionAlgorithm.encryptOneBlock(initializationVector));
+        byte[] plainData = encryptPlainData(encryptedData, encryptionAlgorithm.encryptOneBlock(initializationVector));
         byte[] result = new byte[encryptedMessage.length - gammaLengthInBytes];
         System.arraycopy(additionalAuthenticatedData, 0, result, 0, additionalAuthenticatedDataLengthInBytes);
-        System.arraycopy(plainText, 0, result, additionalAuthenticatedDataLengthInBytes, encryptedData.length);
+        System.arraycopy(plainData, 0, result, additionalAuthenticatedDataLengthInBytes, encryptedData.length);
         return result;
     }
 
     @Override
-    public void setInitializationVector(byte[] initializationVector) {
-        this.initializationVector = initializationVector;
-        if (initializationVector[0] < 0)
-            this.initializationVector[0] ^= 0x80;
+    protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
+        byte[] gammaForH = getGammaForH();
+        byte[] currentImitationInsert = new byte[blockSizeInBytes];
+        int lengthOfEncryptedDataInBytes = bufferedInputStream.available() - additionalAuthenticatedDataLengthInBytes;
+        getImitationInsertFromAADInFile(bufferedInputStream, bufferedOutputStream, gammaForH, currentImitationInsert);
+        byte[] gammaForEncryptedData = encryptionAlgorithm.encryptOneBlock(initializationVector);
+        while (bufferedInputStream.available() > 0) {
+            byte[] plainData = bufferedInputStream.readNBytes(bufferSize);
+            byte[] encryptedData = encryptPlainData(plainData, gammaForEncryptedData);
+            computeCurrentImitationInsertFromData(encryptedData, gammaForH, currentImitationInsert);
+            bufferedOutputStream.write(encryptedData);
+        }
+        byte[] lastBlock = convertLongArrayToByteArray(new long[]{additionalAuthenticatedDataLengthInBytes * 8L, lengthOfEncryptedDataInBytes * 8L});
+        iterationOfComputationOfImitationInsert(lastBlock, getNextH(gammaForH), currentImitationInsert);
+        bufferedOutputStream.write(Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(currentImitationInsert), gammaLengthInBytes));
     }
 
     @Override
-    public byte[] getInitializationVector() {
-        return initializationVector;
+    protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
+        byte[] gammaForH = getGammaForH();
+        byte[] currentImitationInsert = new byte[blockSizeInBytes];
+        int lengthOfEncryptedDataInBytes = bufferedInputStream.available() - additionalAuthenticatedDataLengthInBytes - gammaLengthInBytes;
+        int remainderLengthOfEncryptedDataInBytes = lengthOfEncryptedDataInBytes;//bufferedInputStream.available() - additionalAuthenticatedDataLengthInBytes - gammaLengthInBytes;
+        getImitationInsertFromAADInFile(bufferedInputStream, bufferedOutputStream, gammaForH, currentImitationInsert);
+        byte[] gammaForEncryptedData = encryptionAlgorithm.encryptOneBlock(initializationVector);
+        while (remainderLengthOfEncryptedDataInBytes != 0) {
+            byte[] encryptedData = bufferedInputStream.readNBytes(Math.min(bufferSize, remainderLengthOfEncryptedDataInBytes));
+            computeCurrentImitationInsertFromData(encryptedData, gammaForH, currentImitationInsert);
+            byte[] decryptedData = encryptPlainData(encryptedData, gammaForEncryptedData);
+            bufferedOutputStream.write(decryptedData);
+            remainderLengthOfEncryptedDataInBytes -= encryptedData.length;
+        }
+        byte[] realImitationInsert = bufferedInputStream.readNBytes(gammaLengthInBytes);
+        byte[] lastBlock = convertLongArrayToByteArray(new long[]{additionalAuthenticatedDataLengthInBytes * 8L, lengthOfEncryptedDataInBytes * 8L});
+        iterationOfComputationOfImitationInsert(lastBlock, getNextH(gammaForH), currentImitationInsert);
+        currentImitationInsert = Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(currentImitationInsert), gammaLengthInBytes);
+        if (!Arrays.equals(currentImitationInsert, realImitationInsert)) {
+            throw new IOException("Зашифрованный файл был поврежден");
+        }
+    }
+
+    private void getImitationInsertFromAADInFile(BufferedInputStream inputStream, BufferedOutputStream outputStream, byte[] gammaForH, byte[] currentInsert) throws IOException {
+        int remainderAdditionalAuthenticatedData = additionalAuthenticatedDataLengthInBytes;
+        while (remainderAdditionalAuthenticatedData != 0) {
+            byte[] additionalAuthenticatedData = inputStream.readNBytes(Math.min(bufferSize, remainderAdditionalAuthenticatedData));
+            computeCurrentImitationInsertFromData(additionalAuthenticatedData, gammaForH, currentInsert);
+            outputStream.write(additionalAuthenticatedData);
+            remainderAdditionalAuthenticatedData -= additionalAuthenticatedData.length;
+        }
     }
 
     private byte[] computeImitationInsert(byte[] additionalAuthenticatedData, byte[] encryptedData) {
-        byte[] gammaForH = Arrays.copyOf(initializationVector, initializationVector.length);
-        gammaForH[0] ^= 0x80;
-        gammaForH = encryptionAlgorithm.encryptOneBlock(gammaForH);
+        byte[] gammaForH = getGammaForH();
         byte[] currentImitationInsert = new byte[blockSizeInBytes];
         computeCurrentImitationInsertFromData(additionalAuthenticatedData, gammaForH, currentImitationInsert);
         computeCurrentImitationInsertFromData(encryptedData, gammaForH, currentImitationInsert);
-        byte[] lastBlock = convertLongArrayToByteArray(new long[]{additionalAuthenticatedData.length * 8L, (encryptedData.length) * 8L});
+        byte[] lastBlock = convertLongArrayToByteArray(new long[]{additionalAuthenticatedData.length * 8L, encryptedData.length * 8L});
         iterationOfComputationOfImitationInsert(lastBlock, getNextH(gammaForH), currentImitationInsert);
         return Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(currentImitationInsert), gammaLengthInBytes);
     }
-
 
     private void computeCurrentImitationInsertFromData(byte[] data, byte[] gammaForH, byte[] currentImitationInsert) {
         byte[] currentH;
@@ -137,5 +161,29 @@ public class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract impl
         byte[] nextH = encryptionAlgorithm.encryptOneBlock(currentGamma);
         leftIncrementGamma(currentGamma);
         return nextH;
+    }
+
+    private byte[] getGammaForH() {
+        byte[] gammaForH = Arrays.copyOf(initializationVector, initializationVector.length);
+        gammaForH[0] ^= 0x80;
+        gammaForH = encryptionAlgorithm.encryptOneBlock(gammaForH);
+        return gammaForH;
+    }
+
+    @Override
+    public void setInitializationVector(byte[] initializationVector) {
+        this.initializationVector = initializationVector;
+        if (initializationVector[0] < 0)
+            this.initializationVector[0] ^= 0x80;
+    }
+
+    @Override
+    public byte[] getInitializationVector() {
+        return initializationVector;
+    }
+
+    @Override
+    protected void setBufferSize(int bufferSize) {
+        this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 }

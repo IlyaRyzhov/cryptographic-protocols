@@ -33,7 +33,6 @@ public class EncryptionModesTest {
                 0xaf1e8e448d5ea5acL, 0xfe7babf1e91999e8L, 0x5640e8b0f49d90d0L, 0x167688065a895c63L, 0x1a2d9a1560b63970L});
         assertArrayEquals(Arrays.copyOf(cipherMessage, expected.length), expected);
         assertArrayEquals(encryptionAlgorithmWithCBC.decryptMessage(cipherMessage), message);
-        encryptFileTest(new EncryptionAlgorithmWithCBC(new TwoFish(new long[2]), 2));
     }
 
     @Test
@@ -89,7 +88,6 @@ public class EncryptionModesTest {
         assertArrayEquals(imitationInsert, expectedImitationInsert);
         byte[] plainMessage = encryptionAlgorithmWithMGM.decryptMessage(cipherMessage);
         assertArrayEquals(plainMessage, message);
-
     }
 
     @Test
@@ -134,11 +132,13 @@ public class EncryptionModesTest {
         }
     }
 
-    //todo протвестить мгм
     @Test
     @DisplayName("Шифрование файлов в режимах CBC, CTR-ACPKM, ECB, MGM, OFB")
     void encryptFileEncryptionAlgorithmWithModeTest() {
         TwoFish twoFish = new TwoFish(new long[2]);
+        EncryptionAlgorithmWithMGM encryptionAlgorithmWithMGM = new EncryptionAlgorithmWithMGM(twoFish, 16, 1048577);
+        encryptFileTest(encryptionAlgorithmWithMGM);
+        decryptFileTest(encryptionAlgorithmWithMGM);
         EncryptionAlgorithmWithECB encryptionAlgorithmWithECB = new EncryptionAlgorithmWithECB(twoFish);
         encryptFileTest(encryptionAlgorithmWithECB);
         decryptFileTest(encryptionAlgorithmWithECB);
@@ -183,11 +183,5 @@ public class EncryptionModesTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    public static void main(String[] args) {
-        EncryptionAlgorithmWithECB encryptionAlgorithmWithCBC = new EncryptionAlgorithmWithECB(new TwoFish(new long[2]));
-        encryptionAlgorithmWithCBC.encryptFile(new File("C:\\Users\\fvd\\Desktop\\10MB.txt"), "C:\\Users\\fvd\\Desktop");
     }
 }

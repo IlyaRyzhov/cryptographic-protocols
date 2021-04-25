@@ -5,6 +5,5 @@ public enum EncryptionMode {
     CBC,
     OFB,
     CTR_ACPKM,
-    OMAC,
     MGM
 }

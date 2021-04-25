@@ -48,7 +48,7 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
     }
 
     @Override
-    public void setBufferSize(int bufferSize) {
+    protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 
@@ -99,7 +99,6 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         shiftLeftRegisterWithFillingLSB(currentInitializationVector, encryptedBlock);
         System.arraycopy(encryptedBlock, 0, encryptedMessage, offsetBlocksInEncryptedMessage * blockSizeInBytes, blockSizeInBytes);
     }
-
 
     @Override
     public byte[] getInitializationVector() {

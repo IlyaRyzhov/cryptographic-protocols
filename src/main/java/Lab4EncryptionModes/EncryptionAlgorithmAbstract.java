@@ -11,8 +11,7 @@ import static Utils.CommonUtils.getAbsoluteEncryptedFileName;
 abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
     protected final EncryptionAlgorithm encryptionAlgorithm;
     protected final int blockSizeInBytes;
-    //TODO оптимизировать, проверять кратность в функциях
-    protected int bufferSize;//кратен длине обрабатываемого в режиме блока(либо блока базового шифра либо гаммы)
+    protected int bufferSize;
     protected static final int DEFAULT_BUFFER_SIZE = 1048576;
 
     protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
@@ -34,13 +33,6 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
     protected final byte[] removePadding(byte[] message) {
         int indexOfLastOne = findLastOne(message);
         return Arrays.copyOfRange(message, 0, indexOfLastOne);
-    }
-
-    protected final byte[] padMessage(byte[] message) {
-        byte[] paddedMessage = new byte[(message.length / blockSizeInBytes + 1) * blockSizeInBytes];
-        System.arraycopy(message, 0, paddedMessage, 0, message.length);
-        paddedMessage[message.length] = 1;
-        return paddedMessage;
     }
 
     protected final byte[] getPaddingBlock(byte[] message) {
@@ -75,7 +67,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
         }
     }
 
-    public void setBufferSize(int bufferSize) {
+    protected void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
 

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static Utils.EncryptionModesUtils.*;
 
-public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
 
     private final int gammaLengthInBytes;
@@ -60,7 +60,7 @@ public class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract impl
     }
 
     @Override
-    public void setBufferSize(int bufferSize) {
+    protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % gammaLengthInBytes, gammaLengthInBytes);
     }
 

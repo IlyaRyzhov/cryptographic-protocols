@@ -8,7 +8,7 @@ import java.util.Arrays;
 import static Utils.CommonUtils.*;
 import static Utils.EncryptionModesUtils.*;
 
-public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
     private final int gammaLengthInBytes;
     private final byte[] dSubstitution;
@@ -27,8 +27,6 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
                 (byte) 0x9C, (byte) 0x9D, (byte) 0x9E, (byte) 0x9F};
     }
 
-    //4<=gammaLengthInBytes<=3/4*blockSizeInBytes
-    //blockSizeInBytes% gammaLengthInBytes==0
     public EncryptionAlgorithmWithCTRACPKM(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInSection, int gammaLengthInBytes) {
         super(encryptionAlgorithm);
         if (blockSizeInBytes % gammaLengthInBytes != 0)
@@ -73,7 +71,7 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
     }
 
     @Override
-    public void setBufferSize(int bufferSize) {
+    protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % lengthOfSectionInBytes, lengthOfSectionInBytes);
     }
 
@@ -90,7 +88,6 @@ public class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract
         }
     }
 
-    //TODO  оптимизировать, читать сначала длину ADD и в расшифровке
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         encryptDataInFile(bufferedInputStream, bufferedOutputStream);

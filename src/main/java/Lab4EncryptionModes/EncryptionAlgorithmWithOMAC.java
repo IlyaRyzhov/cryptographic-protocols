@@ -8,7 +8,6 @@ import java.util.Arrays;
 import static Utils.EncryptionModesUtils.multiplyPolynomialsModPrimitivePolynomial;
 import static Utils.EncryptionModesUtils.xorByteArrays;
 
-//TODO мб вынести отдельный интерфейс для HMAC и OMAC(хотя мб и не надо), дописать мак файла, митинг имплементатион в тесты запихать
 public class EncryptionAlgorithmWithOMAC {
     private final EncryptionAlgorithm encryptionAlgorithm;
     private final int blockSizeInBytes;

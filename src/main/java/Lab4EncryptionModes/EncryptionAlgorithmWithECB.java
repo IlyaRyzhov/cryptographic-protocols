@@ -15,10 +15,9 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
     }
 
     @Override
-    public void setBufferSize(int bufferSize) {
+    protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
-
 
     @Override
     public byte[] encryptMessage(byte[] plainMessage) {
