@@ -28,7 +28,7 @@ public class TwoFishSpeedTest {
         System.out.println("На шифрование 1000000 блоков затрачено: " + (millionBlocksTime - start) + " мс");
     }
 
-/*    public static void speedTestForArbitraryFiles(EncryptionAlgorithmWithMode twoFish) {
+    public static void speedTestForArbitraryFiles(EncryptionAlgorithmWithMode twoFish) {
         File oneMbFile = new File("C:\\Users\\fvd\\Desktop\\1MB.txt");
         File hundredMbFile = new File("C:\\Users\\fvd\\Desktop\\100MB.txt");
         File thousandMbFile = new File("C:\\Users\\fvd\\Desktop\\1000MB.txt");
@@ -63,9 +63,9 @@ public class TwoFishSpeedTest {
         twoFish.decryptFile(thousandMbFileEncrypted, pathForResultFiles);
         end = System.currentTimeMillis();
         System.out.println("На расшифровку файла размером 1000 Мб затрачено: " + (end - start) + " мс");
-    }*/
+    }
 
- /*   public static void speedTestForArbitraryBlocksOfPlainTextWithChangingKey(TwoFish twoFish, int k) {
+/*    public static void speedTestForArbitraryBlocksOfPlainTextWithChangingKey(TwoFish twoFish, int k) {
         long[] startKey = twoFish.getKey();
         long[] ffKey = new long[k];
         byte[] data = new byte[16];
@@ -152,5 +152,4 @@ public class TwoFishSpeedTest {
         System.out.println("На расшифровку 1000000 блоков открытого текста со сменой ключа каждые 1000 блоков затрачено: " +
                 (System.currentTimeMillis() - start) + " мс");
     }*/
-
 }

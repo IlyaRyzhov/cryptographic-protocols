@@ -14,6 +14,12 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
 
     private final int gammaLengthInBytes;
 
+    /**
+     * @param encryptionAlgorithm           класс, реализующий интерфейс EncryptionAlgorithm
+     * @param numberOfBlocksInShiftRegister количество блоков базового алгоритма шифрования в регистре сдвига
+     * @param gammaLengthInBytes            длина гаммы в байтах
+     * @author ILya Ryzhov
+     */
     public EncryptionAlgorithmWithOFB(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister, int gammaLengthInBytes) {
         super(encryptionAlgorithm);
         this.gammaLengthInBytes = gammaLengthInBytes;
@@ -22,12 +28,18 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
         setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] encryptMessage(byte[] plainMessage) {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
         return encryptDataInMessage(currentInitializationVector, plainMessage);
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         return encryptMessage(encryptedMessage);
@@ -45,6 +57,9 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
         return encryptedData;
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
@@ -54,21 +69,33 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         encryptDataInFile(bufferedInputStream, bufferedOutputStream);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % gammaLengthInBytes, gammaLengthInBytes);
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public byte[] getInitializationVector() {
         return initializationVector;

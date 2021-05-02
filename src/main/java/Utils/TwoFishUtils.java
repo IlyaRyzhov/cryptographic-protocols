@@ -1,7 +1,5 @@
 package Utils;
 
-import java.io.File;
-
 import static Utils.CommonUtils.convertByteArrayToInt;
 
 public class TwoFishUtils {
@@ -72,5 +70,4 @@ public class TwoFishUtils {
     private static char modPrimitive(char a, char primitive) {
         return (a & 0b100000000) != 0 ? (char) (a ^ primitive) : a;
     }
-
 }

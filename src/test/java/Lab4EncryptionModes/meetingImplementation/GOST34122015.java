@@ -1,4 +1,4 @@
-package Lab4EncryptionModes;
+package Lab4EncryptionModes.meetingImplementation;
 
 import Lab1EncryptionAlgorithm.EncryptionAlgorithm;
 

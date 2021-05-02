@@ -9,16 +9,25 @@ import java.util.Arrays;
 
 class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     public EncryptionAlgorithmWithECB(EncryptionAlgorithm encryptionAlgorithm) {
         super(encryptionAlgorithm);
         setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] encryptMessage(byte[] plainMessage) {
         int numberOfBlocksInEncryptedMessage = (plainMessage.length / blockSizeInBytes) + 1;
@@ -39,6 +48,9 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         byte[] decryptedMessage = new byte[encryptedMessage.length];
@@ -54,6 +66,9 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         while (bufferedInputStream.available() > 0) {
@@ -68,6 +83,9 @@ class EncryptionAlgorithmWithECB extends EncryptionAlgorithmAbstract {
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         while (bufferedInputStream.available() > 0) {

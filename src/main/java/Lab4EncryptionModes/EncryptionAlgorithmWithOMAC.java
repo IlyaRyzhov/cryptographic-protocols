@@ -24,6 +24,11 @@ public class EncryptionAlgorithmWithOMAC {
         primitivePolynomial[16] = (byte) 0b10000111;
     }
 
+    /**
+     * @param encryptionAlgorithm класс, реализующий интерфейс EncryptionAlgorithm
+     * @param gammaLengthInBytes  длина гаммы в байтах
+     * @author ILya Ryzhov
+     */
     public EncryptionAlgorithmWithOMAC(EncryptionAlgorithm encryptionAlgorithm, int gammaLengthInBytes) {
         this.encryptionAlgorithm = encryptionAlgorithm;
         this.blockSizeInBytes = encryptionAlgorithm.getBlockSizeInBytes();
@@ -36,6 +41,13 @@ public class EncryptionAlgorithmWithOMAC {
         auxiliaryKeyTwo = multiplyPolynomialsModPrimitivePolynomial(auxiliaryKeyOne, firstDegreePolynomial, primitivePolynomial);
     }
 
+    /**
+     * Вычисляет имитовставку от сообщения
+     *
+     * @param plainMessage сообщение, от которого нужно получить имитовставку
+     * @return имитовставка
+     * @author ILya Ryzhov
+     */
     public byte[] getImitationInsertFromMessage(byte[] plainMessage) {
         byte[] previousEncryptedBlock = new byte[blockSizeInBytes];
         int numberOfBlocksInPlainMessageWithoutLastBlock = (int) Math.ceil((double) plainMessage.length / blockSizeInBytes) - 1;
@@ -66,6 +78,13 @@ public class EncryptionAlgorithmWithOMAC {
         return Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(lastBlockOfPlainMessage), gammaLengthInBytes);
     }
 
+    /**
+     * Вычисляет имитовставку от файла
+     *
+     * @param file файл, от которого нужно получить имитовставку
+     * @return имитовставка
+     * @author ILya Ryzhov
+     */
     public byte[] getImitationInsertFromFile(File file) {
         byte[] imitationInsert = new byte[gammaLengthInBytes];
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file), bufferSize)) {
@@ -88,7 +107,20 @@ public class EncryptionAlgorithmWithOMAC {
         return imitationInsert;
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     public void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
+    }
+
+    /**
+     * Возвращает используемый в режиме экземпляр класса, реализующего EncryptionAlgorithm
+     *
+     * @return экземпляр класса, реализующего EncryptionAlgorithm
+     * @author ILya Ryzhov
+     */
+    public EncryptionAlgorithm getEncryptionAlgorithm() {
+        return encryptionAlgorithm;
     }
 }

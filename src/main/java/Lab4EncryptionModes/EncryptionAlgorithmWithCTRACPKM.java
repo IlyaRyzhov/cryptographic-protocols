@@ -27,6 +27,12 @@ class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implem
                 (byte) 0x9C, (byte) 0x9D, (byte) 0x9E, (byte) 0x9F};
     }
 
+    /**
+     * @param encryptionAlgorithm     класс, реализующий интерфейс EncryptionAlgorithm
+     * @param numberOfBlocksInSection количество блоков базового алгоритма шифрования в секции
+     * @param gammaLengthInBytes      длина гаммы в байтах
+     * @author ILya Ryzhov
+     */
     public EncryptionAlgorithmWithCTRACPKM(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInSection, int gammaLengthInBytes) {
         super(encryptionAlgorithm);
         if (blockSizeInBytes % gammaLengthInBytes != 0)
@@ -39,7 +45,9 @@ class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implem
         setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
-
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] encryptMessage(byte[] plainMessage) {
         byte[] encryptedMessage = new byte[plainMessage.length];
@@ -65,16 +73,25 @@ class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implem
         return numberOfProcessedBlocks;
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         return encryptMessage(encryptedMessage);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % lengthOfSectionInBytes, lengthOfSectionInBytes);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] counter = Arrays.copyOf(initializationVector, blockSizeInBytes);
@@ -88,16 +105,25 @@ class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implem
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         encryptDataInFile(bufferedInputStream, bufferedOutputStream);
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public byte[] getInitializationVector() {
         return new byte[0];

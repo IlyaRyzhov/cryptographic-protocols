@@ -1,6 +1,7 @@
 package Lab4EncryptionModes;
 
 import Lab1EncryptionAlgorithm.TwoFish;
+import Lab4EncryptionModes.meetingImplementation.GOST34122015;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

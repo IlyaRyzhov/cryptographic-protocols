@@ -12,6 +12,11 @@ import static Utils.EncryptionModesUtils.*;
 class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
     private byte[] initializationVector;
 
+    /**
+     * @param encryptionAlgorithm           класс, реализующий интерфейс EncryptionAlgorithm
+     * @param numberOfBlocksInShiftRegister количество блоков базового алгоритма шифрования в регистре сдвига
+     * @author ILya Ryzhov
+     */
     public EncryptionAlgorithmWithCBC(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister) {
         super(encryptionAlgorithm);
         initializationVector = new byte[numberOfBlocksInShiftRegister * blockSizeInBytes];
@@ -19,6 +24,9 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] encryptMessage(byte[] plainMessage) {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
@@ -39,6 +47,9 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
@@ -47,11 +58,17 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         return removePadding(decryptedMessage);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
@@ -69,6 +86,9 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         }
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] currentInitializationVector = Arrays.copyOf(initializationVector, initializationVector.length);
@@ -100,11 +120,17 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
         System.arraycopy(encryptedBlock, 0, encryptedMessage, offsetBlocksInEncryptedMessage * blockSizeInBytes, blockSizeInBytes);
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public byte[] getInitializationVector() {
         return initializationVector;
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;

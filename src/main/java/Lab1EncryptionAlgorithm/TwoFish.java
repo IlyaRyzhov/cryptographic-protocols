@@ -61,6 +61,9 @@ public class TwoFish implements EncryptionAlgorithm, Cloneable {
         setKey(key);
     }
 
+    /**
+     * @see EncryptionAlgorithm
+     */
     @Override
     public void setKey(long[] key) {
         if (key.length == 1) {
@@ -154,11 +157,17 @@ public class TwoFish implements EncryptionAlgorithm, Cloneable {
         return plainBytes;
     }
 
+    /**
+     * @see EncryptionAlgorithm
+     */
     @Override
     public int getBlockSizeInBytes() {
         return 16;
     }
 
+    /**
+     * @see EncryptionAlgorithm
+     */
     @Override
     public int getKeySizeInBytes() {
         return key.length * 8;
@@ -319,6 +328,12 @@ public class TwoFish implements EncryptionAlgorithm, Cloneable {
         return (byte) (16 * b4 + a4);
     }
 
+    /**
+     * Возвращает новый экземпляр класса TwoFish с таким же ключом
+     *
+     * @return копия объекта TwoFish
+     * @author Ilya Ryzhov
+     */
     @Override
     protected final Object clone() {
         long[] keyCopy = new long[key.length];
@@ -326,15 +341,13 @@ public class TwoFish implements EncryptionAlgorithm, Cloneable {
         return new TwoFish(keyCopy);
     }
 
+    /**
+     * @author Ilya Ryzhov
+     */
     @Override
     public EncryptionAlgorithm getInstance() {
         return (EncryptionAlgorithm) clone();
     }
-/*
-    public long[] getKey() {
-        return key;
-    }*/
-
 }
 
 

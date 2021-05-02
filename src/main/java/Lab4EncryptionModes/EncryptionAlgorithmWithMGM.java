@@ -24,6 +24,12 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         primitivePolynomial[16] = (byte) 0b10000111;
     }
 
+    /**
+     * @param encryptionAlgorithm                      класс, реализующий интерфейс EncryptionAlgorithm
+     * @param gammaLengthInBytes                       длина гаммы в байтах
+     * @param additionalAuthenticatedDataLengthInBytes длина дополнительных имитозащищаемых данных в байтах
+     * @author ILya Ryzhov
+     */
     public EncryptionAlgorithmWithMGM(EncryptionAlgorithm encryptionAlgorithm, int gammaLengthInBytes, int additionalAuthenticatedDataLengthInBytes) {
         super(encryptionAlgorithm);
         initializationVector = new byte[encryptionAlgorithm.getBlockSizeInBytes()];
@@ -35,6 +41,9 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         setBufferSize(DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] encryptMessage(byte[] plainTextWithAdditionalAuthenticatedData) {
         byte[] additionalAuthenticatedData = Arrays.copyOf(plainTextWithAdditionalAuthenticatedData, additionalAuthenticatedDataLengthInBytes);
@@ -48,6 +57,9 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         return result;
     }
 
+    /**
+     * @see EncryptionAlgorithmWithMode
+     */
     @Override
     public byte[] decryptMessage(byte[] encryptedMessage) {
         byte[] additionalAuthenticatedData = Arrays.copyOf(encryptedMessage, additionalAuthenticatedDataLengthInBytes);
@@ -64,6 +76,9 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         return result;
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] gammaForH = getGammaForH();
@@ -82,6 +97,9 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         bufferedOutputStream.write(Arrays.copyOf(encryptionAlgorithm.encryptOneBlock(currentImitationInsert), gammaLengthInBytes));
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException {
         byte[] gammaForH = getGammaForH();
@@ -170,6 +188,9 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
         return gammaForH;
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;
@@ -177,11 +198,17 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
             this.initializationVector[0] ^= 0x80;
     }
 
+    /**
+     * @see EncryptionModeWithInitializationVector
+     */
     @Override
     public byte[] getInitializationVector() {
         return initializationVector;
     }
 
+    /**
+     * @see EncryptionAlgorithmAbstract
+     */
     @Override
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = Math.max(bufferSize - bufferSize % blockSizeInBytes, blockSizeInBytes);
