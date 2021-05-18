@@ -40,6 +40,17 @@ public class HMAC {
      */
     public byte[] computeMAC(String text) {
         byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
+        return computeMAC(textBytes);
+    }
+
+    /**
+     * Вычислет HMAC сообщения
+     *
+     * @param textBytes байты сообщения, MAC которого нужно получить
+     * @return HMAC сообщения
+     * @author Ilya Ryzhov
+     */
+    public byte[] computeMAC(byte[] textBytes) {
         byte[] concatenatedKeyXoredWithIpadAndText = new byte[blockSizeInBytes + textBytes.length];
         System.arraycopy(keyXoredWithIpad, 0, concatenatedKeyXoredWithIpadAndText, 0, blockSizeInBytes);
         System.arraycopy(textBytes, 0, concatenatedKeyXoredWithIpadAndText, blockSizeInBytes, textBytes.length);
