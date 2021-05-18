@@ -1,6 +1,6 @@
 package Lab4EncryptionModes;
 
-public interface EncryptionModeWithInitializationVector {
+public interface AlgorithmWithInitializationVector {
     /**
      * Устанавливает вектор инициализации
      *

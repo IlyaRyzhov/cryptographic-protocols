@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static Utils.EncryptionModesUtils.*;
 
-class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements EncryptionModeWithInitializationVector {
+class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements AlgorithmWithInitializationVector {
     private byte[] initializationVector;
 
     private final int gammaLengthInBytes;
@@ -86,7 +86,7 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
     }
 
     /**
-     * @see EncryptionModeWithInitializationVector
+     * @see AlgorithmWithInitializationVector
      */
     @Override
     public void setInitializationVector(byte[] initializationVector) {
@@ -94,7 +94,7 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
     }
 
     /**
-     * @see EncryptionModeWithInitializationVector
+     * @see AlgorithmWithInitializationVector
      */
     @Override
     public byte[] getInitializationVector() {
