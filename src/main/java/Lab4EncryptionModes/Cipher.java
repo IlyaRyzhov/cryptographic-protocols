@@ -72,7 +72,7 @@ public class Cipher implements EncryptionAlgorithmWithMode {
      * Возвращает используемый режим шифрования
      *
      * @return Возвращаемый режим шифрования
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionMode getEncryptionMode() {
         return encryptionMode;
@@ -82,7 +82,7 @@ public class Cipher implements EncryptionAlgorithmWithMode {
      * Возвращает используемую реализацию класса EncryptionAlgorithmAbstract
      *
      * @return
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmAbstract getEncryptionAlgorithmWithMode() {
         return encryptionAlgorithmWithMode;

@@ -15,7 +15,7 @@ class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements 
     /**
      * @param encryptionAlgorithm           класс, реализующий интерфейс EncryptionAlgorithm
      * @param numberOfBlocksInShiftRegister количество блоков базового алгоритма шифрования в регистре сдвига
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmWithCBC(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister) {
         super(encryptionAlgorithm);

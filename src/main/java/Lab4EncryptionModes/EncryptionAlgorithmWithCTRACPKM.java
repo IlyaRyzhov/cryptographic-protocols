@@ -31,7 +31,7 @@ class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implem
      * @param encryptionAlgorithm     класс, реализующий интерфейс EncryptionAlgorithm
      * @param numberOfBlocksInSection количество блоков базового алгоритма шифрования в секции
      * @param gammaLengthInBytes      длина гаммы в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmWithCTRACPKM(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInSection, int gammaLengthInBytes) {
         super(encryptionAlgorithm);

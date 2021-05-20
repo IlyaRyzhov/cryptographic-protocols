@@ -8,7 +8,7 @@ public interface HashFunction {
      *
      * @param message хешируемое сообщение
      * @return хеш сообщения
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     byte[] computeHash(byte[] message);
 
@@ -17,7 +17,7 @@ public interface HashFunction {
      *
      * @param file хешируемый файл
      * @return хеш файла
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     byte[] computeHashOfFile(File file);
 
@@ -25,7 +25,7 @@ public interface HashFunction {
      * Возвращает длину блока в байтах, которая используется в хеш-функции
      *
      * @return длину блока в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     int getBlockSize();
 
@@ -33,7 +33,7 @@ public interface HashFunction {
      * Возвращает длину выхода хеш-функции в байтах
      *
      * @return длина выхода хеш-функции в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     int getOutputLength();
 }

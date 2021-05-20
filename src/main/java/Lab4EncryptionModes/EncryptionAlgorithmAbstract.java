@@ -16,7 +16,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
 
     /**
      * @param encryptionAlgorithm класс, реализующий интерфейс EncryptionAlgorithm
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected EncryptionAlgorithmAbstract(EncryptionAlgorithm encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
@@ -39,7 +39,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      *
      * @param message сообщение, у которого нужно убрать дополнение
      * @return сообщение без padding-байтов
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final byte[] removePadding(byte[] message) {
         int indexOfLastOne = findLastOne(message);
@@ -51,7 +51,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      *
      * @param message дополняемое сообщение
      * @return последний дополненный блок
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final byte[] getPaddingBlock(byte[] message) {
         int remainderBytes = message.length % blockSizeInBytes;
@@ -102,7 +102,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      * Устанавливает размер буфера в bufferSize
      *
      * @param bufferSize новый размер буфера
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
@@ -113,7 +113,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      *
      * @param bufferedInputStream  поток, из которого читаются данные
      * @param bufferedOutputStream поток, в который записываются зашифрованные данные
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected abstract void encryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException;
 
@@ -122,7 +122,7 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      *
      * @param bufferedInputStream  поток, из которого читаются данные
      * @param bufferedOutputStream поток, в который записываются расшифрованные данные
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected abstract void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException;
 }

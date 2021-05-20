@@ -101,7 +101,7 @@ public class CommonUtils {
      *
      * @param bytes массив байтов
      * @return целое число типа int , составленное из массива bytes, байты в числе идут в том же порядке, что и в массиве
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static int convertByteArrayToInt(byte[] bytes) {
         return (bytes[0] & 0xFF) << 24 ^ (bytes[1] & 0xFF) << 16 ^ (bytes[2] & 0xFF) << 8 ^ (bytes[3] & 0xFF);
@@ -112,7 +112,7 @@ public class CommonUtils {
      *
      * @param bytes массив байтов
      * @return целое число типа long, составленное из массива bytes, байты в числе идут в том же порядке, что и в массиве
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static long convertByteArrayToLong(byte[] bytes) {
         return (bytes[0] & 0xFFL) << 56 ^ (bytes[1] & 0xFFL) << 48 ^ (bytes[2] & 0xFFL) << 40 ^ (bytes[3] & 0xFFL) << 32
@@ -125,7 +125,7 @@ public class CommonUtils {
      * @param fileToEncrypt        файл, который нужно зашифровать
      * @param pathForEncryptedFile путь, где должен лежать зашифрованный файл
      * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, имени файла и постфикса .encrypted
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static String getAbsoluteEncryptedFileName(File fileToEncrypt, String pathForEncryptedFile) {
         return pathForEncryptedFile + File.separator + fileToEncrypt.getName() + ".encrypted";
@@ -139,7 +139,7 @@ public class CommonUtils {
      * @param pathForDecryptedFile путь, где должен лежать расшифрованный файл
      * @return конкатенация pathForDecryptedFile, разделителя пути к файлу, префикса decrypted_
      * и исходного имени файла до шифрования(без постфикса .encrypted)
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static String getAbsoluteDecryptedFileName(File fileToDecrypt, String pathForDecryptedFile) {
         String nameOfFileToDecrypt = fileToDecrypt.getName();

@@ -6,7 +6,7 @@ public interface EncryptionAlgorithm {
      *
      * @param plainText шифруемый блок
      * @return зашифрованный блок
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     byte[] encryptOneBlock(byte[] plainText);
 
@@ -15,7 +15,7 @@ public interface EncryptionAlgorithm {
      *
      * @param cipherText расшифровываемый блок
      * @return расшифрованный блок
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     byte[] decryptOneBlock(byte[] cipherText);
 
@@ -23,7 +23,7 @@ public interface EncryptionAlgorithm {
      * Возвращает размер шифруемый блоков
      *
      * @return размер шифруемый блоков
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     int getBlockSizeInBytes();
 
@@ -31,7 +31,7 @@ public interface EncryptionAlgorithm {
      * Возвращает размер ключа в байтах
      *
      * @return размер ключа в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     int getKeySizeInBytes();
 
@@ -39,7 +39,7 @@ public interface EncryptionAlgorithm {
      * Устанавливает новый ключ
      *
      * @param key новый ключ
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     void setKey(long[] key);
 
@@ -47,7 +47,7 @@ public interface EncryptionAlgorithm {
      * Возвращает экземпляр класса, реализующего интерфейс EncryptionAlgorithm
      *
      * @return новый экземпляр EncryptionAlgorithm
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     EncryptionAlgorithm getInstance();
 }

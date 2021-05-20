@@ -8,7 +8,7 @@ public class EncryptionModesUtils {
      * Увеличивает счетчик на 1
      *
      * @param counter счетчик
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void incrementCounter(byte[] counter) {
         for (int i = counter.length - 1; i >= 0; i--) {
@@ -22,7 +22,7 @@ public class EncryptionModesUtils {
      * Увеличивает правую половину гаммы на 1
      *
      * @param gamma гамма
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void rightIncrementGamma(byte[] gamma) {
         for (int i = gamma.length - 1; i >= gamma.length / 2; i--) {
@@ -36,7 +36,7 @@ public class EncryptionModesUtils {
      * Увеличивает левую половину гаммы на 1
      *
      * @param gamma гамма
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void leftIncrementGamma(byte[] gamma) {
         for (int i = gamma.length / 2 - 1; i >= 0; i--) {
@@ -55,7 +55,7 @@ public class EncryptionModesUtils {
      * @param secondArray           массив, с элементами которого будет применяться операция исключающее или для первого массива
      * @param offsetInSecondArray   смещение во втором массиве
      * @param numberOfElementsToXor количество оперируемых элементов
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void xorByteArrays(byte[] firstArray, byte[] secondArray, int offsetInSecondArray, int numberOfElementsToXor) {
         for (int i = 0; i < numberOfElementsToXor; i++) {
@@ -71,7 +71,7 @@ public class EncryptionModesUtils {
      *                              и в котором будет находиться результат
      * @param secondArray           массив, с элементами которого будет применяться операция исключающее или для первого массива
      * @param numberOfElementsToXor количество оперируемых элементов
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void xorByteArrays(byte[] firstArray, byte[] secondArray, int numberOfElementsToXor) {
         for (int i = 0; i < numberOfElementsToXor; i++) {
@@ -86,7 +86,7 @@ public class EncryptionModesUtils {
      * @param secondPolynomial    второй полином
      * @param primitivePolynomial примитивный полином 128-й степени
      * @return результат умножения двух многочленов по модулю примитивного полинома
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static byte[] multiplyPolynomialsModPrimitivePolynomial(byte[] firstPolynomial, byte[] secondPolynomial, byte[] primitivePolynomial) {
         int degreeOfMonomial = 0;
@@ -145,7 +145,7 @@ public class EncryptionModesUtils {
      * Генерирует вектор инициализации
      *
      * @param initializationVector массив, в который будет помещен вектор инициализации
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void generateInitializationVector(byte[] initializationVector) {
         SecureRandom secureRandom = new SecureRandom();
@@ -157,7 +157,7 @@ public class EncryptionModesUtils {
      *
      * @param register     регистр сдвига
      * @param fillingValue значение, которым нужно заполнить младшие байты
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public static void shiftLeftRegisterWithFillingLSB(byte[] register, byte[] fillingValue) {
         byte[] rightPartOfRegister = Arrays.copyOfRange(register, fillingValue.length, register.length);

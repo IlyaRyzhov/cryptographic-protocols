@@ -27,7 +27,7 @@ public class EncryptionAlgorithmWithOMAC {
     /**
      * @param encryptionAlgorithm класс, реализующий интерфейс EncryptionAlgorithm
      * @param gammaLengthInBytes  длина гаммы в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmWithOMAC(EncryptionAlgorithm encryptionAlgorithm, int gammaLengthInBytes) {
         this.encryptionAlgorithm = encryptionAlgorithm;
@@ -46,7 +46,7 @@ public class EncryptionAlgorithmWithOMAC {
      *
      * @param plainMessage сообщение, от которого нужно получить имитовставку
      * @return имитовставка
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public byte[] getImitationInsertFromMessage(byte[] plainMessage) {
         byte[] previousEncryptedBlock = new byte[blockSizeInBytes];
@@ -83,7 +83,7 @@ public class EncryptionAlgorithmWithOMAC {
      *
      * @param file файл, от которого нужно получить имитовставку
      * @return имитовставка
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public byte[] getImitationInsertFromFile(File file) {
         byte[] imitationInsert = new byte[gammaLengthInBytes];
@@ -118,7 +118,7 @@ public class EncryptionAlgorithmWithOMAC {
      * Возвращает используемый в режиме экземпляр класса, реализующего EncryptionAlgorithm
      *
      * @return экземпляр класса, реализующего EncryptionAlgorithm
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithm getEncryptionAlgorithm() {
         return encryptionAlgorithm;

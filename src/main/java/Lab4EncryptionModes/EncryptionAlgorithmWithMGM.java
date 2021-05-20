@@ -28,7 +28,7 @@ class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements 
      * @param encryptionAlgorithm                      класс, реализующий интерфейс EncryptionAlgorithm
      * @param gammaLengthInBytes                       длина гаммы в байтах
      * @param additionalAuthenticatedDataLengthInBytes длина дополнительных имитозащищаемых данных в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmWithMGM(EncryptionAlgorithm encryptionAlgorithm, int gammaLengthInBytes, int additionalAuthenticatedDataLengthInBytes) {
         super(encryptionAlgorithm);

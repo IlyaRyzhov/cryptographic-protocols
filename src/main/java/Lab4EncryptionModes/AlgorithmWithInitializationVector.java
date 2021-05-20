@@ -5,7 +5,7 @@ public interface AlgorithmWithInitializationVector {
      * Устанавливает вектор инициализации
      *
      * @param initializationVector желаемый вектор инициализации
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     void setInitializationVector(byte[] initializationVector);
 
@@ -13,7 +13,7 @@ public interface AlgorithmWithInitializationVector {
      * Возвращает вектор инициализации
      *
      * @return вектор инициализации
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     byte[] getInitializationVector();
 }

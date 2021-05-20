@@ -18,7 +18,7 @@ class EncryptionAlgorithmWithOFB extends EncryptionAlgorithmAbstract implements 
      * @param encryptionAlgorithm           класс, реализующий интерфейс EncryptionAlgorithm
      * @param numberOfBlocksInShiftRegister количество блоков базового алгоритма шифрования в регистре сдвига
      * @param gammaLengthInBytes            длина гаммы в байтах
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public EncryptionAlgorithmWithOFB(EncryptionAlgorithm encryptionAlgorithm, int numberOfBlocksInShiftRegister, int gammaLengthInBytes) {
         super(encryptionAlgorithm);

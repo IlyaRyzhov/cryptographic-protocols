@@ -34,7 +34,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * @param message              хешируемое сообщение
      * @param totalLengthOfMessage общая длина сообщения, которую надо использовать при дополнении сообщения
      * @return хеш сообщения
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final byte[] computeHash(byte[] message, long totalLengthOfMessage) {
         byte[] result = computeHashWithoutResetDoublePipe(message, totalLengthOfMessage);
@@ -48,7 +48,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * @param message              хеширумое сообщение
      * @param totalLengthOfMessage общая длина сообщения, которую надо использовать при дополнении сообщения
      * @return хеш сообщения
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected abstract byte[] computeHashWithoutResetDoublePipe(byte[] message, long totalLengthOfMessage);
 
@@ -56,7 +56,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * Одна итерация функции сжатия
      *
      * @param messageBlock блок сообщения, к которому применяется операция сжатия
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected abstract void compressIteration(byte[] messageBlock);
 
@@ -65,7 +65,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      *
      * @param message хешируемое сообщение
      * @return хеш сообщения без учета последнего блока дополненного сообщения
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final byte[] repeatCompressIterationUntilLastBlock(byte[] message) {
         int blockSize = getBlockSize();
@@ -83,7 +83,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
     /**
      * Устанавлиает значения трубы в исходное состояние
      *
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected abstract void initializeInitialDoublePipe();
 
@@ -94,7 +94,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * @param lengthOfMessageBLockInBits длина блока сообщения в битах
      * @param lengthOfMessageInBits      длина всего дополняемого сообщения в битах(для записи в последнем блоке)
      * @return дополненное сообщение
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final byte[] padMessage(byte[] message, int lengthOfMessageBLockInBits, long lengthOfMessageInBits) {
         int k = solvePaddingEquation(lengthOfMessageInBits, lengthOfMessageBLockInBits);
@@ -114,7 +114,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * @param lengthOfMessage            длина сообщения в битах
      * @param lengthOfMessageBLockInBits длина блока сообщения в битах
      * @return число нулей, которыми нужно дополнить сообщение
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final int solvePaddingEquation(long lengthOfMessage, int lengthOfMessageBLockInBits) {
         int l = (int) (lengthOfMessage % lengthOfMessageBLockInBits);
@@ -126,7 +126,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * Показывает сколько раз в алгоритме применяется функция expandOne
      *
      * @return количество применений функции expandOne
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final int getExpandRoundsOne() {
         return expandRoundsOne;
@@ -135,7 +135,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
     /**
      * Изменяет количество применений функции expandOne
      *
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final void setExpandRoundsOne(int expandRoundsOne) {
         this.expandRoundsOne = expandRoundsOne;
@@ -146,7 +146,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * Показывает сколько раз в алгоритме применяется функция expandTwo
      *
      * @return количество применений функции expandTwo
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final int getExpandRoundsTwo() {
         return expandRoundsTwo;
@@ -155,7 +155,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
     /**
      * Изменяет количество применений функции expandTwo
      *
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final void setExpandRoundsTwo(int expandRoundsTwo) {
         this.expandRoundsTwo = expandRoundsTwo;
@@ -166,7 +166,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * Показывает текущую реализацию алгоритма BMW
      *
      * @return размер выхода функции хеширования
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final BlueMidnightWishDigestSize getDigestSize() {
         return digestSize;
@@ -176,7 +176,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * Устанавливает реализацию алгоритма BMW
      *
      * @param numberOfBytesInDigest необходимая длина выхода функции хеширования
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     protected final void setOutputLength(int numberOfBytesInDigest) {
         this.numberOfBytesInDigest = numberOfBytesInDigest;

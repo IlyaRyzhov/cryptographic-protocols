@@ -24,7 +24,7 @@ public class BlueMidnightWish implements HashFunction {
      * Изменяет реализацию(длину выхода) алгоритма BMW
      *
      * @param blueMidnightWishDigestSize новый размер выхода функции хеширования
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public void setOutputSize(BlueMidnightWishDigestSize blueMidnightWishDigestSize) {
         if (blueMidnightWishDigestSize == BLUE_MIDNIGHT_WISH_224 || blueMidnightWishDigestSize == BLUE_MIDNIGHT_WISH_256) {

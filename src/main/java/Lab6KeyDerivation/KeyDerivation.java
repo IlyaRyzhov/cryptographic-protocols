@@ -33,7 +33,7 @@ public class KeyDerivation implements AlgorithmWithInitializationVector {
      * @param additionalInformation        некоторая дополнительная информация (A), используемая при выработке производной
      *                                     ключевой информации
      * @return производный ключевой материал
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public byte[] generateDerivedKey(byte[] originalKey, byte[] salt, int keyLength,
                                      byte[] usageLabel, byte[] informationAboutParticipants, byte[] additionalInformation) {
@@ -115,7 +115,7 @@ public class KeyDerivation implements AlgorithmWithInitializationVector {
      * Возвращает флаги процедуры форматирования
      *
      * @return флаги процедуры форматирования
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public boolean[] getFormattingProcedureFlags() {
         return formattingProcedureFlags;
@@ -126,7 +126,7 @@ public class KeyDerivation implements AlgorithmWithInitializationVector {
      *
      * @param formattingProcedureFlags новый массив флагов, сигнализирующих о существенной зависимости
      *                                 выхода процедуры форматирования от всех бит одного из входов
-     * @author ILya Ryzhov
+     * @author Ilya Ryzhov
      */
     public void setFormattingProcedureFlags(boolean[] formattingProcedureFlags) {
         this.formattingProcedureFlags = formattingProcedureFlags;
