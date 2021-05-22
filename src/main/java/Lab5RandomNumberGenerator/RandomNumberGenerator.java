@@ -4,6 +4,11 @@ import Lab2HashAlgorithm.BlueMidnightWish;
 import Lab2HashAlgorithm.BlueMidnightWishDigestSize;
 import Lab2HashAlgorithm.HashFunction;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -64,6 +69,7 @@ public class RandomNumberGenerator {
         }
     }
 
+
     /**
      * Генерирует случайную последовательность байтов
      *
@@ -75,19 +81,10 @@ public class RandomNumberGenerator {
         byte[] randomBytes = new byte[numberOfBytes];
         int hashLength = hashFunction.getOutputLength();
         incrementCounter(seed);
+        ThreadRandomization threadRandomization = new ThreadRandomization();
         for (int i = 0; i < numberOfBytes; i += hashLength) {
             byte[] hash = hashFunction.computeHash(seed);
-            byte[] additionalEntropy = new byte[64];
-            Thread[] threads = new Thread[2];
-            ThreadRandomization threadRandomization = new ThreadRandomization();
-            for (int j = 0; j < additionalEntropy.length; j++) {
-                Arrays.setAll(threads, t -> new Thread(threadRandomization));
-                for (Thread thread : threads) {
-                    thread.start();
-                }
-                additionalEntropy[j] = threadRandomization.state;
-            }
-            System.out.println(Arrays.toString(additionalEntropy));
+            byte[] additionalEntropy = getEntropy(threadRandomization);
             byte[] additionalEntropyHash = hashFunction.computeHash(additionalEntropy);
             byte[] hashes = Arrays.copyOf(additionalEntropyHash, 2 * hashLength);
             System.arraycopy(hash, 0, hashes, hashLength, hashLength);
@@ -98,20 +95,27 @@ public class RandomNumberGenerator {
         return randomBytes;
     }
 
+    private byte[] getEntropy(ThreadRandomization threadRandomization) {
+        byte[] additionalEntropy = new byte[64];
+        Thread[] threads = new Thread[2];
+        for (int j = 0; j < additionalEntropy.length; j++) {
+            Arrays.setAll(threads, t -> new Thread(threadRandomization));
+            for (Thread thread : threads) {
+                thread.start();
+            }
+            additionalEntropy[j] = threadRandomization.state;
+        }
+        return additionalEntropy;
+    }
+
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        new RandomNumberGenerator().generateRandomBytes(64);
-        System.out.println(System.currentTimeMillis() - start);
-//        new RandomNumberGenerator().generateRandomBytes(1024);
-        /*try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("C:\\Users\\fvd\\Desktop\\random.txt"))) {
+        //   new RandomNumberGenerator().generateRandomBytes(65000);
+        BigInteger bigInteger = new BigInteger("fbf853ae07aad8037e0ab8345c30661aee689c37f5732cf42442b6dfc967e102", 16);
+        System.out.println(bigInteger.mod(BigInteger.valueOf(23)));
+        try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("C:\\Users\\fvd\\Desktop\\random.txt"))) {
             bufferedOutputStream.write(new RandomNumberGenerator().generateRandomBytes(20971520));
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }
-/*        int[] mas=new int[]{1,2,3,4};
-        int[] mas2=Arrays.copyOf(mas,8);
-        System.out.println(Arrays.toString(mas2));
-        long start = System.currentTimeMillis();
-        new RandomNumberGenerator().generateRandomBytes(1024);  System.out.println(System.currentTimeMillis() - start);*/
