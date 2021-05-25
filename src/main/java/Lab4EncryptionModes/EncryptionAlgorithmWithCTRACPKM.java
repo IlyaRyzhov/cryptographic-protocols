@@ -8,7 +8,7 @@ import java.util.Arrays;
 import static Utils.CommonUtils.*;
 import static Utils.EncryptionModesUtils.*;
 
-class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract implements AlgorithmWithInitializationVector {
+class EncryptionAlgorithmWithCTRACPKM extends EncryptionAlgorithmAbstract {
     private byte[] initializationVector;
     private final int gammaLengthInBytes;
     private final byte[] dSubstitution;

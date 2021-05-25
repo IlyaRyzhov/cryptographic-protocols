@@ -8,7 +8,7 @@ import java.util.Arrays;
 import static Utils.CommonUtils.getAbsoluteDecryptedFileName;
 import static Utils.CommonUtils.getAbsoluteEncryptedFileName;
 
-abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode {
+public abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMode, AlgorithmWithInitializationVector {
     protected final EncryptionAlgorithm encryptionAlgorithm;
     protected final int blockSizeInBytes;
     protected int bufferSize;
@@ -125,4 +125,19 @@ abstract class EncryptionAlgorithmAbstract implements EncryptionAlgorithmWithMod
      * @author Ilya Ryzhov
      */
     protected abstract void decryptDataInFile(BufferedInputStream bufferedInputStream, BufferedOutputStream bufferedOutputStream) throws IOException;
+
+    /**
+     * @see AlgorithmWithInitializationVector
+     */
+    @Override
+    public void setInitializationVector(byte[] initializationVector) {
+    }
+
+    /**
+     * @see AlgorithmWithInitializationVector
+     */
+    @Override
+    public byte[] getInitializationVector() {
+        return null;
+    }
 }

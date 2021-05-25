@@ -11,7 +11,7 @@ import java.util.Arrays;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 import static Utils.EncryptionModesUtils.*;
 
-class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract implements AlgorithmWithInitializationVector {
+class EncryptionAlgorithmWithMGM extends EncryptionAlgorithmAbstract {
     private byte[] initializationVector;
     private final int gammaLengthInBytes;
     private final int additionalAuthenticatedDataLengthInBytes;

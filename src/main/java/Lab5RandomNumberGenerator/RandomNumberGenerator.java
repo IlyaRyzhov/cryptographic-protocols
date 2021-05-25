@@ -7,13 +7,12 @@ import Lab2HashAlgorithm.HashFunction;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
 import static Utils.EncryptionModesUtils.incrementCounter;
 
+//TODO исследовать качество последовательности, полученной в состоянии гонки и улучшить при необходимости
 public class RandomNumberGenerator {
     private final byte[] seed;
     private final HashFunction hashFunction;

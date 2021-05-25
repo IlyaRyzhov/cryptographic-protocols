@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static Utils.EncryptionModesUtils.*;
 
-class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract implements AlgorithmWithInitializationVector {
+class EncryptionAlgorithmWithCBC extends EncryptionAlgorithmAbstract {
     private byte[] initializationVector;
 
     /**
