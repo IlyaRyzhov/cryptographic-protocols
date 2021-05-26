@@ -3,17 +3,17 @@ package Lab7MutualAuthenticationProtocol;
 import Lab1EncryptionAlgorithm.TwoFish;
 import Lab2HashAlgorithm.BlueMidnightWish;
 import Lab2HashAlgorithm.BlueMidnightWishDigestSize;
+import Lab2HashAlgorithm.HashFunction;
 import Lab4EncryptionModes.Cipher;
 import Lab5RandomNumberGenerator.RandomNumberGenerator;
 import Lab6KeyDerivation.KeyDerivation;
 import Utils.CommonUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static Lab4EncryptionModes.EncryptionMode.ECB;
+import static Lab7MutualAuthenticationProtocol.TransmissionChannel.*;
 import static Utils.CommonUtils.convertByteArrayToLongArray;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 
@@ -24,14 +24,30 @@ public class TrustedServer {
         nameKeyMap = new LinkedHashMap<>();
     }
 
+    /**
+     * Добавляет данные о пользователе в базу данных сервера
+     *
+     * @param name    имя пользователя
+     * @param userKey ключ пользователя
+     * @author Ilya Ryzhov
+     */
     public void registerUser(String name, byte[] userKey) {
         if (!nameKeyMap.containsKey(name))
             nameKeyMap.put(name, userKey);
         else throw new IllegalArgumentException("Пользователь уже существует в системе");
     }
 
-    public byte[][] sendResponseForSessionKey(User user, byte[] message) {
-        String senderUsername = user.getName();
+    /**
+     * Отправляет ответ на запрос инициатора сессионного ключа
+     *
+     * @param requestSender отправитель запроса(инициатор)
+     * @return два сообщения. Первое- сообщение с идентификатором инициатора, зашифрованное ключом инициатора,
+     * второе- сообщение с временной меткой, зашифрованное ключом второго пользователя
+     * @author Ilya Ryzhov
+     */
+    public byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(User requestSender) {
+        byte[] message = readMessageFromTransmissionChannel();
+        String senderUsername = requestSender.getName();
         byte[] initiatorKey = nameKeyMap.get(senderUsername);
         if (initiatorKey == null)
             throw new IllegalArgumentException("Пользователя с именем " + senderUsername + " не существует в базе данных");
@@ -48,27 +64,27 @@ public class TrustedServer {
                 throw new IllegalArgumentException("Пользователь, с которым устанавливается информационный обмен не существует в базе данных");
             byte[] sessionKey = getSessionKey(initiatorKey, secondUserKey, initiatorName, secondUserName);
             byte[] encryptedSessionKeyWithInitiatorKey = ECBCipherWithInitiatorKey.encryptMessage(sessionKey);
-            byte[] firstResponseMessage = new byte[decryptedMessage.length + encryptedSessionKeyWithInitiatorKey.length];
-            System.arraycopy(decryptedMessage, decryptedMessage.length - 8, firstResponseMessage, 0, 8);
-            System.arraycopy(decryptedMessage, 0, firstResponseMessage, 8, decryptedMessage.length - 8);
-            System.arraycopy(encryptedSessionKeyWithInitiatorKey, 0, firstResponseMessage, decryptedMessage.length, encryptedSessionKeyWithInitiatorKey.length);
-            firstResponseMessage = ECBCipherWithInitiatorKey.encryptMessage(firstResponseMessage);
+            byte[] messageWithInitiatorIdentifier = new byte[decryptedMessage.length + encryptedSessionKeyWithInitiatorKey.length];
+            System.arraycopy(decryptedMessage, decryptedMessage.length - 8, messageWithInitiatorIdentifier, 0, 8);
+            System.arraycopy(decryptedMessage, 0, messageWithInitiatorIdentifier, 8, decryptedMessage.length - 8);
+            System.arraycopy(encryptedSessionKeyWithInitiatorKey, 0, messageWithInitiatorIdentifier, decryptedMessage.length, encryptedSessionKeyWithInitiatorKey.length);
+            messageWithInitiatorIdentifier = ECBCipherWithInitiatorKey.encryptMessage(messageWithInitiatorIdentifier);
             Cipher ECBCipherWithSecondUserKey = new Cipher(new TwoFish(convertByteArrayToLongArray(secondUserKey)), ECB);
             byte[] timeLabel = convertLongArrayToByteArray(new long[]{System.currentTimeMillis()});
             byte[] encryptedSessionKeyWithSecondUserKey = ECBCipherWithSecondUserKey.encryptMessage(sessionKey);
-            byte[] secondResponseMessage = new byte[decryptedMessage.length + encryptedSessionKeyWithSecondUserKey.length];
-            System.arraycopy(timeLabel, 0, secondResponseMessage, 0, 8);
-            System.arraycopy(decryptedMessage, 0, secondResponseMessage, 8, decryptedMessage.length - 8);
-            System.arraycopy(encryptedSessionKeyWithSecondUserKey, 0, secondResponseMessage, decryptedMessage.length, encryptedSessionKeyWithSecondUserKey.length);
-            secondResponseMessage = ECBCipherWithSecondUserKey.encryptMessage(secondResponseMessage);
-            return new byte[][]{firstResponseMessage, secondResponseMessage};
+            byte[] messageWithTimeLabel = new byte[decryptedMessage.length + encryptedSessionKeyWithSecondUserKey.length];
+            System.arraycopy(timeLabel, 0, messageWithTimeLabel, 0, 8);
+            System.arraycopy(decryptedMessage, 0, messageWithTimeLabel, 8, decryptedMessage.length - 8);
+            System.arraycopy(encryptedSessionKeyWithSecondUserKey, 0, messageWithTimeLabel, decryptedMessage.length, encryptedSessionKeyWithSecondUserKey.length);
+            messageWithTimeLabel = ECBCipherWithSecondUserKey.encryptMessage(messageWithTimeLabel);
+            return new byte[][]{messageWithInitiatorIdentifier, messageWithTimeLabel};
         }
     }
 
     private byte[] getSessionKey(byte[] initiatorKey, byte[] secondUserKey, String initiatorName, String secondUserName) {
         byte[] concatenatedKey = Arrays.copyOf(initiatorKey, initiatorKey.length + secondUserKey.length);
         System.arraycopy(secondUserKey, 0, concatenatedKey, initiatorKey.length, secondUserKey.length);
-        BlueMidnightWish blueMidnightWish = new BlueMidnightWish(BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_512);
+        HashFunction blueMidnightWish = new BlueMidnightWish(BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_512);
         boolean[] flags = new boolean[8];
         Arrays.fill(flags, 2, flags.length, true);
         KeyDerivation keyDerivation = new KeyDerivation(blueMidnightWish, flags);
