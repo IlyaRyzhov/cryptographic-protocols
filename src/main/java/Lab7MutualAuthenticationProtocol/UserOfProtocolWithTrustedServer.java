@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.Arrays;
 
 import static Lab4EncryptionModes.EncryptionMode.ECB;
+import static Lab7MutualAuthenticationProtocol.UserRole.INITIATOR;
 import static Utils.TransmissionChannelUtils.readMessageFromTransmissionChannel;
 import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 import static Lab7MutualAuthenticationProtocol.TrustedServer.registerUser;
@@ -28,11 +29,13 @@ public class UserOfProtocolWithTrustedServer extends UserOfTransmissionProtocol 
 
     @Override
     public void authenticatePretender(UserOfTransmissionProtocol pretender) {
-        NeedhamSchroederProtocol needhamSchroederProtocol = new NeedhamSchroederProtocol();
-        for (int i = 0; i < 10; i++) {
-            boolean authenticationResult = needhamSchroederProtocol.authenticateTwoUsers(this, pretender);
-            if (authenticationResult)
-                break;
+        if (userRole == INITIATOR) {
+            NeedhamSchroederProtocol needhamSchroederProtocol = new NeedhamSchroederProtocol();
+            for (int i = 0; i < 10; i++) {
+                boolean authenticationResult = needhamSchroederProtocol.authenticateTwoUsers(this, pretender);
+                if (authenticationResult)
+                    break;
+            }
         }
     }
 

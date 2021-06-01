@@ -11,7 +11,7 @@ import static Utils.CommonUtils.convertByteArrayToLongArray;
 public abstract class UserOfTransmissionProtocol {
     public final String name;
     public UserRole userRole;
-    private final byte[] userKey;
+    protected final byte[] userKey;
     protected byte[] sessionKey;
     private Cipher cipherWithSessionKey;
 

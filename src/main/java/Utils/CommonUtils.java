@@ -1,6 +1,7 @@
 package Utils;
 
 import java.io.File;
+import java.util.Arrays;
 
 public class CommonUtils {
 
@@ -157,5 +158,19 @@ public class CommonUtils {
             System.out.print(Integer.toHexString(b & 0xff));
         }
         System.out.println();
+    }
+
+    /**
+     * Склеивает два массива байтов
+     *
+     * @param firstArray  первый массив
+     * @param secondArray второй массив
+     * @return объединенный массив, в котором сначала идут элементы firstArray, затем элементы secondArray
+     * @author Ilya Ryzhov
+     */
+    public static byte[] concatenateByteArrays(byte[] firstArray, byte[] secondArray) {
+        byte[] resultArray = Arrays.copyOf(firstArray, firstArray.length + secondArray.length);
+        System.arraycopy(secondArray, 0, resultArray, firstArray.length, secondArray.length);
+        return resultArray;
     }
 }

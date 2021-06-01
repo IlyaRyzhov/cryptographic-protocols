@@ -8,8 +8,8 @@ import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 import static Lab7MutualAuthenticationProtocol.TrustedServer.sendResponseForSessionKeyWithInitiatorIdentifier;
 import static Utils.CommonUtils.convertByteArrayToLong;
 
-public class NeedhamSchroederProtocol implements AuthenticationProtocol {
-    private int numberOfUnsuccessfulAttempts;
+class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
+
 
     /**
      * Производит аутентификацию пользователей с использованием доверенной третьей стороны
