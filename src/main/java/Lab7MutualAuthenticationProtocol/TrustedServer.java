@@ -13,14 +13,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static Lab4EncryptionModes.EncryptionMode.ECB;
-import static Lab7MutualAuthenticationProtocol.TransmissionChannel.*;
+import static Utils.TransmissionChannelUtils.*;
 import static Utils.CommonUtils.convertByteArrayToLongArray;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
 
-public class TrustedServer {
-    private final Map<String, byte[]> nameKeyMap;
+class TrustedServer {
+    private static final Map<String, byte[]> nameKeyMap;
 
-    public TrustedServer() {
+    static {
         nameKeyMap = new LinkedHashMap<>();
     }
 
@@ -31,7 +31,7 @@ public class TrustedServer {
      * @param userKey ключ пользователя
      * @author Ilya Ryzhov
      */
-    public void registerUser(String name, byte[] userKey) {
+    static void registerUser(String name, byte[] userKey) {
         if (!nameKeyMap.containsKey(name))
             nameKeyMap.put(name, userKey);
         else throw new IllegalArgumentException("Пользователь уже существует в системе");
@@ -45,7 +45,7 @@ public class TrustedServer {
      * второе- сообщение с временной меткой, зашифрованное ключом второго пользователя
      * @author Ilya Ryzhov
      */
-    public byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(User requestSender) {
+    static byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(UserOfProtocolWithTrustedServer requestSender) {
         byte[] message = readMessageFromTransmissionChannel();
         String senderUsername = requestSender.getName();
         byte[] initiatorKey = nameKeyMap.get(senderUsername);
@@ -58,39 +58,39 @@ public class TrustedServer {
             throw new IllegalArgumentException("Имя инициатора информационного обмена не совпадает с именем отправителя запроса");
         else {
             String initiatorName = namesOfExchangingUsers.substring(0, senderUsername.length());
-            String secondUserName = namesOfExchangingUsers.substring(senderUsername.length());
-            byte[] secondUserKey = nameKeyMap.get(secondUserName);
-            if (secondUserKey == null)
+            String pretenderUserName = namesOfExchangingUsers.substring(senderUsername.length());
+            byte[] pretenderUserKey = nameKeyMap.get(pretenderUserName);
+            if (pretenderUserKey == null)
                 throw new IllegalArgumentException("Пользователь, с которым устанавливается информационный обмен не существует в базе данных");
-            byte[] sessionKey = getSessionKey(initiatorKey, secondUserKey, initiatorName, secondUserName);
+            byte[] sessionKey = getSessionKey(initiatorKey, pretenderUserKey, initiatorName, pretenderUserName);
             byte[] encryptedSessionKeyWithInitiatorKey = ECBCipherWithInitiatorKey.encryptMessage(sessionKey);
             byte[] messageWithInitiatorIdentifier = new byte[decryptedMessage.length + encryptedSessionKeyWithInitiatorKey.length];
             System.arraycopy(decryptedMessage, decryptedMessage.length - 8, messageWithInitiatorIdentifier, 0, 8);
             System.arraycopy(decryptedMessage, 0, messageWithInitiatorIdentifier, 8, decryptedMessage.length - 8);
             System.arraycopy(encryptedSessionKeyWithInitiatorKey, 0, messageWithInitiatorIdentifier, decryptedMessage.length, encryptedSessionKeyWithInitiatorKey.length);
             messageWithInitiatorIdentifier = ECBCipherWithInitiatorKey.encryptMessage(messageWithInitiatorIdentifier);
-            Cipher ECBCipherWithSecondUserKey = new Cipher(new TwoFish(convertByteArrayToLongArray(secondUserKey)), ECB);
+            Cipher ECBCipherWithPretenderUserKey = new Cipher(new TwoFish(convertByteArrayToLongArray(pretenderUserKey)), ECB);
             byte[] timeLabel = convertLongArrayToByteArray(new long[]{System.currentTimeMillis()});
-            byte[] encryptedSessionKeyWithSecondUserKey = ECBCipherWithSecondUserKey.encryptMessage(sessionKey);
-            byte[] messageWithTimeLabel = new byte[decryptedMessage.length + encryptedSessionKeyWithSecondUserKey.length];
+            byte[] encryptedSessionKeyWithPretenderUserKey = ECBCipherWithPretenderUserKey.encryptMessage(sessionKey);
+            byte[] messageWithTimeLabel = new byte[decryptedMessage.length + encryptedSessionKeyWithPretenderUserKey.length];
             System.arraycopy(timeLabel, 0, messageWithTimeLabel, 0, 8);
             System.arraycopy(decryptedMessage, 0, messageWithTimeLabel, 8, decryptedMessage.length - 8);
-            System.arraycopy(encryptedSessionKeyWithSecondUserKey, 0, messageWithTimeLabel, decryptedMessage.length, encryptedSessionKeyWithSecondUserKey.length);
-            messageWithTimeLabel = ECBCipherWithSecondUserKey.encryptMessage(messageWithTimeLabel);
+            System.arraycopy(encryptedSessionKeyWithPretenderUserKey, 0, messageWithTimeLabel, decryptedMessage.length, encryptedSessionKeyWithPretenderUserKey.length);
+            messageWithTimeLabel = ECBCipherWithPretenderUserKey.encryptMessage(messageWithTimeLabel);
             return new byte[][]{messageWithInitiatorIdentifier, messageWithTimeLabel};
         }
     }
 
-    private byte[] getSessionKey(byte[] initiatorKey, byte[] secondUserKey, String initiatorName, String secondUserName) {
-        byte[] concatenatedKey = Arrays.copyOf(initiatorKey, initiatorKey.length + secondUserKey.length);
-        System.arraycopy(secondUserKey, 0, concatenatedKey, initiatorKey.length, secondUserKey.length);
+    private static byte[] getSessionKey(byte[] initiatorKey, byte[] pretenderUserKey, String initiatorName, String pretenderUserName) {
+        byte[] concatenatedKey = Arrays.copyOf(initiatorKey, initiatorKey.length + pretenderUserKey.length);
+        System.arraycopy(pretenderUserKey, 0, concatenatedKey, initiatorKey.length, pretenderUserKey.length);
         HashFunction blueMidnightWish = new BlueMidnightWish(BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_512);
         boolean[] flags = new boolean[8];
         Arrays.fill(flags, 2, flags.length, true);
         KeyDerivation keyDerivation = new KeyDerivation(blueMidnightWish, flags);
         byte[] salt = new RandomNumberGenerator().generateRandomBytes(64);
         byte[] usageLabel = Arrays.copyOf(blueMidnightWish.computeHash("SessionKeyGenerator".getBytes(StandardCharsets.UTF_8)), 32);
-        byte[] informationAboutParticipants = Arrays.copyOf(blueMidnightWish.computeHash((initiatorName + secondUserName).getBytes(StandardCharsets.UTF_8)), 16);
+        byte[] informationAboutParticipants = Arrays.copyOf(blueMidnightWish.computeHash((initiatorName + pretenderUserName).getBytes(StandardCharsets.UTF_8)), 16);
         long timeLabel = System.currentTimeMillis();
         byte[] additionalInformation = Arrays.copyOf(CommonUtils.convertLongArrayToByteArray(new long[]{timeLabel}), 16);
         return keyDerivation.generateDerivedKey(concatenatedKey, salt, 256, usageLabel, informationAboutParticipants, additionalInformation);

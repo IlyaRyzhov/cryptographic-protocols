@@ -1,9 +1,9 @@
-package Lab7MutualAuthenticationProtocol;
+package Utils;
 
 import java.io.*;
 
-public class TransmissionChannel {
-    private static final File channel = new File("src/main/java/Lab7MutualAuthenticationProtocol/transmissionChannel.txt");
+public class TransmissionChannelUtils {
+    private static final File channel = new File("src/main/resources/transmission/channel/transmissionChannel.txt");
 
     /**
      * Записывает сообщение в канал передачи

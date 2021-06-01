@@ -4,9 +4,6 @@ import Lab2HashAlgorithm.BlueMidnightWish;
 import Lab2HashAlgorithm.BlueMidnightWishDigestSize;
 import Lab2HashAlgorithm.HashFunction;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -105,16 +102,5 @@ public class RandomNumberGenerator {
             additionalEntropy[j] = threadRandomization.state;
         }
         return additionalEntropy;
-    }
-
-    public static void main(String[] args) {
-        //   new RandomNumberGenerator().generateRandomBytes(65000);
-        BigInteger bigInteger = new BigInteger("fbf853ae07aad8037e0ab8345c30661aee689c37f5732cf42442b6dfc967e102", 16);
-        System.out.println(bigInteger.mod(BigInteger.valueOf(23)));
-        try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("C:\\Users\\fvd\\Desktop\\random.txt"))) {
-            bufferedOutputStream.write(new RandomNumberGenerator().generateRandomBytes(20971520));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

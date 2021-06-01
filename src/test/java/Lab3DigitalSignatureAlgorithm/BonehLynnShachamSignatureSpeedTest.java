@@ -1,7 +1,6 @@
 package Lab3DigitalSignatureAlgorithm;
 
 import Lab2HashAlgorithm.BlueMidnightWish;
-import Lab2HashAlgorithm.BlueMidnightWishDigestSize;
 import Lab5RandomNumberGenerator.RandomNumberGenerator;
 
 import java.io.*;
@@ -22,7 +21,7 @@ public class BonehLynnShachamSignatureSpeedTest {
         System.out.println("На подпись и проверку подписи " + numberOfBlocks + " блоков длины 128 байт затрачено: " + (System.currentTimeMillis() - start) + " мс");
     }
 
-    public static void speedTestForArbitraryOfSigningFiles(File file) {
+    public static void speedTestForArbitrarySigningFiles(File file) {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
             byte[] key = new RandomNumberGenerator().generateRandomBytes(23);
             BonehLynnShachamSignature bonehLynnShachamSignature = new BonehLynnShachamSignature(key, new BlueMidnightWish(BLUE_MIDNIGHT_WISH_512));
@@ -30,7 +29,7 @@ public class BonehLynnShachamSignatureSpeedTest {
             long start = System.currentTimeMillis();
             byte[] signature = bonehLynnShachamSignature.getSignature(message);
             bonehLynnShachamSignature.verifySignature(message, signature);
-            System.out.println("На подпись и проверку подписи файла размером " + file.length() + " байтов затрачено:" + (System.currentTimeMillis() - start) + " мс");
+            System.out.println("На подпись и проверку подписи файла размером " + file.length() + " байтов затрачено: " + (System.currentTimeMillis() - start) + " мс");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +55,7 @@ public class BonehLynnShachamSignatureSpeedTest {
     }
 
     public static void main(String[] args) {
-        speedTestForArbitraryOfSigningFiles(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"));
+        speedTestForArbitrarySigningFiles(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"));
         speedTestForArbitraryBlocksOfSigningMessageWithChangingKey(1000, 10);
         speedTestForArbitraryBlocksOfSigningMessage(1000);
     }

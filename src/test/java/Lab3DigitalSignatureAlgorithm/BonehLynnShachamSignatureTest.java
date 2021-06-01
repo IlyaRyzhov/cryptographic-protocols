@@ -26,7 +26,7 @@ public class BonehLynnShachamSignatureTest {
 
     @Test
     @DisplayName("Проверка подписи")
-    void verifySignature() {
+    void verifySignatureTest() {
         byte[] key = new byte[23];
         new SecureRandom().nextBytes(key);
         byte[] message = new byte[128];
