@@ -16,10 +16,10 @@ import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 
 public class SecureRemotePasswordProtocol extends AuthenticationProtocolAbstract {
 
-    static BigInteger generatingElement;
-    static BigInteger groupModule;
-    static BigInteger kParameter;
-    static HashFunction hashFunction;
+    public static final BigInteger generatingElement;
+    public static final BigInteger groupModule;
+    public static final BigInteger kParameter;
+    public static HashFunction hashFunction;
 
     static {
         BigInteger germainPrime = (new BigInteger("39051").multiply(new BigInteger("2").pow(6001))).subtract(BigInteger.ONE);//39051*2^(6001)- 1

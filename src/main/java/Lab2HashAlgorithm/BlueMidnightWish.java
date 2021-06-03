@@ -52,7 +52,7 @@ public class BlueMidnightWish implements HashFunction {
      * @see HashFunction
      */
     @Override
-    public byte[] computeHashOfFile(File file) {
-        return blueMidnightWishImplementation.computeHashOfFile(file);
+    public byte[] computeHash(File file) {
+        return blueMidnightWishImplementation.computeHash(file);
     }
 }

@@ -8,8 +8,7 @@ import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 import static Lab7MutualAuthenticationProtocol.TrustedServer.sendResponseForSessionKeyWithInitiatorIdentifier;
 import static Utils.CommonUtils.convertByteArrayToLong;
 
-class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
-
+public class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
 
     /**
      * Производит аутентификацию пользователей с использованием доверенной третьей стороны
@@ -28,8 +27,10 @@ class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
         if (initiator.getUserRole() != UserRole.INITIATOR || initiator.getUserRole() == pretender.getUserRole()) {
             return false;
         } else {
+            initiator.sendInitializationVector();
+            byte[] initializationVector = readMessageFromTransmissionChannel();
             initiator.sendRequestForSessionKey(pretender.getName());
-            byte[][] serverResponse = sendResponseForSessionKeyWithInitiatorIdentifier(initiator);
+            byte[][] serverResponse = sendResponseForSessionKeyWithInitiatorIdentifier(initiator, initializationVector);
             writeMessageToTransmissionChannel(serverResponse[0]);
             boolean serverResponseCheck = initiator.verifyTrustedServerResponse(pretender.getName());
             if (!serverResponseCheck) {

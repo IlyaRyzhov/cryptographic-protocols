@@ -19,7 +19,7 @@ public interface HashFunction {
      * @return хеш файла
      * @author Ilya Ryzhov
      */
-    byte[] computeHashOfFile(File file);
+    byte[] computeHash(File file);
 
     /**
      * Возвращает длину блока в байтах, которая используется в хеш-функции

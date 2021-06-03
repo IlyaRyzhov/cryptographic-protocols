@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static Lab4EncryptionModes.EncryptionMode.ECB;
+import static Lab4EncryptionModes.EncryptionMode.OFB;
 import static Utils.TransmissionChannelUtils.*;
 import static Utils.CommonUtils.convertByteArrayToLongArray;
 import static Utils.CommonUtils.convertLongArrayToByteArray;
@@ -31,7 +32,7 @@ class TrustedServer {
      * @param userKey ключ пользователя
      * @author Ilya Ryzhov
      */
-    static void registerUser(String name, byte[] userKey) {
+    public static void registerUser(String name, byte[] userKey) {
         if (!nameKeyMap.containsKey(name))
             nameKeyMap.put(name, userKey);
         else throw new IllegalArgumentException("Пользователь уже существует в системе");
@@ -40,19 +41,23 @@ class TrustedServer {
     /**
      * Отправляет ответ на запрос инициатора сессионного ключа
      *
-     * @param requestSender отправитель запроса(инициатор)
+     * @param requestSender        отправитель запроса(инициатор)
+     * @param initializationVector вектор инициализации
      * @return два сообщения. Первое- сообщение с идентификатором инициатора, зашифрованное ключом инициатора,
      * второе- сообщение с временной меткой, зашифрованное ключом второго пользователя
      * @author Ilya Ryzhov
      */
-    static byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(UserOfProtocolWithTrustedServer requestSender) {
+
+    public static byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(UserOfProtocolWithTrustedServer requestSender, byte[] initializationVector) {
         byte[] message = readMessageFromTransmissionChannel();
         String senderUsername = requestSender.getName();
         byte[] initiatorKey = nameKeyMap.get(senderUsername);
         if (initiatorKey == null)
             throw new IllegalArgumentException("Пользователя с именем " + senderUsername + " не существует в базе данных");
-        Cipher ECBCipherWithInitiatorKey = new Cipher(new TwoFish(convertByteArrayToLongArray(initiatorKey)), ECB);
-        byte[] decryptedMessage = ECBCipherWithInitiatorKey.decryptMessage(message);//A,B,R
+        TwoFish twoFishWithInitiatorKey = new TwoFish(convertByteArrayToLongArray(initiatorKey));
+        Cipher OFBCipherWithInitiatorKey = new Cipher(twoFishWithInitiatorKey, OFB, 2, twoFishWithInitiatorKey.getBlockSizeInBytes());
+        OFBCipherWithInitiatorKey.getEncryptionAlgorithmWithMode().setInitializationVector(initializationVector);
+        byte[] decryptedMessage = OFBCipherWithInitiatorKey.decryptMessage(message);//A,B,R
         String namesOfExchangingUsers = new String(Arrays.copyOf(decryptedMessage, decryptedMessage.length - 8), StandardCharsets.UTF_8);
         if (!namesOfExchangingUsers.startsWith(senderUsername))
             throw new IllegalArgumentException("Имя инициатора информационного обмена не совпадает с именем отправителя запроса");
@@ -63,6 +68,7 @@ class TrustedServer {
             if (pretenderUserKey == null)
                 throw new IllegalArgumentException("Пользователь, с которым устанавливается информационный обмен не существует в базе данных");
             byte[] sessionKey = getSessionKey(initiatorKey, pretenderUserKey, initiatorName, pretenderUserName);
+            Cipher ECBCipherWithInitiatorKey = new Cipher(twoFishWithInitiatorKey, ECB);
             byte[] encryptedSessionKeyWithInitiatorKey = ECBCipherWithInitiatorKey.encryptMessage(sessionKey);
             byte[] messageWithInitiatorIdentifier = new byte[decryptedMessage.length + encryptedSessionKeyWithInitiatorKey.length];
             System.arraycopy(decryptedMessage, decryptedMessage.length - 8, messageWithInitiatorIdentifier, 0, 8);

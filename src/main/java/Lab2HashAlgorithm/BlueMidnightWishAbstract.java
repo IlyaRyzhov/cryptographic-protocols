@@ -202,7 +202,7 @@ abstract class BlueMidnightWishAbstract implements HashFunction {
      * @see HashFunction
      */
     @Override
-    public final byte[] computeHashOfFile(File hashableFile) {
+    public final byte[] computeHash(File hashableFile) {
         byte[] hashOfFile = new byte[getOutputLength()];
         long fileLength = hashableFile.length();
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(hashableFile), 1048576)) {

@@ -5,6 +5,8 @@ import Lab3DigitalSignatureAlgorithm.it.unisa.dia.gas.jpbc.Element;
 import Lab3DigitalSignatureAlgorithm.it.unisa.dia.gas.jpbc.Pairing;
 import Lab3DigitalSignatureAlgorithm.it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 
+import java.io.File;
+
 public class BonehLynnShachamSignature {
     private final HashFunction hashFunction;
     private Element publicKey;
@@ -54,7 +56,37 @@ public class BonehLynnShachamSignature {
      */
     public boolean verifySignature(byte[] message, byte[] signature) {
         byte[] messageHash = hashFunction.computeHash(message);
-        Element messageHashInCurve = pairing.getG1().newElementFromHash(messageHash, 0, messageHash.length);
+        return signatureVerification(messageHash, signature);
+    }
+
+    /**
+     * Подписывает файл
+     *
+     * @param file файл, от которого вычисляется подпись
+     * @return электронная подпись файла
+     * @author Ilya Ryzhov
+     */
+    public byte[] getSignature(File file) {
+        byte[] fileHash = hashFunction.computeHash(file);
+        Element messageHashInCurve = pairing.getG1().newElementFromHash(fileHash, 0, fileHash.length);
+        return messageHashInCurve.powZn(secretKey).toBytes();
+    }
+
+    /**
+     * Проверяет подпись файла
+     *
+     * @param file      файл, подпись которого проверяется
+     * @param signature подпись файла
+     * @return true если подпись верна, false в противном случае
+     * @author Ilya Ryzhov
+     */
+    public boolean verifySignature(File file, byte[] signature) {
+        byte[] fileHash = hashFunction.computeHash(file);
+        return signatureVerification(fileHash, signature);
+    }
+
+    private boolean signatureVerification(byte[] hash, byte[] signature) {
+        Element messageHashInCurve = pairing.getG1().newElementFromHash(hash, 0, hash.length);
         Element signatureOnCurve = pairing.getG1().newElementFromBytes(signature);
         Element d1 = pairing.pairing(publicKey, messageHashInCurve);
         Element d2 = pairing.pairing(generatingElement, signatureOnCurve);

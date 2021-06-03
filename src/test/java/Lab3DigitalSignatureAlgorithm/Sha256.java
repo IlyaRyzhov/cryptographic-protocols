@@ -19,7 +19,7 @@ public class Sha256 implements HashFunction {
     }
 
     @Override
-    public byte[] computeHashOfFile(File file) {
+    public byte[] computeHash(File file) {
         return new byte[0];
     }
 

@@ -30,53 +30,53 @@ public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtoc
     @Override
     public void authenticatePretender(UserOfTransmissionProtocol pretender) {
         if (userRole == INITIATOR) {
-            NeedhamSchroederProtocol needhamSchroederProtocol = new NeedhamSchroederProtocol();
-            for (int i = 0; i < 10; i++) {
-                boolean authenticationResult = needhamSchroederProtocol.authenticateTwoUsers(this, pretender);
+            SecureRemotePasswordProtocol secureRemotePasswordProtocol = new SecureRemotePasswordProtocol();
+            while (true) {
+                boolean authenticationResult = secureRemotePasswordProtocol.authenticateTwoUsers(this, pretender);
                 if (authenticationResult)
                     break;
             }
         }
     }
 
-    void sendUserName() {
+    public void sendUserName() {
         writeMessageToTransmissionChannel(name.getBytes(StandardCharsets.UTF_8));
     }
 
-    void sendSalt() {
+    public void sendSalt() {
         byte[] salt = new RandomNumberGenerator().generateRandomBytes(64);
         userSecretKey = getUserSecretKey(salt, userKey);
         writeMessageToTransmissionChannel(salt);
     }
 
-    void sendPasswordVerifier() {
+    public void sendPasswordVerifier() {
         BigInteger passwordVerifier = generatingElement.modPow(new BigInteger(1, userSecretKey).mod(groupModule), groupModule);
         writeMessageToTransmissionChannel(passwordVerifier.toByteArray());
     }
 
-    void addSaltFromChannel(String senderName) {
+    public void addSaltFromChannel(String senderName) {
         byte[] salt = readMessageFromTransmissionChannel();
         namePasswordVerifierMap.computeIfAbsent(senderName, k -> new ArrayList<>());
         namePasswordVerifierMap.get(senderName).add(salt);
     }
 
-    void addUserNameFromChannel() {
+    public void addUserNameFromChannel() {
         namePasswordVerifierMap.put(new String(readMessageFromTransmissionChannel(), StandardCharsets.UTF_8), null);
     }
 
-    void addPasswordVerifierFromChannel(String senderName) {
+    public void addPasswordVerifierFromChannel(String senderName) {
         namePasswordVerifierMap.get(senderName).add(readMessageFromTransmissionChannel());
     }
 
-    void sendInitiatorIdentifier() {
+    public void sendInitiatorIdentifier() {
         writeMessageToTransmissionChannel(initiatorIdentifier.toByteArray());
     }
 
-    void sendPretenderIdentifier() {
+    public void sendPretenderIdentifier() {
         writeMessageToTransmissionChannel(pretenderIdentifier.toByteArray());
     }
 
-    void getSessionKeyForInitiator(byte[] salt, byte[] password) {
+    public void getSessionKeyForInitiator(byte[] salt, byte[] password) {
         BigInteger uParameter = new BigInteger(1, hashFunction.computeHash(concatenateByteArrays(initiatorIdentifier.toByteArray(), pretenderIdentifier.toByteArray()))).mod(groupModule);
         BigInteger userSecretKey = new BigInteger(1, getUserSecretKey(salt, password)).mod(groupModule);
         BigInteger degree = ((new BigInteger(1, randomIdentifier).mod(groupModule)).add(uParameter.multiply(userSecretKey).mod(groupModule))).mod(groupModule);
@@ -85,7 +85,7 @@ public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtoc
         sessionKey = hashFunction.computeHash(sParameter.toByteArray());
     }
 
-    void getSessionKeyForPretender(String initiatorName) {
+    public void getSessionKeyForPretender(String initiatorName) {
         BigInteger uParameter = new BigInteger(1, hashFunction.computeHash(concatenateByteArrays(initiatorIdentifier.toByteArray(), pretenderIdentifier.toByteArray()))).mod(groupModule);
         BigInteger initiatorPasswordVerifier = new BigInteger(1, namePasswordVerifierMap.get(initiatorName).get(1)).mod(groupModule);
         BigInteger degree = new BigInteger(1, randomIdentifier).mod(groupModule);
@@ -93,7 +93,7 @@ public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtoc
         sessionKey = hashFunction.computeHash(sParameter.toByteArray());
     }
 
-    byte[] getInitiatorKeyCheckMessage(byte[] salt, String initiatorName) {
+    public byte[] getInitiatorKeyCheckMessage(byte[] salt, String initiatorName) {
         byte[] initiatorKeyCheckMessage = hashFunction.computeHash(groupModule.toByteArray());
         xorByteArrays(initiatorKeyCheckMessage, hashFunction.computeHash(generatingElement.toByteArray()), initiatorKeyCheckMessage.length);
         initiatorKeyCheckMessage = concatenateByteArrays(initiatorKeyCheckMessage, hashFunction.computeHash(initiatorName.getBytes(StandardCharsets.UTF_8)));
@@ -104,7 +104,7 @@ public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtoc
         return hashFunction.computeHash(initiatorKeyCheckMessage);
     }
 
-    byte[] getPretenderKeyCheckMessage(byte[] initiatorKeyCheckMessage) {
+    public byte[] getPretenderKeyCheckMessage(byte[] initiatorKeyCheckMessage) {
         return hashFunction.computeHash(concatenateByteArrays(concatenateByteArrays(initiatorIdentifier.toByteArray(), initiatorKeyCheckMessage), sessionKey));
     }
 

@@ -26,13 +26,13 @@ public class BlueMidnightWishSpeedTest {
         File hundredMbFile = new File("C:\\Users\\fvd\\Desktop\\100MB.txt");
         File thousandMbFile = new File("C:\\Users\\fvd\\Desktop\\1000MB.txt");
         long start = System.currentTimeMillis();
-        blueMidnightWish.computeHashOfFile(oneMbFile);
+        blueMidnightWish.computeHash(oneMbFile);
         System.out.println("На хеширование файла размером 1 Мб затрачено: " + (System.currentTimeMillis() - start) + " мс");
         start = System.currentTimeMillis();
-        blueMidnightWish.computeHashOfFile(hundredMbFile);
+        blueMidnightWish.computeHash(hundredMbFile);
         System.out.println("На хеширование файла размером 100 Мб затрачено: " + (System.currentTimeMillis() - start) + " мс");
         start = System.currentTimeMillis();
-        blueMidnightWish.computeHashOfFile(thousandMbFile);
+        blueMidnightWish.computeHash(thousandMbFile);
         System.out.println("На хеширование файла размером 1000 Мб затрачено: " + (System.currentTimeMillis() - start) + " мс");
     }
 

@@ -22,17 +22,12 @@ public class BonehLynnShachamSignatureSpeedTest {
     }
 
     public static void speedTestForArbitrarySigningFiles(File file) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
-            byte[] key = new RandomNumberGenerator().generateRandomBytes(23);
-            BonehLynnShachamSignature bonehLynnShachamSignature = new BonehLynnShachamSignature(key, new BlueMidnightWish(BLUE_MIDNIGHT_WISH_512));
-            byte[] message = bufferedInputStream.readAllBytes();
-            long start = System.currentTimeMillis();
-            byte[] signature = bonehLynnShachamSignature.getSignature(message);
-            bonehLynnShachamSignature.verifySignature(message, signature);
-            System.out.println("На подпись и проверку подписи файла размером " + file.length() + " байтов затрачено: " + (System.currentTimeMillis() - start) + " мс");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        byte[] key = new RandomNumberGenerator().generateRandomBytes(23);
+        BonehLynnShachamSignature bonehLynnShachamSignature = new BonehLynnShachamSignature(key, new BlueMidnightWish(BLUE_MIDNIGHT_WISH_512));
+        long start = System.currentTimeMillis();
+        byte[] signature = bonehLynnShachamSignature.getSignature(file);
+        bonehLynnShachamSignature.verifySignature(file, signature);
+        System.out.println("На подпись и проверку подписи файла размером " + file.length() + " байтов затрачено: " + (System.currentTimeMillis() - start) + " мс");
     }
 
     public static void speedTestForArbitraryBlocksOfSigningMessageWithChangingKey(int numberOfBlocks, int keyChangeFrequency) {
@@ -55,8 +50,10 @@ public class BonehLynnShachamSignatureSpeedTest {
     }
 
     public static void main(String[] args) {
+        speedTestForArbitrarySigningFiles(new File("C:\\Users\\fvd\\Desktop\\1MB.txt"));
         speedTestForArbitrarySigningFiles(new File("C:\\Users\\fvd\\Desktop\\100MB.txt"));
-        speedTestForArbitraryBlocksOfSigningMessageWithChangingKey(1000, 10);
+        speedTestForArbitrarySigningFiles(new File("C:\\Users\\fvd\\Desktop\\1000MB.txt"));
         speedTestForArbitraryBlocksOfSigningMessage(1000);
+        speedTestForArbitraryBlocksOfSigningMessageWithChangingKey(1000, 10);
     }
 }
