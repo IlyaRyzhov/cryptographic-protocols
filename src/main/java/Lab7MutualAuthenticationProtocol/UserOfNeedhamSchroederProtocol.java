@@ -18,12 +18,12 @@ import static Utils.CommonUtils.convertByteArrayToLongArray;
 import static Utils.TransmissionChannelUtils.readMessageFromTransmissionChannel;
 import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 
-public class UserOfProtocolWithTrustedServer extends UserOfTransmissionProtocol {
+public class UserOfNeedhamSchroederProtocol extends UserOfTransmissionProtocol {
     private final Cipher cipherWithUserKeyOFB;
     private final Cipher cipherWithUserKeyECB;
     private byte[] identifier;
 
-    public UserOfProtocolWithTrustedServer(String name, byte[] userKey, UserRole userRole) {
+    public UserOfNeedhamSchroederProtocol(String name, byte[] userKey, UserRole userRole) {
         super(name, userKey, userRole);
         TwoFish twoFishWithUserKey = new TwoFish(convertByteArrayToLongArray(userKey));
         cipherWithUserKeyOFB = new Cipher(twoFishWithUserKey, OFB, 2, twoFishWithUserKey.getBlockSizeInBytes());

@@ -13,7 +13,7 @@ import static Utils.TransmissionChannelUtils.readMessageFromTransmissionChannel;
 import static Utils.TransmissionChannelUtils.writeMessageToTransmissionChannel;
 import static Lab7MutualAuthenticationProtocol.SecureRemotePasswordProtocol.*;
 
-public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtocol {
+public class UserOfSecureRemotePasswordProtocol extends UserOfTransmissionProtocol {
     private byte[] userSecretKey;
     private final Map<String, List<byte[]>> namePasswordVerifierMap;
     private final Set<String> pretenderNames;
@@ -21,7 +21,7 @@ public class UserOfProtocolWithoutTrustedServer extends UserOfTransmissionProtoc
     private BigInteger pretenderIdentifier;
     private byte[] randomIdentifier;
 
-    public UserOfProtocolWithoutTrustedServer(String name, byte[] userKey, UserRole userRole) {
+    public UserOfSecureRemotePasswordProtocol(String name, byte[] userKey, UserRole userRole) {
         super(name, userKey, userRole);
         namePasswordVerifierMap = new LinkedHashMap<>();
         pretenderNames = new LinkedHashSet<>();

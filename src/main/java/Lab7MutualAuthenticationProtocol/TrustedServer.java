@@ -47,8 +47,7 @@ class TrustedServer {
      * второе- сообщение с временной меткой, зашифрованное ключом второго пользователя
      * @author Ilya Ryzhov
      */
-
-    public static byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(UserOfProtocolWithTrustedServer requestSender, byte[] initializationVector) {
+    public static byte[][] sendResponseForSessionKeyWithInitiatorIdentifier(UserOfNeedhamSchroederProtocol requestSender, byte[] initializationVector) {
         byte[] message = readMessageFromTransmissionChannel();
         String senderUsername = requestSender.getName();
         byte[] initiatorKey = nameKeyMap.get(senderUsername);

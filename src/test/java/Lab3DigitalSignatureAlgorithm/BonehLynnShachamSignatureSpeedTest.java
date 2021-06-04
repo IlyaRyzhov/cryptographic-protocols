@@ -16,7 +16,7 @@ public class BonehLynnShachamSignatureSpeedTest {
         long start = System.currentTimeMillis();
         for (int i = 0; i < numberOfBlocks; i++) {
             signature = bonehLynnShachamSignature.getSignature(messageBlock);
-            bonehLynnShachamSignature.verifySignature(messageBlock, signature);
+            bonehLynnShachamSignature.verifySignature(messageBlock, signature,bonehLynnShachamSignature.getPublicKey());
         }
         System.out.println("На подпись и проверку подписи " + numberOfBlocks + " блоков длины 128 байт затрачено: " + (System.currentTimeMillis() - start) + " мс");
     }
@@ -26,7 +26,7 @@ public class BonehLynnShachamSignatureSpeedTest {
         BonehLynnShachamSignature bonehLynnShachamSignature = new BonehLynnShachamSignature(key, new BlueMidnightWish(BLUE_MIDNIGHT_WISH_512));
         long start = System.currentTimeMillis();
         byte[] signature = bonehLynnShachamSignature.getSignature(file);
-        bonehLynnShachamSignature.verifySignature(file, signature);
+        bonehLynnShachamSignature.verifySignature(file, signature,bonehLynnShachamSignature.getPublicKey());
         System.out.println("На подпись и проверку подписи файла размером " + file.length() + " байтов затрачено: " + (System.currentTimeMillis() - start) + " мс");
     }
 
@@ -43,7 +43,7 @@ public class BonehLynnShachamSignatureSpeedTest {
                 bonehLynnShachamSignature.setSecretKey(key);
             }
             signature = bonehLynnShachamSignature.getSignature(messageBlock);
-            bonehLynnShachamSignature.verifySignature(messageBlock, signature);
+            bonehLynnShachamSignature.verifySignature(messageBlock, signature,bonehLynnShachamSignature.getPublicKey());
         }
         System.out.println("На подпись и проверку подписи " + numberOfBlocks + " блоков длины 128 байт со сменой ключа каждые " + keyChangeFrequency +
                 " блоков затрачено: " + (System.currentTimeMillis() - start) + " мс");

@@ -31,7 +31,7 @@ public class SecureRemotePasswordProtocol extends AuthenticationProtocolAbstract
         kParameter = new BigInteger(hashFunction.computeHash(concatenateByteArrays(moduleBytes, generatingElementBytes))).mod(groupModule);
     }
 
-    private boolean authenticateTwoUsersWithoutTrustedServer(UserOfProtocolWithoutTrustedServer initiator, UserOfProtocolWithoutTrustedServer pretender) {
+    private boolean authenticateTwoUsersWithoutTrustedServer(UserOfSecureRemotePasswordProtocol initiator, UserOfSecureRemotePasswordProtocol pretender) {
         if (numberOfUnsuccessfulAttempts == 10) {
             numberOfUnsuccessfulAttempts = 0;
             throw new IllegalStateException("Превышено количество неудачных попыток");
@@ -75,10 +75,10 @@ public class SecureRemotePasswordProtocol extends AuthenticationProtocolAbstract
 
     @Override
     public boolean authenticateTwoUsers(UserOfTransmissionProtocol initiator, UserOfTransmissionProtocol pretender) {
-        return authenticateTwoUsersWithoutTrustedServer((UserOfProtocolWithoutTrustedServer) initiator, (UserOfProtocolWithoutTrustedServer) pretender);
+        return authenticateTwoUsersWithoutTrustedServer((UserOfSecureRemotePasswordProtocol) initiator, (UserOfSecureRemotePasswordProtocol) pretender);
     }
 
-    private void introduceUsers(UserOfProtocolWithoutTrustedServer initiator, UserOfProtocolWithoutTrustedServer
+    private void introduceUsers(UserOfSecureRemotePasswordProtocol initiator, UserOfSecureRemotePasswordProtocol
             pretender) {
         if (initiator.getPretenderNames().contains(pretender.name) && pretender.getNamePasswordVerifierMap().containsKey(initiator.name)) {
             return;

@@ -19,7 +19,7 @@ public class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
      * @throws IllegalStateException в случае 10 неудачных попыток аутентификации подряд
      * @author Ilya Ryzhov
      */
-    private boolean authenticateTwoUsersWithTrustedServer(UserOfProtocolWithTrustedServer initiator, UserOfProtocolWithTrustedServer pretender) {
+    private boolean authenticateTwoUsersWithTrustedServer(UserOfNeedhamSchroederProtocol initiator, UserOfNeedhamSchroederProtocol pretender) {
         if (numberOfUnsuccessfulAttempts == 10) {
             numberOfUnsuccessfulAttempts = 0;
             throw new IllegalStateException("Превышено количество неудачных попыток");
@@ -60,6 +60,6 @@ public class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
 
     @Override
     public boolean authenticateTwoUsers(UserOfTransmissionProtocol initiator, UserOfTransmissionProtocol pretender) {
-        return authenticateTwoUsersWithTrustedServer((UserOfProtocolWithTrustedServer) initiator, (UserOfProtocolWithTrustedServer) pretender);
+        return authenticateTwoUsersWithTrustedServer((UserOfNeedhamSchroederProtocol) initiator, (UserOfNeedhamSchroederProtocol) pretender);
     }
 }

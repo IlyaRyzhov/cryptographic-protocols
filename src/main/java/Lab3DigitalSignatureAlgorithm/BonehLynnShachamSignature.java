@@ -51,12 +51,13 @@ public class BonehLynnShachamSignature {
      *
      * @param message   сообщение, подпись которого проверяется
      * @param signature подпись сообщения
+     * @param publicKey открытый ключ подписи
      * @return true если подпись верна, false в противном случае
      * @author Ilya Ryzhov
      */
-    public boolean verifySignature(byte[] message, byte[] signature) {
+    public boolean verifySignature(byte[] message, byte[] signature, byte[] publicKey) {
         byte[] messageHash = hashFunction.computeHash(message);
-        return signatureVerification(messageHash, signature);
+        return signatureVerification(messageHash, signature, publicKey);
     }
 
     /**
@@ -77,18 +78,19 @@ public class BonehLynnShachamSignature {
      *
      * @param file      файл, подпись которого проверяется
      * @param signature подпись файла
+     * @param publicKey открытый ключ подписи
      * @return true если подпись верна, false в противном случае
      * @author Ilya Ryzhov
      */
-    public boolean verifySignature(File file, byte[] signature) {
+    public boolean verifySignature(File file, byte[] signature, byte[] publicKey) {
         byte[] fileHash = hashFunction.computeHash(file);
-        return signatureVerification(fileHash, signature);
+        return signatureVerification(fileHash, signature, publicKey);
     }
 
-    private boolean signatureVerification(byte[] hash, byte[] signature) {
+    private boolean signatureVerification(byte[] hash, byte[] signature, byte[] publicKey) {
         Element messageHashInCurve = pairing.getG1().newElementFromHash(hash, 0, hash.length);
         Element signatureOnCurve = pairing.getG1().newElementFromBytes(signature);
-        Element d1 = pairing.pairing(publicKey, messageHashInCurve);
+        Element d1 = pairing.pairing(pairing.getG1().newElementFromBytes(publicKey), messageHashInCurve);
         Element d2 = pairing.pairing(generatingElement, signatureOnCurve);
         return d1.isEqual(d2);
     }
@@ -122,5 +124,14 @@ public class BonehLynnShachamSignature {
      */
     public static void setGeneratingElement(Element generatingElement) {
         BonehLynnShachamSignature.generatingElement = generatingElement.duplicate();
+    }
+
+    /**
+     * Возвращает длину подписи в байтах
+     *
+     * @author Ilya Ryzhov
+     */
+    public int getSignatureLengthInBytes() {
+        return pairing.getG1().getLengthInBytes();
     }
 }

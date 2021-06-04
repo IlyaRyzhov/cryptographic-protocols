@@ -45,8 +45,8 @@ public class BonehLynnShachamSignatureTest {
         new SecureRandom().nextBytes(message);
         BonehLynnShachamSignature bonehLynnShachamSignature = new BonehLynnShachamSignature(key, new BlueMidnightWish(BLUE_MIDNIGHT_WISH_512));
         byte[] signature = bonehLynnShachamSignature.getSignature(message);
-        assertTrue(bonehLynnShachamSignature.verifySignature(message, signature));
+        assertTrue(bonehLynnShachamSignature.verifySignature(message, signature, bonehLynnShachamSignature.getPublicKey()));
         File file = new File("C:\\Users\\fvd\\Desktop\\100MB.txt");
-        assertTrue(bonehLynnShachamSignature.verifySignature(file, bonehLynnShachamSignature.getSignature(file)));
+        assertTrue(bonehLynnShachamSignature.verifySignature(file, bonehLynnShachamSignature.getSignature(file), bonehLynnShachamSignature.getPublicKey()));
     }
 }
