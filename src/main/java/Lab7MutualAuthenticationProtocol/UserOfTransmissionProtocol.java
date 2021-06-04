@@ -9,7 +9,6 @@ import Lab4EncryptionModes.EncryptionMode;
 import java.util.Arrays;
 
 import static Lab2HashAlgorithm.BlueMidnightWishDigestSize.BLUE_MIDNIGHT_WISH_512;
-import static Lab4EncryptionModes.EncryptionMode.ECB;
 import static Lab4EncryptionModes.EncryptionMode.MGM;
 import static Lab7MutualAuthenticationProtocol.UserRole.INITIATOR;
 import static Lab7MutualAuthenticationProtocol.UserRole.PRETENDER;
@@ -38,6 +37,11 @@ public abstract class UserOfTransmissionProtocol {
         this.signatureLengthInBytes = bonehLynnShachamSignatureWithUserKey.getSignatureLengthInBytes();
     }
 
+    /**
+     * Проводит процесс аутентификации с желаемым пользователем
+     *
+     * @author Ilya Ryzhov
+     */
     public abstract void authenticatePretender(UserOfTransmissionProtocol pretender);
 
     /**
@@ -127,34 +131,82 @@ public abstract class UserOfTransmissionProtocol {
         return userRole;
     }
 
+    /**
+     * Отправляет сообщение в канал передачи
+     *
+     * @param message отправляемое сообщение
+     * @author Ilya Ryzhov
+     */
     public void sendMessage(byte[] message) {
         writeMessageToTransmissionChannel(message);
     }
 
+    /**
+     * Читает сообщение из канала и записывает в поле receivedMessage
+     *
+     * @author Ilya Ryzhov
+     */
     public void receiveMessage() {
         receivedMessage = readMessageFromTransmissionChannel();
     }
 
+    /**
+     * Записывает в поле receivedSignature подпись сообщения пулученного из канала сообщения
+     *
+     * @author Ilya Ryzhov
+     */
     public void getSignatureFromReceivedMessage() {
         receivedSignature = Arrays.copyOf(receivedMessage, signatureLengthInBytes);
     }
 
+    /**
+     * Возвращает подпись, последнего полученного сообщения
+     *
+     * @return подпись сообщения
+     * @author Ilya Ryzhov
+     */
     public byte[] getReceivedSignature() {
         return receivedSignature;
     }
 
+    /**
+     * Возвращает последнее полученное сообщение
+     *
+     * @return последнее полученное сообщение
+     * @author Ilya Ryzhov
+     */
     public byte[] getReceivedMessage() {
         return receivedMessage;
     }
 
+    /**
+     * Изменяет последнее полученное сообщение
+     *
+     * @param receivedMessage новое последнее полученное сообщение
+     * @author Ilya Ryzhov
+     */
     public void setReceivedMessage(byte[] receivedMessage) {
         this.receivedMessage = receivedMessage;
     }
 
+    /**
+     * Возвращает используемую реализацию цифровой подписи
+     *
+     * @return используемая реализация цифровой подписи(BLS)
+     * @author Ilya Ryzhov
+     */
     public BonehLynnShachamSignature getBonehLynnShachamSignatureWithUserKey() {
         return bonehLynnShachamSignatureWithUserKey;
     }
 
+    /**
+     * Вычисляет вектор инициализации из полученного сообщения и записывает в поле initializationVector,
+     * если подпись вектора инициализации совпадает
+     *
+     * @param senderPublicKey открытый ключ отправителя сообщения
+     * @return true если подпись совпадает, false в противном случае
+     * @author Ilya Ryzhov
+     */
     public boolean getInitializationVectorFromReceivedMessage(byte[] senderPublicKey) {
         byte[] initializationVector = Arrays.copyOfRange(receivedMessage, signatureLengthInBytes, receivedMessage.length);
         boolean signatureVerificationResult = bonehLynnShachamSignatureWithUserKey.verifySignature(initializationVector, receivedSignature, senderPublicKey);
@@ -164,6 +216,14 @@ public abstract class UserOfTransmissionProtocol {
         } else return false;
     }
 
+    /**
+     * Вычленяет самое сообщение из полученного сообщения(убирает из него подпись) и записывает в поле receivedMessage,
+     * если подпись сообщения совпадает
+     *
+     * @param senderPublicKey открытый ключ отправителя сообщения
+     * @return true если подпись совпадает, false в противном случае
+     * @author Ilya Ryzhov
+     */
     public boolean getMessageFromReceivedMessage(byte[] senderPublicKey) {
         byte[] message = Arrays.copyOfRange(receivedMessage, signatureLengthInBytes, receivedMessage.length);
         boolean signatureVerificationResult = bonehLynnShachamSignatureWithUserKey.verifySignature(message, receivedSignature, senderPublicKey);
@@ -173,14 +233,34 @@ public abstract class UserOfTransmissionProtocol {
         } else return false;
     }
 
+    /**
+     * Устанавливает вектор инициализации, используемый в cipherWithSessionKey
+     *
+     * @param initializationVector новый вектор инициализации
+     * @author Ilya Ryzhov
+     */
     public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;
     }
 
+    /**
+     * Инициализирует cipherWithSessionKey
+     *
+     * @author Ilya Ryzhov
+     */
     public void initializeCipherWithSessionKey() {
         cipherWithSessionKey = new Cipher(new TwoFish(convertByteArrayToLongArray(sessionKey)), MGM,
                 initializationVector.length, bonehLynnShachamSignatureWithUserKey.getSignatureLengthInBytes());
         cipherWithSessionKey.getEncryptionAlgorithmWithMode().setInitializationVector(initializationVector);
     }
 
+    /**
+     * Возвращает вектор инициализации, используемый в cipherWithSessionKey
+     *
+     * @return вектор инициализации
+     * @author Ilya Ryzhov
+     */
+    public byte[] getInitializationVector() {
+        return initializationVector;
+    }
 }

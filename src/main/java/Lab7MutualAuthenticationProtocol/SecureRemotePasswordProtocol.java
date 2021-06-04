@@ -31,6 +31,14 @@ public class SecureRemotePasswordProtocol extends AuthenticationProtocolAbstract
         kParameter = new BigInteger(hashFunction.computeHash(concatenateByteArrays(moduleBytes, generatingElementBytes))).mod(groupModule);
     }
 
+    /**
+     * @see AuthenticationProtocolAbstract
+     */
+    @Override
+    public boolean authenticateTwoUsers(UserOfTransmissionProtocol initiator, UserOfTransmissionProtocol pretender) {
+        return authenticateTwoUsersWithoutTrustedServer((UserOfSecureRemotePasswordProtocol) initiator, (UserOfSecureRemotePasswordProtocol) pretender);
+    }
+
     private boolean authenticateTwoUsersWithoutTrustedServer(UserOfSecureRemotePasswordProtocol initiator, UserOfSecureRemotePasswordProtocol pretender) {
         if (numberOfUnsuccessfulAttempts == 10) {
             numberOfUnsuccessfulAttempts = 0;
@@ -71,11 +79,6 @@ public class SecureRemotePasswordProtocol extends AuthenticationProtocolAbstract
             numberOfUnsuccessfulAttempts++;
         }
         return isPretenderAuthenticated;
-    }
-
-    @Override
-    public boolean authenticateTwoUsers(UserOfTransmissionProtocol initiator, UserOfTransmissionProtocol pretender) {
-        return authenticateTwoUsersWithoutTrustedServer((UserOfSecureRemotePasswordProtocol) initiator, (UserOfSecureRemotePasswordProtocol) pretender);
     }
 
     private void introduceUsers(UserOfSecureRemotePasswordProtocol initiator, UserOfSecureRemotePasswordProtocol

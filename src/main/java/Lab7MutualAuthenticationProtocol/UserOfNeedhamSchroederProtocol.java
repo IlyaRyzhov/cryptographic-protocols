@@ -31,6 +31,9 @@ public class UserOfNeedhamSchroederProtocol extends UserOfTransmissionProtocol {
         registerUser(name, userKey);
     }
 
+    /**
+     * @see AuthenticationProtocolAbstract
+     */
     @Override
     public void authenticatePretender(UserOfTransmissionProtocol pretender) {
         if (userRole == INITIATOR) {
@@ -44,7 +47,7 @@ public class UserOfNeedhamSchroederProtocol extends UserOfTransmissionProtocol {
     }
 
     /**
-     * Отправляет вектор инициализации
+     * Отправляет вектор инициализации в канал
      *
      * @author Ilya Ryzhov
      */

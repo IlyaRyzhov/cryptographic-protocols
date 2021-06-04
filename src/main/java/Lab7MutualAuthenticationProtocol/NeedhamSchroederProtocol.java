@@ -58,6 +58,9 @@ public class NeedhamSchroederProtocol extends AuthenticationProtocolAbstract {
         }
     }
 
+    /**
+     * @see AuthenticationProtocolAbstract
+     */
     @Override
     public boolean authenticateTwoUsers(UserOfTransmissionProtocol initiator, UserOfTransmissionProtocol pretender) {
         return authenticateTwoUsersWithTrustedServer((UserOfNeedhamSchroederProtocol) initiator, (UserOfNeedhamSchroederProtocol) pretender);

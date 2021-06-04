@@ -19,6 +19,12 @@ public class SecureMessagingProtocol {
         this.receiver = receiver;
     }
 
+    /**
+     * Отправляет сообщения от sender к receiver по протоколу защищенной передачи сообщений
+     *
+     * @param messages отправляемые сообщения
+     * @author Ilya Ryzhov
+     */
     public void exchangeMessages(List<byte[]> messages) {
         for (byte[] message : messages) {
             int numberOfUnsuccessfulAttempts = 0;
@@ -63,10 +69,20 @@ public class SecureMessagingProtocol {
         while (true) {
             if (numberOfAttemptsOfInitialization == 10)
                 return false;
-            boolean isInitializationSuccess = exchangeInitializationVector();
-            if (isInitializationSuccess)
-                break;
-            else {
+            boolean receiverInitializationVectorSuccessStatus = exchangeInitializationVector();
+            if (receiverInitializationVectorSuccessStatus) {
+                byte[] initializationVector = receiver.getInitializationVector();
+                byte[] receiverSignature = receiver.getBonehLynnShachamSignatureWithUserKey().getSignature(initializationVector);
+                byte[] message = Arrays.copyOfRange(receiverSignature, 0, receiverSignature.length + initializationVector.length);
+                System.arraycopy(initializationVector, 0, message, receiverSignature.length, initializationVector.length);
+                receiver.sendMessage(receiver.encryptMessageWithSessionKey(message, ECB));
+                sender.receiveMessage();
+                sender.setReceivedMessage(sender.decryptMessageWithSessionKey(sender.getReceivedMessage(), ECB));
+                sender.getSignatureFromReceivedMessage();
+                boolean senderInitializationVectorSuccessStatus = sender.getInitializationVectorFromReceivedMessage(receiver.getBonehLynnShachamSignatureWithUserKey().getPublicKey());
+                if (senderInitializationVectorSuccessStatus)
+                    break;
+            } else {
                 numberOfAttemptsOfInitialization++;
             }
         }
