@@ -57,7 +57,8 @@ public class SecureMessagingProtocol {
             return false;
         receiver.getSignatureFromReceivedMessage();
         if (numberOfExchangedMessage == 1000) {
-            sender.authenticatePretender(receiver);
+            isExchangeInitialized = false;
+            initializeExchange();
             numberOfExchangedMessage = 0;
         }
         return receiver.getMessageFromReceivedMessage(sender.getBonehLynnShachamSignatureWithUserKey().getPublicKey());

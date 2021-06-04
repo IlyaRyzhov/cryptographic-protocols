@@ -18,7 +18,7 @@ public class SecureMessagingProtocolSpeedTest {
         List<byte[]> messages = new ArrayList<>();
         RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator();
         for (int i = 0; i < 2000; i++) {
-            byte[] message = randomNumberGenerator.generateRandomBytes(100 + i % 400);
+            byte[] message = randomNumberGenerator.generateRandomBytes(100 + i % 401);
             messages.add(message);
         }
         UserOfTransmissionProtocol sender = new UserOfNeedhamSchroederProtocol("Alice", new RandomNumberGenerator().generateRandomBytes(32), UserRole.INITIATOR);
@@ -27,7 +27,7 @@ public class SecureMessagingProtocolSpeedTest {
         speedTestForExchangeMessages(sender, receiver, messages);
         sender = new UserOfSecureRemotePasswordProtocol("Alice", new RandomNumberGenerator().generateRandomBytes(32), UserRole.INITIATOR);
         receiver = new UserOfSecureRemotePasswordProtocol("Bob", new RandomNumberGenerator().generateRandomBytes(32), UserRole.PRETENDER);
-        System.out.println("Тестирование протокола без доверенной третьей стороеы:");
+        System.out.println("Тестирование протокола без доверенной третьей стороны:");
         speedTestForExchangeMessages(sender, receiver, messages);
     }
 }

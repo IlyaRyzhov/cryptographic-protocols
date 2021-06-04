@@ -79,7 +79,9 @@ public abstract class UserOfTransmissionProtocol {
      */
     public byte[] encryptMessageWithSessionKey(byte[] message) {
         byte[] encryptedMessage = cipherWithSessionKey.encryptMessage(message);
-        incrementInitializationVector();
+        int additionalDataLength = bonehLynnShachamSignatureWithUserKey.getSignatureLengthInBytes();
+        int numberOfBlocks = (int) Math.ceil((1.0 * message.length - additionalDataLength) / cipherWithSessionKey.getEncryptionAlgorithmWithMode().getInitializationVector().length);
+        incrementInitializationVector(numberOfBlocks);
         return encryptedMessage;
     }
 
@@ -92,12 +94,17 @@ public abstract class UserOfTransmissionProtocol {
      */
     public byte[] decryptMessageWithSessionKey(byte[] message) {
         byte[] decryptedMessage = cipherWithSessionKey.decryptMessage(message);
-        incrementInitializationVector();
+        int initializationVectorLength = cipherWithSessionKey.getEncryptionAlgorithmWithMode().getInitializationVector().length;
+        int additionalDataLength = bonehLynnShachamSignatureWithUserKey.getSignatureLengthInBytes();
+        int numberOfBlocks = (int) Math.ceil((1.0 * message.length - initializationVectorLength - additionalDataLength) / initializationVectorLength);
+        incrementInitializationVector(numberOfBlocks);
         return decryptedMessage;
     }
 
-    private void incrementInitializationVector() {
-        incrementCounter(cipherWithSessionKey.getEncryptionAlgorithmWithMode().getInitializationVector());
+    private void incrementInitializationVector(int numberOfBlocks) {
+        for (int i = 0; i < numberOfBlocks; i++) {
+            incrementCounter(cipherWithSessionKey.getEncryptionAlgorithmWithMode().getInitializationVector());
+        }
     }
 
     /**
