@@ -2,6 +2,6 @@
 /.idea/
 /cryptographic-protocols.iml
 /target/
-/src/main/java/Lab1EncryptionAlgorithm/Twofish_Algorithm.java
-/src/main/java/Lab1EncryptionAlgorithm/Twofish_Properties.java
-/src/main/java/Lab5RandomNumberGenerator/Race.java
+/src/main/java/encryptionAlgorithm/Twofish_Algorithm.java
+/src/main/java/encryptionAlgorithm/Twofish_Properties.java
+/src/main/java/randomNumberGenerator/Race.java
